@@ -6,6 +6,7 @@ import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
 import { BudgetMeter, CategorySpine, TrendChart } from '../components/Charts.jsx';
 import { api } from '../lib/api.js';
 import { dayHeading, money, monthKey, slotColor } from '../lib/format.js';
+import { useCountUp } from '../lib/useCountUp.js';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 export default function Dashboard() {
@@ -15,6 +16,10 @@ export default function Dashboard() {
   const [data, setData] = useState(null);
   const [categories, setCategories] = useState([]);
   const [adding, setAdding] = useState(false);
+
+  // Called here rather than beside the figure it animates, because the loading
+  // state below returns early and a hook cannot sit after that.
+  const kept = useCountUp(data?.totals?.balance ?? 0);
 
   const load = useCallback(() => {
     api
@@ -97,8 +102,8 @@ export default function Dashboard() {
       <section className="band">
         <div className="band-figure">
           <div className="band-label">Kept this month</div>
-          <div className={`band-amount num${totals.balance < 0 ? ' over' : ''}`} style={{ color: totals.balance < 0 ? 'var(--bad)' : undefined }}>
-            {money(totals.balance, currency)}
+          <div className="band-amount" style={{ color: totals.balance < 0 ? 'var(--bad)' : undefined }}>
+            {money(kept, currency)}
           </div>
           <div className="band-sub">
             {totals.savingsRate === null

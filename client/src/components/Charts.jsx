@@ -37,15 +37,33 @@ function useChartBox() {
   return { ...box, plotW, plotH };
 }
 
-/** A "nice" axis top - 12,430 becomes 15,000 rather than an arbitrary number. */
-function niceMax(value) {
-  if (value <= 0) return 100;
-  const magnitude = 10 ** Math.floor(Math.log10(value));
-  const steps = [1, 1.5, 2, 2.5, 3, 4, 5, 7.5, 10];
-  return magnitude * (steps.find((s) => value <= magnitude * s) ?? 10);
+/**
+ * Chooses the axis top and how many gridlines to draw, together.
+ *
+ * Fixing the gridline count first forces a choice between round labels and a
+ * tight fit: four lines over a 42k maximum either lands on "Rs 13k / Rs 38k" or
+ * wastes half the panel by topping out at 80k. Trying three, four and five and
+ * keeping whichever clean interval fits closest gets both.
+ */
+function niceScale(value) {
+  if (value <= 0) return { max: 100, ticks: 4 };
+
+  // Intervals that still read as round numbers once abbreviated to "k".
+  const steps = [1, 2, 2.5, 5, 10];
+  let best = null;
+
+  for (const ticks of [3, 4, 5]) {
+    const rough = value / ticks;
+    const magnitude = 10 ** Math.floor(Math.log10(rough));
+    const interval = magnitude * (steps.find((step) => rough <= magnitude * step) ?? 10);
+    const max = interval * ticks;
+    if (!best || max < best.max) best = { max, ticks };
+  }
+
+  return best;
 }
 
-function Gridlines({ max, currency, ticks = 4, box }) {
+function Gridlines({ max, currency, ticks, box }) {
   const { W, PAD, plotH } = box;
   return (
     <g>
@@ -85,7 +103,7 @@ export function TrendChart({ data, currency, title = 'Money in and out by month'
 
   if (!data?.length) return <p className="muted small">No months to compare yet.</p>;
 
-  const max = niceMax(Math.max(...data.flatMap((d) => [d.income, d.expense]), 1));
+  const { max, ticks } = niceScale(Math.max(...data.flatMap((d) => [d.income, d.expense]), 1));
   const slot = plotW / data.length;
   const barW = Math.min(26, Math.max(4, (slot - 8) / 2));
 
@@ -101,7 +119,7 @@ export function TrendChart({ data, currency, title = 'Money in and out by month'
       </div>
 
       <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={title}>
-        <Gridlines max={max} currency={currency} box={box} />
+        <Gridlines max={max} ticks={ticks} currency={currency} box={box} />
 
         {data.map((row, i) => {
           const centre = PAD.left + slot * i + slot / 2;
@@ -179,7 +197,7 @@ export function DayBars({ data, currency, average = 0 }) {
 
   if (!data?.length) return <p className="muted small">No days to show yet.</p>;
 
-  const max = niceMax(Math.max(...data.map((d) => d.total), 1));
+  const { max, ticks } = niceScale(Math.max(...data.map((d) => d.total), 1));
   const slot = plotW / data.length;
   const barW = Math.max(2, slot - 2);
   const avgY = average > 0 ? PAD.top + plotH - (average / max) * plotH : null;
@@ -187,7 +205,7 @@ export function DayBars({ data, currency, average = 0 }) {
   return (
     <div className="chart-holder">
       <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Spending by day">
-        <Gridlines max={max} currency={currency} ticks={3} box={box} />
+        <Gridlines max={max} ticks={ticks} currency={currency} box={box} />
 
         {data.map((row, i) => {
           const x = PAD.left + slot * i;

@@ -1,8 +1,10 @@
 /* ===========================================================================
    Campus Coin design tokens
    ---------------------------------------------------------------------------
-   Two typefaces: Bricolage Grotesque carries the personality (headings, money
-   figures), Public Sans does the reading and the data.
+   Two typefaces. Bricolage Grotesque is a variable face with an optical-size
+   axis, so display type is cut for its size rather than scaled up from a text
+   weight: headline sizes get the tighter, more closed drawing, small type gets
+   the open one. Public Sans does the reading and carries the figures.
 
    Colour is assigned by the job it does, never by decoration:
      accent  - the brand and anything you can act on. One colour, used sparingly.
@@ -14,27 +16,39 @@
                a category keeps its colour when a filter changes the chart.
      good/warn/bad - status only. Always paired with a word or an icon.
 
-   Dark values are chosen for the dark surface, not flipped from the light ones.
+   Surfaces are layered rather than flat: each step up gets a hairline of light
+   along its top edge, which is what makes a dark interface read as material
+   instead of as paint.
    =========================================================================== */
 
 :root {
   color-scheme: dark;
 
-  --bg: #10151c;
-  --surface: #171d26;
-  --raised: #1f2733;
-  --sunken: #0c1016;
-  --line: #2a3441;
-  --line-strong: #3a4756;
+  /* Surfaces, darkest to lightest. The blue cast is deliberate - a neutral
+     grey dark theme goes muddy next to warm accents. */
+  --bg: #0b0f15;
+  --surface: #121821;
+  --raised: #1a222d;
+  --sunken: #080b10;
+  --line: #222c39;
+  --line-strong: #32404f;
+  --input-bg: #0e131b;
 
-  --text: #e8ecf2;
-  --muted: #94a0b2;
-  --faint: #6b7889;
+  /* The hairline of light along the top of a raised surface. */
+  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
-  --accent: #f0b429;
-  --accent-soft: #3a2f13;
-  --accent-text: #f5c452;
+  --text: #eaeef4;
+  --muted: #94a2b5;
+  --faint: #66748a;
+
+  --accent: #f4b740;
+  --accent-deep: #d99a1f;
+  --accent-soft: rgba(244, 183, 64, 0.12);
+  --accent-line: rgba(244, 183, 64, 0.28);
+  --accent-text: #f7c765;
   --on-accent: #17120a;
+  --accent-glow: 0 0 0 1px rgba(244, 183, 64, 0.35), 0 8px 24px -10px rgba(244, 183, 64, 0.55);
 
   --series-in: #3987e5;
   --series-out: #d95926;
@@ -48,20 +62,26 @@
   --cat-7: #9085e9;
 
   --good: #3fc48f;
-  --good-soft: #10291f;
+  --good-soft: rgba(63, 196, 143, 0.13);
   --warn: #e0a83c;
-  --warn-soft: #2e2413;
+  --warn-soft: rgba(224, 168, 60, 0.13);
   --bad: #f07a78;
-  --bad-soft: #2e1717;
+  --bad-soft: rgba(240, 122, 120, 0.13);
 
-  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-pop: 0 12px 32px -8px rgba(0, 0, 0, 0.65);
+  /* Three stops rather than one blur - a single soft shadow is the tell of a
+     template; layered shadows are what read as depth. */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 2px 4px rgba(0, 0, 0, 0.28), 0 8px 16px -6px rgba(0, 0, 0, 0.4);
+  --shadow-3: 0 4px 8px rgba(0, 0, 0, 0.3), 0 16px 32px -10px rgba(0, 0, 0, 0.55), 0 32px 64px -24px rgba(0, 0, 0, 0.6);
+
+  --grain-opacity: 0.032;
 
   /* Radius encodes hierarchy rather than being one value everywhere:
      data rows stay square, panels are softly cut, pills are fully round. */
-  --r-row: 2px;
-  --r-panel: 12px;
-  --r-control: 8px;
+  --r-row: 3px;
+  --r-panel: 14px;
+  --r-panel-lg: 18px;
+  --r-control: 9px;
   --r-pill: 999px;
 
   --font-display: 'Bricolage Grotesque', 'Public Sans', system-ui, sans-serif;
@@ -70,35 +90,50 @@
   /* Scaled by the accessibility control in Settings. */
   --font-scale: 1;
 
+  --step--2: calc(0.75rem * var(--font-scale));
   --step--1: calc(0.8125rem * var(--font-scale));
   --step-0: calc(0.9375rem * var(--font-scale));
-  --step-1: calc(1.125rem * var(--font-scale));
-  --step-2: calc(1.5rem * var(--font-scale));
-  --step-3: calc(2.125rem * var(--font-scale));
-  --step-4: calc(3rem * var(--font-scale));
+  --step-1: calc(1.0625rem * var(--font-scale));
+  --step-2: calc(1.375rem * var(--font-scale));
+  --step-3: calc(1.875rem * var(--font-scale));
+  --step-4: calc(2.75rem * var(--font-scale));
+  --step-5: calc(4rem * var(--font-scale));
 
-  --rail: 232px;
-  --gutter: clamp(1rem, 3vw, 2rem);
+  /* One easing for everything that moves, so the interface has a single feel. */
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --rail: 240px;
+  --gutter: clamp(1rem, 2.6vw, 2rem);
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
 
-  --bg: #eef1f5;
+  /* Near-white with the faintest cool cast, not cream - warm paper plus a
+     honey accent goes sickly, and cream is the generated-page tell. */
+  --bg: #eef0f4;
   --surface: #ffffff;
-  --raised: #f5f7fa;
-  --sunken: #e6eaf0;
-  --line: #dde3ea;
-  --line-strong: #c3ccd8;
+  --raised: #f4f6f9;
+  --sunken: #e4e8ee;
+  --line: #e1e6ec;
+  --line-strong: #c7d0da;
+  --input-bg: #ffffff;
 
-  --text: #131a23;
-  --muted: #5b6878;
-  --faint: #7e8a99;
+  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 1);
 
-  --accent: #f0b429;
-  --accent-soft: #fdf3dc;
-  --accent-text: #8a5a00;
+  --text: #0f1620;
+  --muted: #56647a;
+  --faint: #7d8a9c;
+
+  --accent: #f4b740;
+  --accent-deep: #b57f12;
+  --accent-soft: rgba(244, 183, 64, 0.16);
+  --accent-line: rgba(180, 126, 18, 0.32);
+  --accent-text: #8a5c07;
   --on-accent: #241a03;
+  --accent-glow: 0 0 0 1px rgba(180, 126, 18, 0.25), 0 8px 20px -10px rgba(180, 126, 18, 0.45);
 
   --series-in: #2a78d6;
   --series-out: #eb6834;
@@ -112,14 +147,17 @@
   --cat-7: #4a3aa7;
 
   --good: #17845c;
-  --good-soft: #e3f5ee;
+  --good-soft: rgba(23, 132, 92, 0.1);
   --warn: #a9690a;
-  --warn-soft: #fdf1dd;
+  --warn-soft: rgba(169, 105, 10, 0.1);
   --bad: #c23b3a;
-  --bad-soft: #fdeaea;
+  --bad-soft: rgba(194, 59, 58, 0.09);
 
-  --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-pop: 0 16px 40px -12px rgba(16, 24, 40, 0.24);
+  --shadow-1: 0 1px 2px rgba(15, 22, 32, 0.05);
+  --shadow-2: 0 1px 2px rgba(15, 22, 32, 0.05), 0 6px 14px -6px rgba(15, 22, 32, 0.1);
+  --shadow-3: 0 2px 4px rgba(15, 22, 32, 0.06), 0 12px 28px -10px rgba(15, 22, 32, 0.14), 0 28px 56px -24px rgba(15, 22, 32, 0.16);
+
+  --grain-opacity: 0.02;
 }
 
 /* Follow the operating system until the viewer picks a side themselves. */
@@ -127,20 +165,27 @@
   :root:not([data-theme='dark']):not([data-theme='light']) {
     color-scheme: light;
 
-    --bg: #eef1f5;
+    --bg: #eef0f4;
     --surface: #ffffff;
-    --raised: #f5f7fa;
-    --sunken: #e6eaf0;
-    --line: #dde3ea;
-    --line-strong: #c3ccd8;
+    --raised: #f4f6f9;
+    --sunken: #e4e8ee;
+    --line: #e1e6ec;
+    --line-strong: #c7d0da;
+    --input-bg: #ffffff;
 
-    --text: #131a23;
-    --muted: #5b6878;
-    --faint: #7e8a99;
+    --edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 1);
 
-    --accent-soft: #fdf3dc;
-    --accent-text: #8a5a00;
+    --text: #0f1620;
+    --muted: #56647a;
+    --faint: #7d8a9c;
+
+    --accent-deep: #b57f12;
+    --accent-soft: rgba(244, 183, 64, 0.16);
+    --accent-line: rgba(180, 126, 18, 0.32);
+    --accent-text: #8a5c07;
     --on-accent: #241a03;
+    --accent-glow: 0 0 0 1px rgba(180, 126, 18, 0.25), 0 8px 20px -10px rgba(180, 126, 18, 0.45);
 
     --series-in: #2a78d6;
     --series-out: #eb6834;
@@ -154,13 +199,16 @@
     --cat-7: #4a3aa7;
 
     --good: #17845c;
-    --good-soft: #e3f5ee;
+    --good-soft: rgba(23, 132, 92, 0.1);
     --warn: #a9690a;
-    --warn-soft: #fdf1dd;
+    --warn-soft: rgba(169, 105, 10, 0.1);
     --bad: #c23b3a;
-    --bad-soft: #fdeaea;
+    --bad-soft: rgba(194, 59, 58, 0.09);
 
-    --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.06);
-    --shadow-pop: 0 16px 40px -12px rgba(16, 24, 40, 0.24);
+    --shadow-1: 0 1px 2px rgba(15, 22, 32, 0.05);
+    --shadow-2: 0 1px 2px rgba(15, 22, 32, 0.05), 0 6px 14px -6px rgba(15, 22, 32, 0.1);
+    --shadow-3: 0 2px 4px rgba(15, 22, 32, 0.06), 0 12px 28px -10px rgba(15, 22, 32, 0.14), 0 28px 56px -24px rgba(15, 22, 32, 0.16);
+
+    --grain-opacity: 0.02;
   }
 }
