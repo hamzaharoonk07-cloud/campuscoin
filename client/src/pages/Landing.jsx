@@ -78,9 +78,11 @@ export default function Landing() {
             </div>
             <div className="spine">
               {[
-                { name: 'Hostel/Rent', share: 30, slot: 3 },
+                // Slots match the seeded defaults, so the preview and the real
+                // app colour the same category the same way.
+                { name: 'Hostel/Rent', share: 30, slot: 2 },
                 { name: 'Food', share: 28, slot: 1 },
-                { name: 'Transport', share: 14, slot: 2 },
+                { name: 'Transport', share: 14, slot: 3 },
               ].map((row) => (
                 <div className="spine-row" key={row.name}>
                   <div className="spine-name">
