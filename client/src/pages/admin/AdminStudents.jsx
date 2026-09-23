@@ -1,0 +1,165 @@
+import { useCallback, useEffect, useState } from 'react';
+import Layout from '../../components/Layout.jsx';
+import Icon from '../../components/Icon.jsx';
+import { Modal } from '../../components/TransactionForm.jsx';
+import { api } from '../../lib/api.js';
+import { formatDate } from '../../lib/format.js';
+import { useToast } from '../../context/AppContext.jsx';
+
+export default function AdminStudents() {
+  const toast = useToast();
+  const [query, setQuery] = useState('');
+  const [users, setUsers] = useState([]);
+  const [issued, setIssued] = useState(null);
+
+  const load = useCallback(() => {
+    api
+      .get(`/admin/users${query ? `?q=${encodeURIComponent(query)}` : ''}`)
+      .then(({ users: list }) => setUsers(list))
+      .catch((err) => toast.error('Could not load the students', err.message));
+  }, [query, toast]);
+
+  useEffect(() => {
+    const timer = setTimeout(load, 250);
+    return () => clearTimeout(timer);
+  }, [load]);
+
+  const toggle = async (user) => {
+    try {
+      const { message } = await api.patch(`/admin/users/${user._id}`, { disabled: !user.disabled });
+      toast.success(message);
+      load();
+    } catch (err) {
+      toast.error('Could not update the account', err.message);
+    }
+  };
+
+  const resetPassword = async (user) => {
+    if (!window.confirm(`Issue a new temporary password for ${user.name}? Their current one stops working.`)) return;
+    try {
+      const data = await api.post(`/admin/users/${user._id}/reset-password`, {});
+      setIssued({ user, ...data });
+    } catch (err) {
+      toast.error('Could not reset it', err.message);
+    }
+  };
+
+  const remove = async (user) => {
+    const typed = window.prompt(
+      `This permanently deletes ${user.name} and all ${user.transactionCount} of their transactions. Type DELETE to confirm.`
+    );
+    if (typed !== 'DELETE') return;
+    try {
+      const { message } = await api.del(`/admin/users/${user._id}`);
+      toast.success(message);
+      load();
+    } catch (err) {
+      toast.error('Could not delete the account', err.message);
+    }
+  };
+
+  return (
+    <Layout title="Student accounts">
+      <section className="panel">
+        <div className="panel-body">
+          <div className="field">
+            <label htmlFor="q">Search by name or email</label>
+            <input id="q" type="search" value={query} onChange={(e) => setQuery(e.target.value)} />
+          </div>
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head">
+          <h2>{users.length} account{users.length === 1 ? '' : 's'}</h2>
+        </div>
+        <div className="panel-body table-wrap">
+          <table className="data">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Year</th>
+                <th className="right">Transactions</th>
+                <th>Last signed in</th>
+                <th>Status</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user._id}>
+                  <td>
+                    <strong>{user.name}</strong>
+                    <div className="small muted">{user.email}</div>
+                  </td>
+                  <td>
+                    {user.academicYear || '--'}
+                    {user.institution ? <div className="small muted">{user.institution}</div> : null}
+                  </td>
+                  <td className="right num">{user.transactionCount}</td>
+                  <td>{user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never'}</td>
+                  <td>
+                    <span className={`pill is-${user.disabled ? 'bad' : 'good'}`}>
+                      {user.disabled ? 'Disabled' : 'Active'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="row">
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggle(user)}>
+                        {user.disabled ? 'Enable' : 'Disable'}
+                      </button>
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => resetPassword(user)}>
+                        <Icon name="key" size={14} />
+                        Reset
+                      </button>
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => remove(user)}>
+                        <Icon name="trash" size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="muted">
+                    No students match that search.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {issued ? (
+        <Modal title="Temporary password" onClose={() => setIssued(null)}>
+          <div className="stack">
+            <p>{issued.message}</p>
+            <div
+              className="panel num"
+              style={{ padding: '1rem', textAlign: 'center', fontSize: 'var(--step-2)', fontWeight: 700, letterSpacing: '0.02em' }}
+            >
+              {issued.temporaryPassword}
+            </div>
+            <p className="small muted">
+              Write it down now - reopening this page will not show it again, because only a hash of it is stored.
+            </p>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  navigator.clipboard?.writeText(issued.temporaryPassword);
+                  toast.success('Copied');
+                  setIssued(null);
+                }}
+              >
+                Copy and close
+              </button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
+    </Layout>
+  );
+}

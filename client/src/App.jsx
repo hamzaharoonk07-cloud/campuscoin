@@ -1,0 +1,88 @@
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useAuth } from './context/AppContext.jsx';
+
+import Landing from './pages/Landing.jsx';
+import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
+import ForgotPassword from './pages/ForgotPassword.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
+
+import Dashboard from './pages/Dashboard.jsx';
+import Transactions from './pages/Transactions.jsx';
+import Budgets from './pages/Budgets.jsx';
+import Reports from './pages/Reports.jsx';
+import Insights from './pages/Insights.jsx';
+import Tips from './pages/Tips.jsx';
+import Categories from './pages/Categories.jsx';
+import Assistant from './pages/Assistant.jsx';
+import Settings from './pages/Settings.jsx';
+import Sitemap from './pages/Sitemap.jsx';
+
+import AdminLogin from './pages/admin/AdminLogin.jsx';
+import AdminOverview from './pages/admin/AdminOverview.jsx';
+import AdminStudents from './pages/admin/AdminStudents.jsx';
+import AdminCategories from './pages/admin/AdminCategories.jsx';
+import AdminAnnouncements from './pages/admin/AdminAnnouncements.jsx';
+
+function Loading() {
+  return (
+    <div className="center-screen">
+      <div className="row">
+        <span className="spinner" /> Loading Campus Coin
+      </div>
+    </div>
+  );
+}
+
+/** Keeps a page behind the sign-in wall, remembering where the visitor wanted to go. */
+function Protected({ children, admin = false }) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) return <Loading />;
+  if (!user) return <Navigate to={admin ? '/admin/login' : '/login'} state={{ from: location.pathname }} replace />;
+  if (admin && user.role !== 'admin') return <Navigate to="/dashboard" replace />;
+  // An administrator has no student dashboard, so send them where they belong.
+  if (!admin && user.role === 'admin') return <Navigate to="/admin" replace />;
+
+  return children;
+}
+
+/** A visitor who is already signed in should not see the sign-in form again. */
+function PublicOnly({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <Loading />;
+  if (user) return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  return children;
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
+      <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
+      <Route path="/forgot-password" element={<PublicOnly><ForgotPassword /></PublicOnly>} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/admin/login" element={<PublicOnly><AdminLogin /></PublicOnly>} />
+
+      <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+      <Route path="/transactions" element={<Protected><Transactions /></Protected>} />
+      <Route path="/budgets" element={<Protected><Budgets /></Protected>} />
+      <Route path="/reports" element={<Protected><Reports /></Protected>} />
+      <Route path="/insights" element={<Protected><Insights /></Protected>} />
+      <Route path="/tips" element={<Protected><Tips /></Protected>} />
+      <Route path="/categories" element={<Protected><Categories /></Protected>} />
+      <Route path="/assistant" element={<Protected><Assistant /></Protected>} />
+      <Route path="/settings" element={<Protected><Settings /></Protected>} />
+      <Route path="/sitemap" element={<Protected><Sitemap /></Protected>} />
+
+      <Route path="/admin" element={<Protected admin><AdminOverview /></Protected>} />
+      <Route path="/admin/students" element={<Protected admin><AdminStudents /></Protected>} />
+      <Route path="/admin/categories" element={<Protected admin><AdminCategories /></Protected>} />
+      <Route path="/admin/announcements" element={<Protected admin><AdminAnnouncements /></Protected>} />
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}

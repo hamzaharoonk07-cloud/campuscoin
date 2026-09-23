@@ -1,0 +1,23 @@
+{
+  "name": "campus-coin-server",
+  "version": "1.0.0",
+  "description": "Campus Coin REST API (Express + MongoDB)",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "seed": "node src/seed/run.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.70.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb-memory-server": "^10.1.4",
+    "mongoose": "^8.9.5",
+    "nodemailer": "^7.0.3"
+  }
+}

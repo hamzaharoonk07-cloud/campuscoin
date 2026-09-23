@@ -1,0 +1,166 @@
+/* ===========================================================================
+   Campus Coin design tokens
+   ---------------------------------------------------------------------------
+   Two typefaces: Bricolage Grotesque carries the personality (headings, money
+   figures), Public Sans does the reading and the data.
+
+   Colour is assigned by the job it does, never by decoration:
+     accent  - the brand and anything you can act on. One colour, used sparingly.
+     in/out  - the two money directions in charts. Blue and orange rather than
+               the obvious green and red: the green/red pair collapses for
+               red-green colour blindness (measured dE 6.9), blue/orange holds
+               at 24.7, and green/red is kept for status instead.
+     cat-1-7 - category identity. A fixed order, never cycled or reshuffled, so
+               a category keeps its colour when a filter changes the chart.
+     good/warn/bad - status only. Always paired with a word or an icon.
+
+   Dark values are chosen for the dark surface, not flipped from the light ones.
+   =========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #10151c;
+  --surface: #171d26;
+  --raised: #1f2733;
+  --sunken: #0c1016;
+  --line: #2a3441;
+  --line-strong: #3a4756;
+
+  --text: #e8ecf2;
+  --muted: #94a0b2;
+  --faint: #6b7889;
+
+  --accent: #f0b429;
+  --accent-soft: #3a2f13;
+  --accent-text: #f5c452;
+  --on-accent: #17120a;
+
+  --series-in: #3987e5;
+  --series-out: #d95926;
+
+  --cat-1: #3987e5;
+  --cat-2: #d95926;
+  --cat-3: #199e70;
+  --cat-4: #c98500;
+  --cat-5: #d55181;
+  --cat-6: #008300;
+  --cat-7: #9085e9;
+
+  --good: #3fc48f;
+  --good-soft: #10291f;
+  --warn: #e0a83c;
+  --warn-soft: #2e2413;
+  --bad: #f07a78;
+  --bad-soft: #2e1717;
+
+  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-pop: 0 12px 32px -8px rgba(0, 0, 0, 0.65);
+
+  /* Radius encodes hierarchy rather than being one value everywhere:
+     data rows stay square, panels are softly cut, pills are fully round. */
+  --r-row: 2px;
+  --r-panel: 12px;
+  --r-control: 8px;
+  --r-pill: 999px;
+
+  --font-display: 'Bricolage Grotesque', 'Public Sans', system-ui, sans-serif;
+  --font-body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Scaled by the accessibility control in Settings. */
+  --font-scale: 1;
+
+  --step--1: calc(0.8125rem * var(--font-scale));
+  --step-0: calc(0.9375rem * var(--font-scale));
+  --step-1: calc(1.125rem * var(--font-scale));
+  --step-2: calc(1.5rem * var(--font-scale));
+  --step-3: calc(2.125rem * var(--font-scale));
+  --step-4: calc(3rem * var(--font-scale));
+
+  --rail: 232px;
+  --gutter: clamp(1rem, 3vw, 2rem);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #eef1f5;
+  --surface: #ffffff;
+  --raised: #f5f7fa;
+  --sunken: #e6eaf0;
+  --line: #dde3ea;
+  --line-strong: #c3ccd8;
+
+  --text: #131a23;
+  --muted: #5b6878;
+  --faint: #7e8a99;
+
+  --accent: #f0b429;
+  --accent-soft: #fdf3dc;
+  --accent-text: #8a5a00;
+  --on-accent: #241a03;
+
+  --series-in: #2a78d6;
+  --series-out: #eb6834;
+
+  --cat-1: #2a78d6;
+  --cat-2: #eb6834;
+  --cat-3: #1baf7a;
+  --cat-4: #eda100;
+  --cat-5: #e87ba4;
+  --cat-6: #008300;
+  --cat-7: #4a3aa7;
+
+  --good: #17845c;
+  --good-soft: #e3f5ee;
+  --warn: #a9690a;
+  --warn-soft: #fdf1dd;
+  --bad: #c23b3a;
+  --bad-soft: #fdeaea;
+
+  --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-pop: 0 16px 40px -12px rgba(16, 24, 40, 0.24);
+}
+
+/* Follow the operating system until the viewer picks a side themselves. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']):not([data-theme='light']) {
+    color-scheme: light;
+
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --raised: #f5f7fa;
+    --sunken: #e6eaf0;
+    --line: #dde3ea;
+    --line-strong: #c3ccd8;
+
+    --text: #131a23;
+    --muted: #5b6878;
+    --faint: #7e8a99;
+
+    --accent-soft: #fdf3dc;
+    --accent-text: #8a5a00;
+    --on-accent: #241a03;
+
+    --series-in: #2a78d6;
+    --series-out: #eb6834;
+
+    --cat-1: #2a78d6;
+    --cat-2: #eb6834;
+    --cat-3: #1baf7a;
+    --cat-4: #eda100;
+    --cat-5: #e87ba4;
+    --cat-6: #008300;
+    --cat-7: #4a3aa7;
+
+    --good: #17845c;
+    --good-soft: #e3f5ee;
+    --warn: #a9690a;
+    --warn-soft: #fdf1dd;
+    --bad: #c23b3a;
+    --bad-soft: #fdeaea;
+
+    --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.06);
+    --shadow-pop: 0 16px 40px -12px rgba(16, 24, 40, 0.24);
+  }
+}
