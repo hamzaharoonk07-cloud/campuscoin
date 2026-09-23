@@ -1,6 +1,9 @@
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Icon, { BrandMark } from '../components/Icon.jsx';
 import { useTheme } from '../context/AppContext.jsx';
+import AssistantDemo from '../components/AssistantDemo.jsx';
+import { useLandingMotion } from '../lib/useLandingMotion.js';
 import { SITEMAP } from './Sitemap.jsx';
 
 /* ---------------------------------------------------------------------------
@@ -45,9 +48,13 @@ const FACTS = [
 
 export default function Landing() {
   const { theme, toggle } = useTheme();
+  const page = useRef(null);
+  useLandingMotion(page);
 
   return (
-    <div className="landing">
+    <div className="landing" ref={page}>
+      {/* Scroll position, as a hairline across the top of the window. */}
+      <div className="scroll-progress" data-progress aria-hidden="true" />
       <nav className="landing-nav">
         <Link to="/" className="brand">
           <BrandMark />
@@ -110,7 +117,9 @@ export default function Landing() {
       <section className="facts">
         {FACTS.map((fact) => (
           <div key={fact.label}>
-            <div className="facts-value">{fact.value}</div>
+              <div className="facts-value" data-count={fact.value}>
+              {fact.value}
+            </div>
             <div className="facts-label">{fact.label}</div>
           </div>
         ))}
@@ -128,6 +137,7 @@ export default function Landing() {
         {/* Numbered because this genuinely is a sequence - each step needs the
             one before it. */}
         <ol className="steps">
+          <span className="steps-line" data-steps-line aria-hidden="true" />
           {STEPS.map((step) => (
             <li key={step.n}>
               <span className="steps-n">{step.n}</span>
@@ -199,35 +209,40 @@ export default function Landing() {
       </section>
 
       <section className="section">
-        <div className="section-head">
-          <h2>About the assistant</h2>
-          <p>
-            Two separate things get called AI here, and only one of them is a language model. Both are
-            explained in full inside the app, and both can be switched off.
-          </p>
-        </div>
-
-        <div className="grid grid-2">
-          <div className="panel">
-            <div className="panel-body">
-              <h3>Sorting your spending</h3>
-              <p className="muted small">
-                Runs entirely on Campus Coin&rsquo;s own server, with no external service involved. It counts
-                the words you use against the categories you pick, so correcting it is how it learns. Every
-                suggestion shows its confidence and its reason, and you can always overrule it.
-              </p>
-            </div>
+        <div className="split split-reverse">
+          <div className="section-head">
+            <h2>It learns the words you use</h2>
+            <p>
+              Type what you bought and the category fills itself in. Campus Coin keeps a table of which words
+              you file under which category, so correcting a guess is exactly how it gets better &mdash; the
+              correction records a different pairing than the one it offered.
+            </p>
+            <p>
+              This part runs entirely on Campus Coin&rsquo;s own server, with no external service involved.
+              Every suggestion shows how sure it is and what it is going on, and you can always overrule it.
+            </p>
           </div>
-          <div className="panel">
-            <div className="panel-body">
-              <h3>Writing the monthly summary</h3>
-              <p className="muted small">
-                Campus Coin works out every figure first, then optionally asks Claude to put those
-                already-calculated facts into friendlier words. The model is never asked to do arithmetic.
-                Without an API key the built-in writer does it instead, and the app tells you which one wrote
-                what you are reading.
-              </p>
-            </div>
+
+          <AssistantDemo />
+        </div>
+      </section>
+
+      {/* Heading and body sit in two columns so a short statement still fills
+          the measure instead of trailing off down one side. */}
+      <section className="section">
+        <div className="statement">
+          <h2>The summary is written from your numbers, not guessed at</h2>
+          <div>
+            <p>
+              Campus Coin works out every figure first &mdash; what you earned, what you spent, which
+              categories moved against your own average &mdash; and only then puts those already-calculated
+              facts into a sentence.
+            </p>
+            <p>
+              The model is never asked to do arithmetic, which is why a summary can never disagree with your
+              report. Without an API key the built-in writer does it instead, and the app tells you which one
+              wrote what you are reading.
+            </p>
           </div>
         </div>
       </section>

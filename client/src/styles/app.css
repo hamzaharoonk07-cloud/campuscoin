@@ -1343,6 +1343,51 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 
 .landing-nav .spacer { flex: 1; }
 
+/* Scroll position across the top of the window. Starts at zero width and is
+   scrubbed by ScrollTrigger; with reduced motion it simply never grows, which
+   is the correct resting state for a progress indicator. */
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-deep), var(--accent));
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* The steps are a sequence, and this line is what says so. It grows once, in
+   the reading direction. */
+.steps { position: relative; }
+
+.steps-line {
+  position: absolute;
+  left: 17px;
+  right: 17px;
+  top: 17px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-line), var(--line) 60%, transparent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.steps-n {
+  position: relative;
+  background: var(--bg);
+  box-shadow: 0 0 0 5px var(--bg), inset 0 0 0 1px var(--accent-line);
+}
+
+@media (max-width: 830px) {
+  .steps-line { display: none; }
+}
+
+/* A reader who has asked for less motion gets every finished state at once,
+   and the hook creates no ScrollTriggers at all. */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress { display: none; }
+  .steps-line { transform: scaleX(1); }
+}
+
 /* The single page-load sequence. Everything else on the site is still. */
 .reveal {
   animation: reveal 0.7s var(--ease-out) backwards;
@@ -1529,8 +1574,6 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   width: 34px;
   height: 34px;
   border-radius: var(--r-pill);
-  background: var(--accent-soft);
-  box-shadow: inset 0 0 0 1px var(--accent-line);
   color: var(--accent-text);
   font-family: var(--font-display);
   font-weight: 700;
@@ -1562,7 +1605,144 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   .split { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* Reverses the column order on wide screens so two consecutive split sections
+   do not stack their panels down the same edge. */
+.split-reverse > .section-head { order: 2; }
+
+@media (max-width: 900px) {
+  .split-reverse > .section-head { order: 0; }
+}
+
+.statement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+
+.statement h2 {
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-variation-settings: 'opsz' 40;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.statement p {
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 54ch;
+}
+
+.statement p + p { margin-top: 1rem; }
+
+@media (max-width: 860px) {
+  .statement { grid-template-columns: minmax(0, 1fr); }
+}
+
 .showcase { padding: 1.5rem 1.6rem 1.7rem; }
+
+/* ---------------------------------------------------------------------------
+   The assistant demonstration
+--------------------------------------------------------------------------- */
+
+.assistant-demo {
+  padding: 1.5rem 1.6rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-height: 252px;
+}
+
+.assistant-demo-field label {
+  display: block;
+  font-size: var(--step--1);
+  color: var(--muted);
+  font-weight: 500;
+  margin-bottom: 0.38rem;
+}
+
+.assistant-demo-input {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0.58rem 0.75rem;
+  background: var(--input-bg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-control);
+  font-size: var(--step-0);
+}
+
+/* The caret is the only thing on this page that blinks, and it blinks because
+   that is what a caret does. */
+.assistant-demo-input i {
+  display: inline-block;
+  width: 1.5px;
+  height: 1.1em;
+  margin-left: 2px;
+  background: var(--accent);
+}
+
+.assistant-demo-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.assistant-token {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--r-control);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+  color: var(--accent-text);
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+.assistant-token em {
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--step--2);
+  color: var(--muted);
+}
+
+/* A dropped word is shown, not hidden - the point is that you can see what it
+   did with every word, including the ones it threw away. */
+.assistant-token.is-dropped {
+  background: var(--raised);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--line-strong);
+}
+
+.assistant-demo-result {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--r-control);
+  background: var(--raised);
+  box-shadow: var(--edge), inset 0 0 0 1px var(--line);
+}
+
+.assistant-demo-result > div { min-width: 0; margin-right: auto; }
+
+.assistant-demo-result strong {
+  display: block;
+  font-weight: 700;
+  font-size: var(--step-0);
+}
+
+.assistant-demo-result span {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.assistant-demo-result .pill { flex: none; }
 
 .showcase-head {
   display: flex;

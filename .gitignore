@@ -7,3 +7,4 @@ server/data/
 .DS_Store
 *.log
 shots/
+shot*.mjs
