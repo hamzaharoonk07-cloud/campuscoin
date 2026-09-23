@@ -7,6 +7,9 @@ import { protect, wrap } from '../middleware/auth.js';
 const router = express.Router();
 router.use(protect);
 
+// "an expense", "an income" - the two words this app puts after an article.
+const article = (word) => (/^[aeiou]/i.test(word) ? 'an' : 'a');
+
 /**
  * Everything the student can file against: the shared defaults plus their own.
  * `?type=expense` narrows it; `?mine=1` returns only their personal categories,
@@ -51,7 +54,7 @@ router.post(
       $or: [{ owner: req.user._id }, { owner: null }],
       archived: false,
     });
-    if (clash) return res.status(409).json({ message: `You already have a ${type} category called ${clash.name}` });
+    if (clash) return res.status(409).json({ message: `You already have ${article(type)} ${type} category called ${clash.name}` });
 
     const category = await Category.create({
       name: String(name).trim(),

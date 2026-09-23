@@ -11,6 +11,8 @@ import { nextOccurrence, parseMonth, startOfMonth, endOfMonth } from '../utils/d
 const router = express.Router();
 router.use(protect);
 
+const article = (word) => (/^[aeiou]/i.test(word) ? 'an' : 'a');
+
 /** Confirms a category belongs to this student (or is a shared default). */
 async function resolveCategory(user, categoryId) {
   return Category.findOne({ _id: categoryId, $or: [{ owner: user._id }, { owner: null }] });
@@ -95,7 +97,7 @@ router.post(
     const category = await resolveCategory(req.user, categoryId);
     if (!category) return res.status(400).json({ message: 'Choose a category from your list' });
     if (category.type !== type) {
-      return res.status(400).json({ message: `${category.name} is a ${category.type} category, not ${type}` });
+      return res.status(400).json({ message: `${category.name} is ${article(category.type)} ${category.type} category, not ${type}` });
     }
 
     const when = date ? new Date(date) : new Date();
