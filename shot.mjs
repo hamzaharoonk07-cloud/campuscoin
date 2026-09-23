@@ -11,7 +11,8 @@ const token = fs.readFileSync('C:/Users/LINKTR~1/AppData/Local/Temp/cc-token.txt
 const adminToken = fs.readFileSync('C:/Users/LINKTR~1/AppData/Local/Temp/cc-admin-token.txt', 'utf8').trim();
 
 const PAGES = [
-  ['landing', '/', null, 'dark', 1440, 1500],
+  ['landing', '/', null, 'dark', 1440, 1050],
+  ['landing-mid', '/', null, 'dark', 1440, 1050],
   ['landing-light', '/', null, 'light', 1440, 1100],
   ['login', '/login', null, 'dark', 1440, 900],
   ['dashboard', '/dashboard', token, 'dark', 1440, 1400],
