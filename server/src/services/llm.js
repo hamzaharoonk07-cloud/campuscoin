@@ -69,3 +69,52 @@ export async function narrateInsight({ facts, currency }) {
     return null;
   }
 }
+
+const CHAT_SYSTEM = [
+  'You are the chat assistant inside Campus Coin, a budgeting app for university students.',
+  'You are given one question from the student and facts already calculated from their own transactions.',
+  'Rules:',
+  '- Answer only from the facts given. Never calculate a new figure, estimate or invent one.',
+  '- If the facts do not answer the question, say so in one sentence and suggest what they could ask instead.',
+  '- Only talk about the student\'s own money in this app. Politely decline anything else.',
+  '- One to three short sentences, plain and friendly, no markdown, no emoji.',
+  '- Never recommend investments and never present anything as financial advice.',
+].join('\n');
+
+/**
+ * Answers a chat question the rule-based assistant did not recognise.
+ * Like narrateInsight, it returns null on any failure so the caller can fall
+ * back to its own reply.
+ */
+export async function answerQuestion({ question, facts, currency }) {
+  if (!llmEnabled()) return null;
+
+  try {
+    const response = await getClient().beta.messages.create({
+      model: MODEL,
+      max_tokens: 300,
+      system: CHAT_SYSTEM,
+      betas: ['server-side-fallback-2026-07-01'],
+      fallbacks: 'default',
+      messages: [
+        {
+          role: 'user',
+          content: `Currency: ${currency}\n\nFacts:\n${JSON.stringify(facts, null, 2)}\n\nQuestion: ${String(question).slice(0, 500)}`,
+        },
+      ],
+    });
+
+    if (response.stop_reason === 'refusal') return null;
+
+    const text = response.content
+      .filter((block) => block.type === 'text')
+      .map((block) => block.text)
+      .join('')
+      .trim();
+
+    return text || null;
+  } catch (err) {
+    console.error('[llm] chat fallback failed:', err.message);
+    return null;
+  }
+}

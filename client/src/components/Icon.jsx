@@ -43,7 +43,9 @@ const PATHS = {
   film: 'M3 4h18v16H3zM7 4v16M17 4v16M3 10h4M17 10h4M3 15h4M17 15h4',
   coin: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v10M14.5 9.3C14 8.5 13.1 8 12 8c-1.4 0-2.5.8-2.5 2s1.1 2 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1.1 0-2-.5-2.5-1.3',
   filter: 'M3 5h18l-7 8v6l-4 2v-8z',
-  sliders: 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h10M18 18h2M14 6a2 2 0 1 0 4 0 2 2 0 0 0-4 0M8 12a2 2 0 1 0 4 0 2 2 0 0 0-4 0M14 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0',
+  chat: 'M4 5h16v11H9l-5 4zM8 9.5h8M8 12.5h5',
+  send: 'M4 12 20 4l-6 16-3-7zM11 13l9-9',
+  sliders:'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h10M18 18h2M14 6a2 2 0 1 0 4 0 2 2 0 0 0-4 0M8 12a2 2 0 1 0 4 0 2 2 0 0 0-4 0M14 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0',
 };
 
 export default function Icon({ name, size = 18, strokeWidth = 1.75, className = '', ...rest }) {

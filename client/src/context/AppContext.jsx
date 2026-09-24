@@ -25,19 +25,28 @@ const read = (key, fallback) => {
 /** True when this device has been given an explicit light/dark choice. */
 export const hasLocalTheme = () => ['light', 'dark'].includes(read(THEME_KEY, 'system'));
 
+/** "system" means follow the device; anything else is taken as given. */
+const resolveTheme = (theme) =>
+  theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
+
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState(() => read(THEME_KEY, 'system'));
+  // Light unless this device has been told otherwise.
+  const [theme, setThemeState] = useState(() => read(THEME_KEY, 'light'));
   const [fontScale, setScaleState] = useState(() => Number(read(SCALE_KEY, '1')) || 1);
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'system') root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', theme);
+    const apply = () => document.documentElement.setAttribute('data-theme', resolveTheme(theme));
+    apply();
     try {
       localStorage.setItem(THEME_KEY, theme);
     } catch {
       /* ignore */
     }
+    // When following the device, follow it live too.
+    if (theme !== 'system') return undefined;
+    const query = window.matchMedia('(prefers-color-scheme: dark)');
+    query.addEventListener('change', apply);
+    return () => query.removeEventListener('change', apply);
   }, [theme]);
 
   useEffect(() => {
@@ -59,13 +68,7 @@ export function ThemeProvider({ children }) {
       // starting point, not a third state to cycle through.
       // Returns the theme it moved to, so the caller can save it to the account.
       toggle: () => {
-        const resolved =
-          theme === 'system'
-            ? window.matchMedia('(prefers-color-scheme: light)').matches
-              ? 'light'
-              : 'dark'
-            : theme;
-        const next = resolved === 'dark' ? 'light' : 'dark';
+        const next = resolveTheme(theme) === 'dark' ? 'light' : 'dark';
         setThemeState(next);
         return next;
       },

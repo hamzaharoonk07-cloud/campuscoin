@@ -154,7 +154,7 @@ async function buildTips(user, month) {
       tips.push({
         key: `spike-day:${peak.date}`,
         title: `${money(peak.total)} went out on a single day`,
-        body: `On ${peak.date} you spent ${money(peak.total)}, against a ${money(average)} average on the days you spend anything. One-off days like this are worth a quick look - they are often a purchase you meant to split or delay.`,
+        body: `On ${new Date(`${peak.date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' })} you spent ${money(peak.total)}, against a ${money(average)} average on the days you spend anything. One-off days like this are worth a quick look - they are often a purchase you meant to split or delay.`,
         impact: round2(peak.total - average),
         category: null,
         categoryName: '',

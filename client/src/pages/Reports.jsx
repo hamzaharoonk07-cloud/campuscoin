@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout, { MonthPicker } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
-import { CategorySpine, DayBars, TrendChart } from '../components/Charts.jsx';
+import { CategorySpine, DayBars } from '../components/Charts.jsx';
+import { AreaChart, DonutChart, Sparkline } from '../components/DashCharts.jsx';
 import { api } from '../lib/api.js';
 import { formatDate, money, monthKey } from '../lib/format.js';
 import { useAuth, useToast } from '../context/AppContext.jsx';
@@ -73,28 +74,61 @@ export default function Reports() {
         </>
       }
     >
-      <div className="stat-row">
-        <div className="stat">
-          <div className="stat-label">Money in</div>
-          <div className="stat-value num">{money(totals.income, currency)}</div>
-        </div>
-        <div className="stat">
-          <div className="stat-label">Money out</div>
-          <div className="stat-value num">{money(totals.expense, currency)}</div>
-          <div className="stat-meta">{totals.transactionCount} transactions</div>
-        </div>
-        <div className="stat">
-          <div className="stat-label">Kept</div>
-          <div className="stat-value num" style={{ color: totals.balance < 0 ? 'var(--bad)' : 'var(--good)' }}>
+      {/* The same card language as the dashboard, so moving between the two
+          screens does not feel like moving between two applications. */}
+      <div className="dash-row dash-row-4">
+        <section className="panel kpi">
+          <div className="kpi-head">
+            <span>Money in</span>
+            <Icon name="download" size={15} />
+          </div>
+          <div className="kpi-figure" style={{ color: 'var(--good)' }}>
+            {money(totals.income, currency)}
+          </div>
+          <div className="kpi-spark">
+            <Sparkline values={trend.map((t) => t.income)} colour="var(--series-in)" />
+          </div>
+        </section>
+
+        <section className="panel kpi">
+          <div className="kpi-head">
+            <span>Money out</span>
+            <Icon name="upload" size={15} />
+          </div>
+          <div className="kpi-figure">{money(totals.expense, currency)}</div>
+          <div className="kpi-sub">{totals.transactionCount} transactions</div>
+          <div className="kpi-spark">
+            <Sparkline values={trend.map((t) => t.expense)} colour="var(--series-out)" />
+          </div>
+        </section>
+
+        <section className="panel kpi">
+          <div className="kpi-head">
+            <span>Kept</span>
+            <Icon name="wallet" size={15} />
+          </div>
+          <div className="kpi-figure" style={{ color: totals.balance < 0 ? 'var(--bad)' : 'var(--good)' }}>
             {money(totals.balance, currency)}
           </div>
-          {totals.savingsRate !== null ? <div className="stat-meta">{totals.savingsRate}% of income</div> : null}
-        </div>
-        <div className="stat">
-          <div className="stat-label">On a spending day</div>
-          <div className="stat-value num">{money(pace.perActiveDay, currency)}</div>
-          <div className="stat-meta">across {pace.activeDays} days with any spending</div>
-        </div>
+          {totals.savingsRate !== null ? (
+            <div className="kpi-sub">{totals.savingsRate}% of what came in</div>
+          ) : null}
+          <div className="kpi-spark">
+            <Sparkline
+              values={trend.map((t) => t.balance)}
+              colour={totals.balance < 0 ? 'var(--bad)' : 'var(--good)'}
+            />
+          </div>
+        </section>
+
+        <section className="panel kpi">
+          <div className="kpi-head">
+            <span>On a spending day</span>
+            <Icon name="chart" size={15} />
+          </div>
+          <div className="kpi-figure">{money(pace.perActiveDay, currency)}</div>
+          <div className="kpi-sub">across {pace.activeDays} days with any spending</div>
+        </section>
       </div>
 
       <section className="panel">
@@ -160,7 +194,12 @@ export default function Reports() {
             <h3>Where it came from</h3>
           </div>
           <div className="panel-body">
-            <CategorySpine rows={income} currency={currency} emptyText="No income logged for this month." />
+            <DonutChart
+              rows={income}
+              currency={currency}
+              total={totals.income}
+              caption="Came in this month"
+            />
           </div>
         </section>
       </div>
@@ -170,7 +209,7 @@ export default function Reports() {
           <h3>Income against spending, last six months</h3>
         </div>
         <div className="panel-body">
-          <TrendChart data={trend} currency={currency} />
+          <AreaChart data={trend} currency={currency} />
         </div>
       </section>
 

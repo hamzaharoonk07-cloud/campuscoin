@@ -2,14 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
+import Chat from '../components/Chat.jsx';
 import { api } from '../lib/api.js';
 import { slotColor } from '../lib/format.js';
 import { useToast } from '../context/AppContext.jsx';
 
 /**
- * A page about the assistant itself. It exists because a suggestion a student
- * cannot see the workings of is one they cannot judge - so this shows what it
- * has learned, how often it was right, and how to make it forget.
+ * The assistant's home: the chat, plus a page about the assistant itself. The
+ * second half exists because a suggestion a student cannot see the workings of
+ * is one they cannot judge - so it shows what it has learned, how often it was
+ * right, and how to make it forget.
  */
 export default function Assistant() {
   const toast = useToast();
@@ -66,9 +68,17 @@ export default function Assistant() {
     >
       <div className="grid grid-main">
         <div className="stack">
+          <section className="panel chat-panel">
+            <div className="panel-head">
+              <h2>Ask Campus Coin</h2>
+              <span className="panel-note">Answers come from your own transactions</span>
+            </div>
+            <Chat />
+          </section>
+
           <section className="panel">
             <div className="panel-head">
-              <h2>Try it</h2>
+              <h2>Try the categoriser</h2>
               <span className="panel-note">Nothing is saved from this box</span>
             </div>
             <div className="panel-body stack">
@@ -116,19 +126,34 @@ export default function Assistant() {
               ) : null}
             </div>
           </section>
+        </div>
 
+        <div className="stack">
           <section className="panel">
             <div className="panel-head">
-              <h2>How it works</h2>
+              <h3>How it works</h3>
             </div>
             <div className="panel-body stack">
-              <p className="muted">
-                There are two separate pieces, and only one of them is a language model.
+              <p className="muted small">
+                There are three separate pieces, and only one of them can involve a language model.
               </p>
 
               <div>
                 <h4 style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--step-0)', marginBottom: '0.25rem' }}>
-                  1. Categorising what you type
+                  Answering your questions
+                </h4>
+                <p className="muted small">
+                  The chat recognises the kind of question you are asking, such as your balance, a category, a budget or
+                  the forecast, and answers it from the same calculations the reports use, so the two always agree.
+                  {status?.narrativeInsights?.enabled
+                    ? ' A question it does not recognise is passed to Claude along with your figures, and Claude is told to use nothing else.'
+                    : ' Questions it does not recognise get a list of things it can answer.'}
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--step-0)', marginBottom: '0.25rem' }}>
+                  Categorising what you type
                 </h4>
                 <p className="muted small">
                   This runs entirely on Campus Coin&rsquo;s own server. Each word of a description is counted against
@@ -141,7 +166,7 @@ export default function Assistant() {
 
               <div>
                 <h4 style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--step-0)', marginBottom: '0.25rem' }}>
-                  2. Writing the monthly summary
+                  Writing the monthly summary
                 </h4>
                 <p className="muted small">
                   {status?.narrativeInsights?.note}{' '}
@@ -155,9 +180,7 @@ export default function Assistant() {
               </p>
             </div>
           </section>
-        </div>
 
-        <div className="stack">
           <section className="panel">
             <div className="panel-head">
               <h3>What it has learned</h3>

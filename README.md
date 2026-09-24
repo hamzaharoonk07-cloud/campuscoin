@@ -146,14 +146,16 @@ from the routes that serve it:
 | `recurring.js` | Writes recurring entries when they come due. |
 | `alerts.js` | Raises budget warnings. |
 | `csv.js` | Imports and exports transaction files. |
-| `llm.js` | Optional: rewrites an already-computed summary in warmer language. |
+| `chat.js` | Works out what a chat question is asking and answers it from the figures above. |
+| `llm.js` | Optional: rewrites an already-computed summary in warmer language, and answers chat questions the rules did not recognise. |
 
 ---
 
 ## Notes on the parts that make judgements
 
-The SRS asks for AI assistance in two places. They are separate features and
-only one of them involves a language model.
+The SRS asks for AI assistance in two places, and for a chatbot. They are
+separate features, and a language model is only ever an optional finishing
+step: every figure is calculated by Campus Coin itself.
 
 **Categorising a description** runs entirely on Campus Coin's own server. Each
 word of a description is counted against the category the student actually
@@ -170,6 +172,19 @@ already-computed facts in friendlier language. The model is never asked to do
 arithmetic, so a summary cannot contradict the report it came from. Without a
 key the built-in statistical writer produces the summary instead, and the
 feature reports which one wrote it.
+
+**The chat assistant** (the SRS's "AI ChatBot") is on the AI assistant page and
+in the bubble in the corner of every student page. It is built in rather than
+embedded from tawk.to or Tidio, because a third-party widget cannot see the
+student's data. A rule-based router in `chat.js` recognises the kind of
+question being asked (balance, one category, the category breakdown, budgets,
+the forecast, the largest expense, saving tips, "can I afford 2,500?",
+"which category is chai at the canteen?", this month against last) and answers
+from the same aggregations the reports use, so the chat and the reports can
+never disagree. Only a question no rule recognises is passed to Claude, and
+only if `ANTHROPIC_API_KEY` is set, together with a sheet of already-computed
+facts and an instruction to use nothing else. The conversation is kept in the
+browser tab and is never stored on the server.
 
 **The saving tips** are not AI at all. Each rule compares this month against the
 student's own three-month average and states how much money the advice is worth
@@ -189,9 +204,13 @@ None of this is financial advice, and the interface says so where it matters.
 
 The interface is written rather than assembled. A few decisions worth naming:
 
-- **Dark by default, with a light theme.** Both are designed against their own
+- **Light by default, with a dark theme.** Both are designed against their own
   surface rather than one being an inversion of the other. The choice is saved
   to the device *and* the account, so it follows the student to another machine.
+  Settings also offers "match my device", which follows the operating system live.
+- **The brand colour is teal** (`#0e8a7c`, white text at 4.6:1). It stays clear
+  of the blue and orange used for money in and out, and of the green that means
+  "under budget".
 - **Chart colour is assigned by the job it does.** Income and spending are blue
   and orange rather than the obvious green and red: measured against a
   colour-blindness simulation, the green/red pair separates by ΔE 6.9 while

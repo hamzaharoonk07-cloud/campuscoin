@@ -4,6 +4,7 @@ import CategoryHint from '../models/CategoryHint.js';
 import { protect, wrap } from '../middleware/auth.js';
 import { suggestCategory, accuracyFor } from '../services/categorizer.js';
 import { llmEnabled } from '../services/llm.js';
+import { answer, opening } from '../services/chat.js';
 
 const router = express.Router();
 router.use(protect);
@@ -67,6 +68,23 @@ router.get(
           : 'No API key is set, so monthly summaries are written by the built-in statistical engine.',
       },
     });
+  })
+);
+
+/** The chat opens with a greeting and the student's most valuable tip. */
+router.get(
+  '/chat',
+  wrap(async (req, res) => {
+    res.json(await opening(req.user));
+  })
+);
+
+/** One question in, one answer out. History stays in the browser - nothing is stored. */
+router.post(
+  '/chat',
+  wrap(async (req, res) => {
+    const question = String(req.body.message || '').slice(0, 500);
+    res.json(await answer(req.user, question));
   })
 );
 

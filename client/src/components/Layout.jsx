@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon, { BrandMark } from './Icon.jsx';
+import Chat from './Chat.jsx';
 import { api } from '../lib/api.js';
 import { useAuth, useTheme } from '../context/AppContext.jsx';
 
@@ -15,7 +16,7 @@ const STUDENT_NAV = [
 ];
 
 const SECONDARY_NAV = [
-  { to: '/assistant', label: 'AI assistant', icon: 'sliders' },
+  { to: '/assistant', label: 'AI assistant', icon: 'chat' },
   { to: '/settings', label: 'Settings', icon: 'user' },
   { to: '/sitemap', label: 'Sitemap', icon: 'map' },
 ];
@@ -123,6 +124,62 @@ function ThemeButton() {
   );
 }
 
+/**
+ * The chat bubble in the corner of every student page - the SRS's "AI ChatBot",
+ * built in rather than embedded from tawk.to or Tidio so it can answer from the
+ * student's own data. The /assistant page already shows the chat, so the bubble
+ * stays away from there.
+ */
+function ChatLauncher() {
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => setOpen(false), [location.pathname]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (event) => event.key === 'Escape' && setOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  if (location.pathname === '/assistant') return null;
+
+  return (
+    <>
+      {open && (
+        <div className="chat-popover" role="dialog" aria-label="Campus Coin assistant">
+          <div className="chat-popover-head">
+            <span className="chat-avatar" aria-hidden="true">
+              <Icon name="spark" size={16} />
+            </span>
+            <div style={{ marginRight: 'auto' }}>
+              <strong>Campus Coin assistant</strong>
+              <span>Answers from your own transactions</span>
+            </div>
+            <Link to="/assistant" className="icon-btn" aria-label="Open the full assistant page" title="Open full page">
+              <Icon name="right" size={16} />
+            </Link>
+            <button type="button" className="icon-btn" onClick={() => setOpen(false)} aria-label="Close the assistant">
+              <Icon name="x" size={16} />
+            </button>
+          </div>
+          <Chat compact />
+        </div>
+      )}
+      <button
+        type="button"
+        className="chat-fab"
+        onClick={() => setOpen((was) => !was)}
+        aria-expanded={open}
+        aria-label={open ? 'Close the assistant' : 'Ask the assistant'}
+      >
+        <Icon name={open ? 'x' : 'chat'} size={22} />
+      </button>
+    </>
+  );
+}
+
 export default function Layout({ title, crumbs, actions, children }) {
   const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
@@ -217,6 +274,8 @@ export default function Layout({ title, crumbs, actions, children }) {
           {children}
         </main>
       </div>
+
+      {!isAdmin && <ChatLauncher />}
 
       {!isAdmin && (
         <nav className="tabbar" aria-label="Sections">

@@ -21,11 +21,11 @@ const userSchema = new mongoose.Schema(
     monthlyAllowance: { type: Number, default: 0, min: 0 },
     savingsGoal: { type: Number, default: 0, min: 0 },
     currency: { type: String, enum: ['PKR', 'USD', 'EUR', 'GBP', 'INR', 'AED'], default: 'PKR' },
-    avatarColor: { type: String, default: '#f4b740' },
+    avatarColor: { type: String, default: '#0e8a7c' },
 
     // Accessibility preferences (SRS "Accessibility and UI Enhancements")
     preferences: {
-      theme: { type: String, enum: ['dark', 'light', 'system'], default: 'system' },
+      theme: { type: String, enum: ['dark', 'light', 'system'], default: 'light' },
       fontScale: { type: Number, default: 1, min: 0.875, max: 1.375 },
       reducedMotion: { type: Boolean, default: false },
       alertsEnabled: { type: Boolean, default: true },

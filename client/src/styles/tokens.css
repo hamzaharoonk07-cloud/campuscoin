@@ -7,7 +7,9 @@
    the open one. Public Sans does the reading and carries the figures.
 
    Colour is assigned by the job it does, never by decoration:
-     accent  - the brand and anything you can act on. One colour, used sparingly.
+     accent  - the brand and anything you can act on. A calm teal: it reads as
+               "money that is looked after" without borrowing the status green,
+               and it sits apart from both chart directions below.
      in/out  - the two money directions in charts. Blue and orange rather than
                the obvious green and red: the green/red pair collapses for
                red-green colour blindness (measured dE 6.9), blue/orange holds
@@ -16,72 +18,80 @@
                a category keeps its colour when a filter changes the chart.
      good/warn/bad - status only. Always paired with a word or an icon.
 
-   Surfaces are layered rather than flat: each step up gets a hairline of light
-   along its top edge, which is what makes a dark interface read as material
-   instead of as paint.
+   Light is the default theme - a student opening this in a lab or on a phone in
+   daylight is the common case - and dark is one tap away. Each is designed
+   against its own surface rather than being an inversion of the other.
    =========================================================================== */
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Surfaces, darkest to lightest. The blue cast is deliberate - a neutral
-     grey dark theme goes muddy next to warm accents. */
-  --bg: #0b0f15;
-  --surface: #121821;
-  --raised: #1a222d;
-  --sunken: #080b10;
-  --line: #222c39;
-  --line-strong: #32404f;
-  --input-bg: #0e131b;
+  /* Near-white with a faint cool cast, so white cards lift off the page
+     without needing heavy shadows. */
+  --bg: #f1f4f8;
+  --surface: #ffffff;
+  --raised: #f5f7fa;
+  --sunken: #e6ebf1;
+  --line: #e2e7ee;
+  --line-strong: #cbd4df;
+  --input-bg: #ffffff;
 
   /* The hairline of light along the top of a raised surface. */
-  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.045);
-  --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 1);
 
-  --text: #eaeef4;
-  --muted: #94a2b5;
-  --faint: #66748a;
+  --text: #101826;
+  --muted: #56647a;
+  --faint: #7d8a9c;
 
-  --accent: #f4b740;
-  --accent-deep: #d99a1f;
-  --accent-soft: rgba(244, 183, 64, 0.12);
-  --accent-line: rgba(244, 183, 64, 0.28);
-  --accent-text: #f7c765;
-  --on-accent: #17120a;
-  --accent-glow: 0 0 0 1px rgba(244, 183, 64, 0.35), 0 8px 24px -10px rgba(244, 183, 64, 0.55);
+  /* #0e8a7c carries white text at 4.6:1, so the same colour works for a
+     filled button and for its label. */
+  --accent: #0e8a7c;
+  --accent-deep: #0a6f63;
+  --accent-soft: rgba(14, 138, 124, 0.1);
+  --accent-line: rgba(14, 138, 124, 0.3);
+  --accent-text: #0a6f63;
+  --on-accent: #ffffff;
+  --accent-glow: 0 0 0 1px rgba(14, 138, 124, 0.2), 0 10px 24px -10px rgba(14, 138, 124, 0.55);
 
-  --series-in: #3987e5;
-  --series-out: #d95926;
+  --series-in: #2a78d6;
+  --series-out: #eb6834;
 
-  --cat-1: #3987e5;
-  --cat-2: #d95926;
-  --cat-3: #199e70;
-  --cat-4: #c98500;
-  --cat-5: #d55181;
+  --cat-1: #2a78d6;
+  --cat-2: #eb6834;
+  --cat-3: #1baf7a;
+  --cat-4: #eda100;
+  --cat-5: #e87ba4;
   --cat-6: #008300;
-  --cat-7: #9085e9;
+  --cat-7: #4a3aa7;
 
-  --good: #3fc48f;
-  --good-soft: rgba(63, 196, 143, 0.13);
-  --warn: #e0a83c;
-  --warn-soft: rgba(224, 168, 60, 0.13);
-  --bad: #f07a78;
-  --bad-soft: rgba(240, 122, 120, 0.13);
+  --good: #17845c;
+  --good-soft: rgba(23, 132, 92, 0.1);
+  --warn: #a9690a;
+  --warn-soft: rgba(169, 105, 10, 0.1);
+  --bad: #c23b3a;
+  --bad-soft: rgba(194, 59, 58, 0.09);
 
   /* Three stops rather than one blur - a single soft shadow is the tell of a
      template; layered shadows are what read as depth. */
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-2: 0 2px 4px rgba(0, 0, 0, 0.28), 0 8px 16px -6px rgba(0, 0, 0, 0.4);
-  --shadow-3: 0 4px 8px rgba(0, 0, 0, 0.3), 0 16px 32px -10px rgba(0, 0, 0, 0.55), 0 32px 64px -24px rgba(0, 0, 0, 0.6);
+  --shadow-1: 0 1px 2px rgba(16, 24, 38, 0.05);
+  --shadow-2: 0 1px 2px rgba(16, 24, 38, 0.05), 0 6px 14px -6px rgba(16, 24, 38, 0.1);
+  --shadow-3: 0 2px 4px rgba(16, 24, 38, 0.06), 0 12px 28px -10px rgba(16, 24, 38, 0.14), 0 28px 56px -24px rgba(16, 24, 38, 0.16);
 
-  --grain-opacity: 0.032;
+  /* The soft shapes behind the workspace. Low enough that text over them never
+     loses contrast. */
+  --wash-1: rgba(14, 138, 124, 0.09);
+  --wash-2: rgba(42, 120, 214, 0.08);
+  --wash-3: rgba(235, 104, 52, 0.06);
+
+  --grain-opacity: 0.018;
 
   /* Radius encodes hierarchy rather than being one value everywhere:
      data rows stay square, panels are softly cut, pills are fully round. */
   --r-row: 3px;
-  --r-panel: 14px;
-  --r-panel-lg: 18px;
-  --r-control: 9px;
+  --r-panel: 16px;
+  --r-panel-lg: 20px;
+  --r-control: 10px;
   --r-pill: 999px;
 
   --font-display: 'Bricolage Grotesque', 'Public Sans', system-ui, sans-serif;
@@ -107,108 +117,59 @@
   --gutter: clamp(1rem, 2.6vw, 2rem);
 }
 
-:root[data-theme='light'] {
-  color-scheme: light;
+:root[data-theme='dark'] {
+  color-scheme: dark;
 
-  /* Near-white with the faintest cool cast, not cream - warm paper plus a
-     honey accent goes sickly, and cream is the generated-page tell. */
-  --bg: #eef0f4;
-  --surface: #ffffff;
-  --raised: #f4f6f9;
-  --sunken: #e4e8ee;
-  --line: #e1e6ec;
-  --line-strong: #c7d0da;
-  --input-bg: #ffffff;
+  /* The blue cast is deliberate - a neutral grey dark theme goes muddy. */
+  --bg: #0b0f15;
+  --surface: #121821;
+  --raised: #1a222d;
+  --sunken: #080b10;
+  --line: #222c39;
+  --line-strong: #32404f;
+  --input-bg: #0e131b;
 
-  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 1);
+  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
-  --text: #0f1620;
-  --muted: #56647a;
-  --faint: #7d8a9c;
+  --text: #eaeef4;
+  --muted: #94a2b5;
+  --faint: #66748a;
 
-  --accent: #f4b740;
-  --accent-deep: #b57f12;
-  --accent-soft: rgba(244, 183, 64, 0.16);
-  --accent-line: rgba(180, 126, 18, 0.32);
-  --accent-text: #8a5c07;
-  --on-accent: #241a03;
-  --accent-glow: 0 0 0 1px rgba(180, 126, 18, 0.25), 0 8px 20px -10px rgba(180, 126, 18, 0.45);
+  /* Lifted for a dark surface; dark text on it rather than white. */
+  --accent: #3cc7b1;
+  --accent-deep: #25a893;
+  --accent-soft: rgba(60, 199, 177, 0.12);
+  --accent-line: rgba(60, 199, 177, 0.3);
+  --accent-text: #6adac8;
+  --on-accent: #06201c;
+  --accent-glow: 0 0 0 1px rgba(60, 199, 177, 0.35), 0 8px 24px -10px rgba(60, 199, 177, 0.5);
 
-  --series-in: #2a78d6;
-  --series-out: #eb6834;
+  --series-in: #3987e5;
+  --series-out: #d95926;
 
-  --cat-1: #2a78d6;
-  --cat-2: #eb6834;
-  --cat-3: #1baf7a;
-  --cat-4: #eda100;
-  --cat-5: #e87ba4;
+  --cat-1: #3987e5;
+  --cat-2: #d95926;
+  --cat-3: #199e70;
+  --cat-4: #c98500;
+  --cat-5: #d55181;
   --cat-6: #008300;
-  --cat-7: #4a3aa7;
+  --cat-7: #9085e9;
 
-  --good: #17845c;
-  --good-soft: rgba(23, 132, 92, 0.1);
-  --warn: #a9690a;
-  --warn-soft: rgba(169, 105, 10, 0.1);
-  --bad: #c23b3a;
-  --bad-soft: rgba(194, 59, 58, 0.09);
+  --good: #3fc48f;
+  --good-soft: rgba(63, 196, 143, 0.13);
+  --warn: #e0a83c;
+  --warn-soft: rgba(224, 168, 60, 0.13);
+  --bad: #f07a78;
+  --bad-soft: rgba(240, 122, 120, 0.13);
 
-  --shadow-1: 0 1px 2px rgba(15, 22, 32, 0.05);
-  --shadow-2: 0 1px 2px rgba(15, 22, 32, 0.05), 0 6px 14px -6px rgba(15, 22, 32, 0.1);
-  --shadow-3: 0 2px 4px rgba(15, 22, 32, 0.06), 0 12px 28px -10px rgba(15, 22, 32, 0.14), 0 28px 56px -24px rgba(15, 22, 32, 0.16);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 2px 4px rgba(0, 0, 0, 0.28), 0 8px 16px -6px rgba(0, 0, 0, 0.4);
+  --shadow-3: 0 4px 8px rgba(0, 0, 0, 0.3), 0 16px 32px -10px rgba(0, 0, 0, 0.55), 0 32px 64px -24px rgba(0, 0, 0, 0.6);
 
-  --grain-opacity: 0.02;
-}
+  --wash-1: rgba(60, 199, 177, 0.07);
+  --wash-2: rgba(57, 135, 229, 0.07);
+  --wash-3: rgba(217, 89, 38, 0.04);
 
-/* Follow the operating system until the viewer picks a side themselves. */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']):not([data-theme='light']) {
-    color-scheme: light;
-
-    --bg: #eef0f4;
-    --surface: #ffffff;
-    --raised: #f4f6f9;
-    --sunken: #e4e8ee;
-    --line: #e1e6ec;
-    --line-strong: #c7d0da;
-    --input-bg: #ffffff;
-
-    --edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 1);
-
-    --text: #0f1620;
-    --muted: #56647a;
-    --faint: #7d8a9c;
-
-    --accent-deep: #b57f12;
-    --accent-soft: rgba(244, 183, 64, 0.16);
-    --accent-line: rgba(180, 126, 18, 0.32);
-    --accent-text: #8a5c07;
-    --on-accent: #241a03;
-    --accent-glow: 0 0 0 1px rgba(180, 126, 18, 0.25), 0 8px 20px -10px rgba(180, 126, 18, 0.45);
-
-    --series-in: #2a78d6;
-    --series-out: #eb6834;
-
-    --cat-1: #2a78d6;
-    --cat-2: #eb6834;
-    --cat-3: #1baf7a;
-    --cat-4: #eda100;
-    --cat-5: #e87ba4;
-    --cat-6: #008300;
-    --cat-7: #4a3aa7;
-
-    --good: #17845c;
-    --good-soft: rgba(23, 132, 92, 0.1);
-    --warn: #a9690a;
-    --warn-soft: rgba(169, 105, 10, 0.1);
-    --bad: #c23b3a;
-    --bad-soft: rgba(194, 59, 58, 0.09);
-
-    --shadow-1: 0 1px 2px rgba(15, 22, 32, 0.05);
-    --shadow-2: 0 1px 2px rgba(15, 22, 32, 0.05), 0 6px 14px -6px rgba(15, 22, 32, 0.1);
-    --shadow-3: 0 2px 4px rgba(15, 22, 32, 0.06), 0 12px 28px -10px rgba(15, 22, 32, 0.14), 0 28px 56px -24px rgba(15, 22, 32, 0.16);
-
-    --grain-opacity: 0.02;
-  }
+  --grain-opacity: 0.032;
 }
