@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthAside } from './Login.jsx';
+import { AuthAside, AuthTop, IconField } from './Login.jsx';
+import { BrandMark } from '../components/Icon.jsx';
 import { api, setToken } from '../lib/api.js';
 import { useAuth } from '../context/AppContext.jsx';
 
@@ -36,10 +37,26 @@ export default function ResetPassword() {
 
   return (
     <div className="auth">
-      <AuthAside />
+      <AuthAside
+        title="A fresh start,"
+        highlight="same history."
+        lead="Choose a new password and you will be signed straight back in, with every transaction where you left it."
+      />
       <div className="auth-form-side">
+        <AuthTop>
+          <Link to="/login" className="btn btn-sm">
+            Back to sign in
+          </Link>
+        </AuthTop>
         <form className="auth-form" onSubmit={submit}>
-          <h1>Choose a new password</h1>
+          <div className="auth-head">
+            <span className="auth-mark">
+              <BrandMark size={36} />
+            </span>
+            <span className="eyebrow">Password reset</span>
+            <h1>Choose a new password</h1>
+            <p>At least 8 characters.</p>
+          </div>
 
           {!token ? (
             <>
@@ -52,33 +69,31 @@ export default function ResetPassword() {
             <>
               {error ? <div className="form-error">{error}</div> : null}
 
-              <div className="field">
-                <label htmlFor="password">New password</label>
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                />
-              </div>
+              <IconField
+                id="password"
+                label="New password"
+                icon="key"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+              />
 
-              <div className="field">
-                <label htmlFor="confirm">Confirm it</label>
-                <input
-                  id="confirm"
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  value={form.confirm}
-                  onChange={(e) => setForm({ ...form, confirm: e.target.value })}
-                />
-              </div>
+              <IconField
+                id="confirm"
+                label="Confirm it"
+                icon="key"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={form.confirm}
+                onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+              />
 
-              <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
+              <button className="btn btn-primary btn-block btn-lg" type="submit" disabled={busy}>
                 {busy ? 'Saving' : 'Save and sign in'}
               </button>
             </>

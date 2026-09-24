@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthAside } from './Login.jsx';
+import { AuthAside, AuthTop, IconField } from './Login.jsx';
+import { BrandMark } from '../components/Icon.jsx';
 import { CURRENCY_SYMBOLS } from '../lib/format.js';
 import { useAuth } from '../context/AppContext.jsx';
 
@@ -44,35 +45,57 @@ export default function Register() {
 
   return (
     <div className="auth">
-      <AuthAside />
+      <AuthAside
+        title="Start this month,"
+        highlight="know it by the next."
+        lead="Two minutes to set up. Add your allowance and a savings goal if you have one, and every chart, budget and tip is built from your own numbers from then on."
+      />
       <div className="auth-form-side">
+        <AuthTop>
+          <span className="auth-top-note">
+            Have an account?
+            <Link to="/login" className="btn btn-sm">
+              Sign in
+            </Link>
+          </span>
+        </AuthTop>
         <form className="auth-form" onSubmit={submit}>
-          <h1>Create your account</h1>
+          <div className="auth-head">
+            <span className="auth-mark">
+              <BrandMark size={36} />
+            </span>
+            <span className="eyebrow">Get started</span>
+            <h1>Create your account</h1>
+            <p>Free, and no bank details, ever.</p>
+          </div>
           {error ? <div className="form-error">{error}</div> : null}
 
-          <div className="field">
-            <label htmlFor="name">Your name</label>
-            <input id="name" required value={form.name} onChange={set('name')} autoComplete="name" />
-          </div>
+          <IconField id="name" label="Your name" icon="user" required value={form.name} onChange={set('name')} autoComplete="name" />
 
-          <div className="field">
-            <label htmlFor="email">Email</label>
-            <input id="email" type="email" required value={form.email} onChange={set('email')} autoComplete="email" />
-          </div>
+          <IconField
+            id="email"
+            label="Email"
+            icon="mail"
+            type="email"
+            placeholder="you@university.edu"
+            required
+            value={form.email}
+            onChange={set('email')}
+            autoComplete="email"
+          />
 
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              required
-              minLength={8}
-              value={form.password}
-              onChange={set('password')}
-              autoComplete="new-password"
-            />
-            <span className="small muted">At least 8 characters.</span>
-          </div>
+          <IconField
+            id="password"
+            label="Password"
+            icon="key"
+            type="password"
+            placeholder="At least 8 characters"
+            required
+            minLength={8}
+            value={form.password}
+            onChange={set('password')}
+            autoComplete="new-password"
+          />
 
           <div className="field-row">
             <div className="field">
@@ -117,7 +140,7 @@ export default function Register() {
             Both are optional and easy to change later. They only shape the advice you get.
           </span>
 
-          <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
+          <button className="btn btn-primary btn-block btn-lg" type="submit" disabled={busy}>
             {busy ? <span className="spinner" /> : null}
             {busy ? 'Creating' : 'Create account'}
           </button>

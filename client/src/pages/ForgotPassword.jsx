@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthAside } from './Login.jsx';
+import { AuthAside, AuthTop, IconField } from './Login.jsx';
+import { BrandMark } from '../components/Icon.jsx';
 import { api } from '../lib/api.js';
 
 export default function ForgotPassword() {
@@ -24,13 +25,26 @@ export default function ForgotPassword() {
 
   return (
     <div className="auth">
-      <AuthAside />
+      <AuthAside
+        title="Locked out?"
+        highlight="It happens to everyone."
+        lead="Enter the email on your account and Campus Coin sends a link that lets you choose a new password. Your transactions stay exactly where they were."
+      />
       <div className="auth-form-side">
+        <AuthTop>
+          <Link to="/login" className="btn btn-sm">
+            Back to sign in
+          </Link>
+        </AuthTop>
         <form className="auth-form" onSubmit={submit}>
-          <h1>Reset your password</h1>
-          <p className="muted small">
-            Enter the email on your account and we will send a link that works for one hour.
-          </p>
+          <div className="auth-head">
+            <span className="auth-mark">
+              <BrandMark size={36} />
+            </span>
+            <span className="eyebrow">Password reset</span>
+            <h1>Reset your password</h1>
+            <p>We will send a link that works for one hour.</p>
+          </div>
 
           {error ? <div className="form-error">{error}</div> : null}
           {result ? <div className="form-ok">{result.message}</div> : null}
@@ -46,18 +60,25 @@ export default function ForgotPassword() {
             </div>
           ) : null}
 
-          <div className="field">
-            <label htmlFor="email">Email</label>
-            <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
+          <IconField
+            id="email"
+            label="Email"
+            icon="mail"
+            type="email"
+            autoComplete="email"
+            placeholder="you@university.edu"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
+          <button className="btn btn-primary btn-block btn-lg" type="submit" disabled={busy}>
             {busy ? <span className="spinner" /> : null}
             {busy ? 'Sending' : 'Send reset link'}
           </button>
 
           <p className="auth-alt">
-            <Link to="/login">Back to sign in</Link>
+            Remembered it? <Link to="/login">Sign in</Link>
           </p>
         </form>
       </div>

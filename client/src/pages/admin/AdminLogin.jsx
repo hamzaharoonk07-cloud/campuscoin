@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Icon, { BrandMark } from '../../components/Icon.jsx';
 import { useAuth } from '../../context/AppContext.jsx';
+import { AuthAside, AuthTop, IconField } from '../Login.jsx';
 
 /**
  * A separate, direct-access administrator sign-in, as the SRS asks for. It posts
@@ -31,62 +32,59 @@ export default function AdminLogin() {
 
   return (
     <div className="auth">
-      <aside className="auth-aside">
-        <Link to="/" className="brand" style={{ padding: 0 }}>
-          <BrandMark />
-          Campus Coin
-        </Link>
-        <div>
-          <span className="pill is-accent">
-            <Icon name="shield" size={13} />
-            Administrator
-          </span>
-          <h2 style={{ fontSize: 'var(--step-2)', margin: '0.75rem 0' }}>Control panel</h2>
-          <p className="muted" style={{ maxWidth: '38ch' }}>
-            Default categories, student accounts, announcements and system-wide usage. This sign-in only accepts
-            administrator accounts.
-          </p>
-        </div>
-      </aside>
+      <AuthAside
+        eyebrow="Administrator"
+        title="The control panel,"
+        highlight="for administrators only."
+        lead="Default categories, student accounts, announcements and system-wide usage. This sign-in refuses any account that is not an administrator."
+      />
 
       <div className="auth-form-side">
+        <AuthTop>
+          <Link to="/login" className="btn btn-sm">
+            Student sign-in
+          </Link>
+        </AuthTop>
         <form className="auth-form" onSubmit={submit}>
-          <h1>Administrator sign-in</h1>
+          <div className="auth-head">
+            <span className="auth-mark">
+              <BrandMark size={36} />
+            </span>
+            <span className="eyebrow">
+              <Icon name="shield" size={13} /> Administrator
+            </span>
+            <h1>Sign in to the control panel</h1>
+          </div>
           {error ? <div className="form-error">{error}</div> : null}
 
-          <div className="field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              required
-              autoComplete="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
-          </div>
+          <IconField
+            id="email"
+            label="Email"
+            icon="mail"
+            type="email"
+            required
+            autoComplete="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
 
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-            />
-          </div>
+          <IconField
+            id="password"
+            label="Password"
+            icon="key"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
 
-          <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
+          <button className="btn btn-primary btn-block btn-lg" type="submit" disabled={busy}>
             {busy ? <span className="spinner" /> : null}
             Sign in
           </button>
 
-          <p className="auth-alt">
-            <Link to="/login">Student sign-in instead</Link>
-          </p>
-          <p className="auth-alt small">Demo: admin@campuscoin.app / Admin@12345</p>
+          <p className="auth-alt">Demo administrator: admin@campuscoin.app / Admin@12345</p>
         </form>
       </div>
     </div>
