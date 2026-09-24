@@ -43,9 +43,11 @@ router.get(
       listTips(req.user._id),
       Announcement.find({ kind: 'announcement', active: true }).sort({ createdAt: -1 }).limit(3),
       Insight.findOne({ user: req.user._id, month: parseMonth(req.query.month) }),
+      // Sorted by when the money moved, not when the row was written - with
+      // imported or seeded data those two orders are completely different.
       Transaction.find({ user: req.user._id })
         .populate('category', 'name slot icon')
-        .sort({ createdAt: -1 })
+        .sort({ date: -1, createdAt: -1 })
         .limit(6),
     ]);
 

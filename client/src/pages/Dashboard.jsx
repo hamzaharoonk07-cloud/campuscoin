@@ -1,13 +1,22 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout, { MonthPicker } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
-import { BudgetMeter, CategorySpine, TrendChart } from '../components/Charts.jsx';
+import { AreaChart, DonutChart, MiniBars, RingGauge, Sparkline } from '../components/DashCharts.jsx';
 import { api } from '../lib/api.js';
-import { dayHeading, money, monthKey, slotColor } from '../lib/format.js';
+import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import { useCountUp } from '../lib/useCountUp.js';
 import { useAuth, useToast } from '../context/AppContext.jsx';
+
+/* ---------------------------------------------------------------------------
+   The dashboard.
+
+   Three headline figures across the top, the category breakdown and the trend
+   below them, and the most recent transactions underneath - the shape people
+   already know how to read from a finance dashboard, so nothing has to be
+   learned before the numbers can be.
+--------------------------------------------------------------------------- */
 
 export default function Dashboard() {
   const { user, currency } = useAuth();
@@ -17,8 +26,8 @@ export default function Dashboard() {
   const [categories, setCategories] = useState([]);
   const [adding, setAdding] = useState(false);
 
-  // Called here rather than beside the figure it animates, because the loading
-  // state below returns early and a hook cannot sit after that.
+  // Called before the loading branch below returns, because a hook cannot sit
+  // after an early return.
   const kept = useCountUp(data?.totals?.balance ?? 0);
 
   const load = useCallback(() => {
@@ -34,10 +43,20 @@ export default function Dashboard() {
     api.get('/categories').then(({ categories: list }) => setCategories(list)).catch(() => {});
   }, []);
 
-  const onSaved = () => {
-    setAdding(false);
-    load();
-  };
+  // How much of the month's total budget has been used, for the health ring.
+  const budgetHealth = useMemo(() => {
+    const budgets = data?.budgets || [];
+    const limit = budgets.reduce((acc, b) => acc + b.limitAmount, 0);
+    const spent = budgets.reduce((acc, b) => acc + b.spent, 0);
+    const pct = limit > 0 ? (spent / limit) * 100 : 0;
+    return {
+      limit,
+      spent,
+      pct,
+      tone: pct >= 100 ? 'exceeded' : pct >= 80 ? 'warning' : 'ok',
+      over: budgets.filter((b) => b.state === 'exceeded').length,
+    };
+  }, [data]);
 
   const refreshTips = async () => {
     try {
@@ -54,23 +73,20 @@ export default function Dashboard() {
   if (!data) {
     return (
       <Layout title="Dashboard">
-        <div className="skeleton" style={{ height: 150 }} />
-        <div className="grid grid-main">
-          <div className="skeleton" style={{ height: 320 }} />
-          <div className="skeleton" style={{ height: 320 }} />
+        <div className="dash-row">
+          <div className="skeleton" style={{ height: 184 }} />
+          <div className="skeleton" style={{ height: 184 }} />
+          <div className="skeleton" style={{ height: 184 }} />
+        </div>
+        <div className="grid grid-2">
+          <div className="skeleton" style={{ height: 300 }} />
+          <div className="skeleton" style={{ height: 300 }} />
         </div>
       </Layout>
     );
   }
 
-  const { totals, spending, budgets, trend, tips, recent, goal, insight, announcements, topCategory } = data;
-
-  // The rail is scaled to whichever is larger, income or spending. That way an
-  // overspent month shows the income line sitting *inside* the orange instead of
-  // pinning the bar at 100% and hiding the fact entirely.
-  const scale = Math.max(totals.income, totals.expense, 1);
-  const spentPct = (totals.expense / scale) * 100;
-  const incomePct = (totals.income / scale) * 100;
+  const { totals, spending, budgets, trend, tips, recent, goal, insight, announcements } = data;
   const overspent = totals.expense > totals.income;
 
   return (
@@ -98,174 +114,233 @@ export default function Dashboard() {
         </div>
       ) : null}
 
-      {/* The month band. One number, said loudly, with the whole month behind it. */}
-      <section className="band">
-        <div className="band-figure">
-          <div className="band-label">Kept this month</div>
-          <div className="band-amount" style={{ color: totals.balance < 0 ? 'var(--bad)' : undefined }}>
+      {/* --- The three headline figures --------------------------------- */}
+      <div className="dash-row">
+        <section className="panel kpi">
+          <div className="kpi-head">
+            <span>Kept this month</span>
+            <Icon name="wallet" size={16} />
+          </div>
+          <div className="kpi-figure" style={{ color: totals.balance < 0 ? 'var(--bad)' : undefined }}>
             {money(kept, currency)}
           </div>
-          <div className="band-sub">
+          <div className="kpi-sub">
             {totals.savingsRate === null
               ? 'Nothing has come in yet this month.'
-              : totals.savingsRate >= 0
-                ? `That is ${totals.savingsRate}% of what came in.`
-                : `You have spent ${Math.abs(totals.savingsRate)}% more than came in.`}
+              : overspent
+                ? `Spent ${Math.abs(totals.savingsRate)}% more than came in`
+                : `That is ${totals.savingsRate}% of what came in`}
           </div>
-        </div>
+          <div className="kpi-spark">
+            <Sparkline
+              values={trend.map((t) => t.balance)}
+              colour={totals.balance < 0 ? 'var(--bad)' : 'var(--good)'}
+            />
+          </div>
+        </section>
 
-        <div className="gauge">
-          <div
-            className="gauge-track"
-            role="img"
-            aria-label={`Spent ${money(totals.expense, currency)} of ${money(totals.income, currency)} received`}
-          >
-            <div className="gauge-fill is-out" style={{ width: `${spentPct}%` }} />
-            <div className="gauge-fill is-left" style={{ width: `${Math.max(0, 100 - spentPct)}%` }} />
-            {overspent ? (
-              <div className="gauge-mark" style={{ left: `${incomePct}%` }} title={`Income ${money(totals.income, currency)}`} />
-            ) : null}
+        <section className="panel kpi">
+          <div className="kpi-head">
+            <span>Cash flow</span>
+            <Link className="btn btn-ghost btn-sm" to="/reports">
+              Details
+            </Link>
           </div>
-          <div className="gauge-keys">
-            <span className="gauge-key">
-              <i className="swatch" style={{ background: 'var(--series-in)' }} /> In{' '}
+          <div className="kpi-flow">
+            <div className="kpi-flow-row is-in">
+              <span className="kpi-flow-label">Money in</span>
               <strong className="num">{money(totals.income, currency)}</strong>
-            </span>
-            <span className="gauge-key">
-              <i className="swatch" style={{ background: 'var(--series-out)' }} /> Out{' '}
+            </div>
+            <div className="kpi-flow-row is-out">
+              <span className="kpi-flow-label">Money out</span>
               <strong className="num">{money(totals.expense, currency)}</strong>
-            </span>
-            {overspent ? (
-              <span className="gauge-key">
-                <Icon name="alert" size={14} /> Everything right of the line came out of savings
-              </span>
-            ) : null}
-            {topCategory ? (
-              <span className="gauge-key">
-                <i className="swatch" style={{ background: slotColor(topCategory.slot) }} /> Most on{' '}
-                <strong>{topCategory.name}</strong>
-              </span>
-            ) : null}
-            {goal.target > 0 ? (
-              <span className="gauge-key">
-                <Icon name="target" size={14} /> Goal{' '}
-                <strong className="num">
-                  {money(goal.kept, currency)} of {money(goal.target, currency)}
-                </strong>
-              </span>
-            ) : null}
+            </div>
           </div>
+          <div className="kpi-spark">
+            <MiniBars data={trend} />
+          </div>
+        </section>
+
+        <section className="panel kpi">
+          <div className="kpi-head">
+            <span>Budget health</span>
+            <Link className="btn btn-ghost btn-sm" to="/budgets">
+              Manage
+            </Link>
+          </div>
+
+          {budgets.length === 0 ? (
+            <div className="kpi-sub" style={{ marginTop: '0.6rem' }}>
+              No caps set this month. One budget on your biggest category is the change most students actually
+              keep to.
+              <div style={{ marginTop: '0.85rem' }}>
+                <Link className="btn btn-sm" to="/budgets">
+                  Set a budget
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="kpi-split" style={{ marginTop: '0.5rem' }}>
+              <div className="kpi-budgets">
+                {budgets.slice(0, 3).map((budget) => (
+                  <div className="kpi-budget-row" key={budget._id}>
+                    <div className="kpi-budget-head">
+                      <span>{budget.category.name}</span>
+                      <span className="num">{budget.pct}%</span>
+                    </div>
+                    <div className="kpi-budget-track">
+                      <div
+                        className="kpi-budget-fill"
+                        style={{
+                          width: `${Math.min(100, budget.pct)}%`,
+                          background:
+                            budget.state === 'exceeded'
+                              ? 'var(--bad)'
+                              : budget.state === 'warning'
+                                ? 'var(--warn)'
+                                : slotColor(budget.category.slot),
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <RingGauge pct={budgetHealth.pct} label="of your budgets used" tone={budgetHealth.tone} />
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* --- Breakdown and trend ---------------------------------------- */}
+      <div className="dash-row dash-row-2">
+        <section className="panel">
+          <div className="panel-head">
+            <h2>Spending analysis</h2>
+            <Link className="btn btn-ghost btn-sm" to="/reports">
+              Full report
+            </Link>
+          </div>
+          <div className="panel-body">
+            <DonutChart rows={spending} currency={currency} total={totals.expense} />
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="panel-head">
+            <h2>Cash flow trend</h2>
+            <span className="panel-note">Last six months</span>
+          </div>
+          <div className="panel-body">
+            <AreaChart data={trend} currency={currency} />
+          </div>
+        </section>
+      </div>
+
+      {/* --- Recent transactions ---------------------------------------- */}
+      <section className="panel">
+        <div className="panel-head">
+          <h2>Recent transactions</h2>
+          <Link className="btn btn-ghost btn-sm" to="/transactions">
+            View all
+          </Link>
+        </div>
+        <div className="panel-body">
+          {recent.length === 0 ? (
+            <div className="empty">
+              <h3>Nothing logged yet</h3>
+              <p>Start with the thing you bought most recently &mdash; it takes about five seconds.</p>
+              <button type="button" className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => setAdding(true)}>
+                Add your first transaction
+              </button>
+            </div>
+          ) : (
+            <div className="table-wrap">
+              <table className="tx-table">
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th className="tx-hide">Date</th>
+                    <th>Category</th>
+                    <th style={{ textAlign: 'right' }}>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recent.map((row) => (
+                    <tr key={row._id}>
+                      <td>
+                        <div className="tx-name">
+                          <span className="ledger-dot" style={{ background: slotColor(row.category?.slot) }}>
+                            <Icon name={row.category?.icon} size={15} />
+                          </span>
+                          <span>{row.description || row.category?.name}</span>
+                          {row.flags?.includes('duplicate') ? <span className="pill is-warn">duplicate?</span> : null}
+                          {row.flags?.includes('large') ? <span className="pill is-warn">unusual</span> : null}
+                        </div>
+                      </td>
+                      <td className="tx-date tx-hide">{formatDate(row.date, { day: 'numeric', month: 'short' })}</td>
+                      <td>
+                        <span
+                          className="tx-cat"
+                          style={{
+                            background: `color-mix(in srgb, ${slotColor(row.category?.slot)} 16%, transparent)`,
+                            color: slotColor(row.category?.slot),
+                          }}
+                        >
+                          {row.category?.name}
+                        </span>
+                      </td>
+                      <td className={`tx-amount${row.type === 'income' ? ' is-in' : ''}`}>
+                        {row.type === 'income' ? '+' : '−'}
+                        {money(row.amount, currency).replace('−', '')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </section>
 
-      <div className="grid grid-main">
-        <div className="stack">
-          <section className="panel">
-            <div className="panel-head">
-              <h2>Where it went</h2>
-              <Link className="btn btn-ghost btn-sm" to="/reports">
-                Full report
-              </Link>
-            </div>
-            <div className="panel-body">
-              <CategorySpine
-                rows={spending}
-                currency={currency}
-                budgets={budgets}
-                emptyText="Add a few transactions and the split will appear here."
-              />
-            </div>
-          </section>
-
-          <section className="panel">
-            <div className="panel-head">
-              <h2>Six months at a glance</h2>
-            </div>
-            <div className="panel-body">
-              <TrendChart data={trend} currency={currency} />
-            </div>
-          </section>
-
-          <section className="panel">
-            <div className="panel-head">
-              <h2>Just added</h2>
-              <Link className="btn btn-ghost btn-sm" to="/transactions">
-                All transactions
-              </Link>
-            </div>
-            <div className="panel-body">
-              {recent.length === 0 ? (
-                <div className="empty">
-                  <h3>Nothing logged yet</h3>
-                  <p>Start with the thing you bought most recently - it takes about five seconds.</p>
-                  <button type="button" className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => setAdding(true)}>
-                    Add your first transaction
-                  </button>
-                </div>
-              ) : (
-                <div className="ledger">
-                  {recent.map((row) => (
-                    <div className="ledger-row" key={row._id} style={{ cursor: 'default' }}>
-                      <span className="ledger-dot" style={{ background: slotColor(row.category?.slot) }}>
-                        <Icon name={row.category?.icon} size={15} />
-                      </span>
-                      <span className="ledger-main">
-                        <span className="ledger-title">{row.description || row.category?.name}</span>
-                        <span className="ledger-sub">
-                          {row.category?.name} &middot; {dayHeading(row.date)}
-                          {row.flags?.includes('duplicate') ? <span className="pill is-warn">possible duplicate</span> : null}
-                          {row.flags?.includes('large') ? <span className="pill is-warn">unusually large</span> : null}
-                        </span>
-                      </span>
-                      <span className={`ledger-amount num${row.type === 'income' ? ' is-in' : ''}`}>
-                        {row.type === 'income' ? '+' : '−'}
-                        {money(row.amount, currency).replace('−', '')}
-                      </span>
+      {/* --- Advice ------------------------------------------------------ */}
+      <div className="dash-row dash-row-2">
+        <section className="panel">
+          <div className="panel-head">
+            <h2>Worth doing</h2>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={refreshTips}>
+              <Icon name="repeat" size={14} />
+              Refresh
+            </button>
+          </div>
+          <div className="panel-body">
+            {tips.length === 0 ? (
+              <p className="muted small">
+                Tips appear once there is a couple of weeks of history to compare against.
+              </p>
+            ) : (
+              <>
+                {tips.map((tip) => (
+                  <div className="tip" key={tip._id}>
+                    <span className="tip-impact num">{tip.impact > 0 ? money(tip.impact, currency) : 'Start'}</span>
+                    <div>
+                      <h4>{tip.title}</h4>
+                      <p>{tip.body}</p>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
+                  </div>
+                ))}
+                <Link className="btn btn-sm" to="/tips" style={{ marginTop: '0.85rem' }}>
+                  All saving tips
+                </Link>
+              </>
+            )}
+          </div>
+        </section>
 
         <div className="stack">
-          <section className="panel">
-            <div className="panel-head">
-              <h3>Worth doing</h3>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={refreshTips}>
-                <Icon name="repeat" size={14} />
-                Refresh
-              </button>
-            </div>
-            <div className="panel-body">
-              {tips.length === 0 ? (
-                <p className="muted small">
-                  Tips appear once there is a couple of weeks of history to compare against.
-                </p>
-              ) : (
-                <>
-                  {tips.map((tip) => (
-                    <div className="tip" key={tip._id}>
-                      <span className="tip-impact num">{tip.impact > 0 ? money(tip.impact, currency) : 'Start'}</span>
-                      <div>
-                        <h4>{tip.title}</h4>
-                        <p>{tip.body}</p>
-                      </div>
-                    </div>
-                  ))}
-                  <Link className="btn btn-sm" to="/tips" style={{ marginTop: '0.85rem' }}>
-                    All saving tips
-                  </Link>
-                </>
-              )}
-            </div>
-          </section>
-
           {insight ? (
             <section className="panel">
               <div className="panel-head">
-                <h3>This month, in a sentence</h3>
+                <h2>This month, in a sentence</h2>
               </div>
               <div className="panel-body stack">
                 <p className="insight-quote">{insight.summaryText}</p>
@@ -276,38 +351,40 @@ export default function Dashboard() {
             </section>
           ) : null}
 
-          <section className="panel">
-            <div className="panel-head">
-              <h3>Budgets</h3>
-              <Link className="btn btn-ghost btn-sm" to="/budgets">
-                Manage
-              </Link>
-            </div>
-            <div className="panel-body">
-              {budgets.length === 0 ? (
-                <div className="stack-sm">
-                  <p className="muted small">
-                    No caps set yet. One budget on your biggest category is the change most people actually stick to.
-                  </p>
-                  <Link className="btn btn-sm" to="/budgets">
-                    Set a budget
-                  </Link>
+          {goal.target > 0 ? (
+            <section className="panel kpi" style={{ minHeight: 0 }}>
+              <div className="kpi-head">
+                <span>Savings goal</span>
+                <Icon name="target" size={16} />
+              </div>
+              <div className="kpi-split" style={{ marginTop: '0.4rem' }}>
+                <div>
+                  <div className="kpi-figure" style={{ fontSize: 'var(--step-2)' }}>
+                    {money(goal.kept, currency)}
+                  </div>
+                  <div className="kpi-sub">of {money(goal.target, currency)} this month</div>
                 </div>
-              ) : (
-                <div className="spine">
-                  {budgets.map((budget) => (
-                    <BudgetMeter key={budget._id} budget={budget} currency={currency} />
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
+                <RingGauge
+                  pct={goal.pct ?? 0}
+                  label="of your savings goal"
+                  tone={goal.kept < 0 ? 'exceeded' : 'ok'}
+                />
+              </div>
+            </section>
+          ) : null}
         </div>
       </div>
 
       {adding ? (
         <Modal title="Add a transaction" onClose={() => setAdding(false)}>
-          <TransactionForm categories={categories} onSaved={onSaved} onCancel={() => setAdding(false)} />
+          <TransactionForm
+            categories={categories}
+            onSaved={() => {
+              setAdding(false);
+              load();
+            }}
+            onCancel={() => setAdding(false)}
+          />
         </Modal>
       ) : null}
     </Layout>
