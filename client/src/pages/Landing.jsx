@@ -133,6 +133,40 @@ function TypingFlow() {
   );
 }
 
+/**
+ * Pointer depth for the hero: writes the pointer's position (-1 to 1 on each
+ * axis) to CSS variables, and each layer moves by its own --depth. Mouse only -
+ * touch screens and reduced motion get a still hero.
+ */
+function usePointerDepth(target) {
+  useEffect(() => {
+    const node = target.current;
+    if (!node || prefersReducedMotion() || !window.matchMedia('(pointer: fine)').matches) return undefined;
+    let frame = 0;
+    const move = (event) => {
+      const box = node.getBoundingClientRect();
+      const x = ((event.clientX - box.left) / box.width) * 2 - 1;
+      const y = ((event.clientY - box.top) / box.height) * 2 - 1;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        node.style.setProperty('--mx', x.toFixed(3));
+        node.style.setProperty('--my', y.toFixed(3));
+      });
+    };
+    const leave = () => {
+      node.style.setProperty('--mx', '0');
+      node.style.setProperty('--my', '0');
+    };
+    node.addEventListener('pointermove', move);
+    node.addEventListener('pointerleave', leave);
+    return () => {
+      node.removeEventListener('pointermove', move);
+      node.removeEventListener('pointerleave', leave);
+      cancelAnimationFrame(frame);
+    };
+  }, [target]);
+}
+
 const TABS = [
   {
     key: 'all',
@@ -209,10 +243,12 @@ const FAQ = [
 
 export default function Landing() {
   const page = useRef(null);
+  const hero = useRef(null);
   const [tab, setTab] = useState(TABS[0].key);
   const [autoplay] = useState(() => !prefersReducedMotion());
   useReveal(page);
   const scrolled = useScrollState(page);
+  usePointerDepth(hero);
 
   // The tabs advance on their own: the progress line under the active tab is a
   // CSS animation, and when it finishes it moves to the next tab. Hovering the
@@ -247,16 +283,36 @@ export default function Landing() {
         </div>
       </nav>
 
-      <header className="lp-hero">
+      <header className="lp-hero" ref={hero}>
+        {/* Scenery: a soft colour mesh, a faint grid and two slow orbits. */}
+        <div className="lp-hero-bg" aria-hidden="true">
+          <span className="lp-mesh lp-mesh-a" />
+          <span className="lp-mesh lp-mesh-b" />
+          <span className="lp-grid" />
+        </div>
+
         <div className="lp-wrap lp-hero-grid">
           <div className="lp-hero-copy">
-            <span className="lp-eyebrow has-rule">Student money. Clearly sorted.</span>
+            <a href="#features" className="lp-badge">
+              <span className="lp-badge-tag">New</span>
+              An assistant that answers from your own numbers
+              <Icon name="right" size={14} />
+            </a>
             <h1>
-              {['Your allowance.', 'Your spending.', 'One clear picture.'].map((line, i) => (
+              {['Your allowance.', 'Your spending.'].map((line, i) => (
                 <span className="lp-line" key={line} style={{ '--i': i }}>
-                  {i === 2 ? <em>{line}</em> : <span>{line}</span>}
+                  <span>{line}</span>
                 </span>
               ))}
+              <span className="lp-line" style={{ '--i': 2 }}>
+                <em>
+                  One clear picture.
+                  {/* A hand-drawn stroke that draws itself under the promise. */}
+                  <svg className="lp-underline" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M4 14 C 60 4, 140 4, 200 10 S 280 16, 296 6" pathLength="1" />
+                  </svg>
+                </em>
+              </span>
             </h1>
             <p className="lp-lead">
               From your morning chai at the canteen to the hostel rent at the end of the month. Log it, budget it and
@@ -267,49 +323,96 @@ export default function Landing() {
                 Start tracking
                 <Icon name="arrow-ne" size={16} />
               </Link>
-              <a href="#features" className="lp-text-link">
-                Take a closer look
+              <Link to="/login" className="lp-text-link">
+                Try the demo
                 <Icon name="right" size={16} />
-              </a>
+              </Link>
             </div>
-            <ul className="lp-ticks">
+            <ul className="lp-facts">
               <li>
-                <Icon name="check" size={15} /> Free, no bank needed
+                <span className="lp-fact-icon">
+                  <Icon name="shield" size={16} />
+                </span>
+                <span>
+                  <strong>No bank link</strong>
+                  Nothing to connect
+                </span>
               </li>
               <li>
-                <Icon name="check" size={15} /> Works on your phone
+                <span className="lp-fact-icon is-mint">
+                  <Icon name="spark" size={16} />
+                </span>
+                <span>
+                  <strong>7 saving rules</strong>
+                  Built from your history
+                </span>
+              </li>
+              <li>
+                <span className="lp-fact-icon is-cream">
+                  <Icon name="chart" size={16} />
+                </span>
+                <span>
+                  <strong>6 months</strong>
+                  Side by side
+                </span>
               </li>
             </ul>
           </div>
 
-          <div className="lp-hero-visual">
-            <span className="lp-eyebrow lp-hero-tag">A little clarity. A lot less guessing.</span>
-            <div className="lp-orbit" aria-hidden="true" />
-            <figure className="lp-frame">
-              <div className="lp-frame-bar" aria-hidden="true">
+          {/* The app, layered: the desktop dashboard behind, the phone in front,
+              and cards carrying the demo account's real figures. Each layer
+              has its own depth, so they drift apart as the pointer moves. */}
+          <div className="lp-stage" aria-hidden="true">
+            <span className="lp-orbit lp-orbit-a">
+              <i className="lp-orbit-coin" />
+            </span>
+            <span className="lp-orbit lp-orbit-b">
+              <i className="lp-orbit-coin is-small" />
+            </span>
+
+            <figure className="lp-frame lp-depth" style={{ '--depth': 0.4 }}>
+              <div className="lp-frame-bar">
                 <i />
                 <i />
                 <i />
               </div>
-              <img src="/shots/hero.png" alt="The Campus Coin dashboard showing a month of income and spending" />
+              <img src="/shots/hero.png" alt="" />
             </figure>
-            <div className="lp-float lp-float-a">
-              <span className="lp-float-icon">
-                <Icon name="bulb" size={18} />
+
+            <figure className="lp-phone lp-depth" style={{ '--depth': 1 }}>
+              <span className="lp-phone-notch" />
+              <img src="/shots/phone.png" alt="" />
+            </figure>
+
+            <div className="lp-card lp-card-income lp-depth" style={{ '--depth': 1.4 }}>
+              <span className="lp-card-icon is-mint">
+                <Icon name="download" size={17} />
               </span>
               <div>
-                <strong>Tip of the day</strong>
-                <span>Worth up to Rs 10,847 a month</span>
+                <span>Allowance received</span>
+                <strong className="num">+Rs 20,000</strong>
               </div>
             </div>
-            <div className="lp-float lp-float-b">
-              <span className="lp-float-icon is-green">
-                <Icon name="chart" size={18} />
-              </span>
-              <div>
-                <strong>See the bigger picture</strong>
-                <span>Six months, side by side</span>
+
+            <div className="lp-card lp-card-budget lp-depth" style={{ '--depth': 1.8 }}>
+              <div className="lp-card-row">
+                <span>Food budget</span>
+                <em>Over</em>
               </div>
+              <strong className="num">
+                Rs 10,941 <small>of Rs 9,000</small>
+              </strong>
+              <span className="lp-card-bar">
+                <i />
+              </span>
+            </div>
+
+            <div className="lp-card lp-card-chat lp-depth" style={{ '--depth': 1.2 }}>
+              <span className="lp-chat-q">How much on food?</span>
+              <span className="lp-chat-a">
+                <Icon name="spark" size={13} />
+                Rs 10,941 this month, 7% above your usual.
+              </span>
             </div>
           </div>
         </div>
