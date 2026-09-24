@@ -7,16 +7,18 @@ gsap.registerPlugin(ScrollTrigger);
 /* ---------------------------------------------------------------------------
    Motion for the landing page.
 
-   The set piece is the pinned scene: the steps column sticks to the viewport
-   while the page scrolls past it, and the screenshot beside it swaps to the
-   part of the app each step is describing. Scroll position drives which step
-   is lit, so the reader is moving through the product rather than watching it
-   play.
+   Tuned to the style rather than bolted onto it. Brutalist motion is abrupt:
+   things arrive on a hard offset and stop, or they run at a constant speed.
+   There is no gentle deceleration anywhere here, and nothing fades through a
+   soft opacity ramp - `steps()` and `none` do most of the work.
 
-   Everything is registered inside gsap.matchMedia(). Under
-   prefers-reduced-motion nothing is created at all: no pinning, no drifting
-   colour, no counters - the page renders as a normal static document with the
-   first step lit and the first screenshot showing.
+   The set piece is the pinned scene: the steps column sticks to the viewport
+   while the page scrolls past, and the plate beside it cuts to the part of the
+   app each step describes. It cuts rather than dissolves, which is why the
+   stage uses display rather than opacity.
+
+   Everything sits inside gsap.matchMedia() under a reduced-motion query, so a
+   reader who has asked for less motion gets a plain static document.
 --------------------------------------------------------------------------- */
 
 export function useLandingMotion(scope) {
@@ -26,79 +28,44 @@ export function useLandingMotion(scope) {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      /* ----- Things that run at every size ------------------------------- */
       mm.add('(prefers-reduced-motion: no-preference)', () => {
-        // The colour behind the page, drifting slowly and never repeating the
-        // same way twice.
-        gsap.utils.toArray('[data-blob]').forEach((blob, i) => {
-          gsap.to(blob, {
-            xPercent: gsap.utils.random(-18, 18),
-            yPercent: gsap.utils.random(-16, 16),
-            scale: gsap.utils.random(0.85, 1.25),
-            duration: gsap.utils.random(14, 22),
-            delay: i * 0.4,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-          });
-        });
-
-        // The hero, arriving in one staggered sequence.
+        // The hero blocks slam in from the left, one after another.
         gsap.from('[data-hero]', {
-          y: 40,
+          x: -40,
           opacity: 0,
-          duration: 0.9,
-          stagger: 0.09,
-          ease: 'power3.out',
+          duration: 0.35,
+          stagger: 0.07,
+          ease: 'power4.out',
         });
 
-        // The gradient in the headline slides continuously.
-        gsap.to('[data-grad]', {
-          backgroundPosition: '250% 50%',
-          duration: 9,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-        });
-
-        // The screenshot rises into place, then tilts back as you scroll off it.
         gsap.from('[data-shot]', {
-          y: 90,
+          y: 60,
           opacity: 0,
-          scale: 0.94,
-          duration: 1.1,
+          duration: 0.4,
           delay: 0.3,
-          ease: 'power3.out',
+          ease: 'power4.out',
         });
 
-        gsap.to('[data-shot] .lp-shot-main', {
-          rotateX: 16,
-          scale: 0.94,
-          ease: 'none',
-          scrollTrigger: { trigger: '[data-shot]', start: 'top 15%', end: 'bottom top', scrub: 0.5 },
-        });
-
+        // The floating phone drifts against the page as you scroll past it.
         gsap.to('[data-float]', {
-          y: -50,
+          y: -60,
           ease: 'none',
-          scrollTrigger: { trigger: '[data-shot]', start: 'top bottom', end: 'bottom top', scrub: 0.6 },
+          scrollTrigger: { trigger: '[data-shot]', start: 'top bottom', end: 'bottom top', scrub: true },
         });
 
-        // The spending ticker. Half the track is a duplicate of the other half,
-        // so resetting at -50% makes it seamless.
+        // The ticker. Half the track duplicates the other half, so resetting at
+        // -50% makes it seamless. Constant speed, no easing.
         const marquee = document.querySelector('[data-marquee]');
-        if (marquee) {
-          gsap.to(marquee, { xPercent: -50, duration: 38, repeat: -1, ease: 'none' });
-        }
+        if (marquee) gsap.to(marquee, { xPercent: -50, duration: 34, repeat: -1, ease: 'none' });
 
-        // The stats count up when they arrive.
+        // Counters that tick rather than glide.
         gsap.utils.toArray('[data-stat]').forEach((el) => {
           const target = Number(el.dataset.stat);
           const counter = { value: 0 };
           gsap.to(counter, {
             value: target,
-            duration: 1.5,
-            ease: 'power2.out',
+            duration: 1,
+            ease: 'steps(24)',
             scrollTrigger: { trigger: el, start: 'top 90%', once: true },
             onUpdate: () => {
               el.textContent = String(Math.round(counter.value));
@@ -106,59 +73,43 @@ export function useLandingMotion(scope) {
           });
         });
 
-        // Headings and cards, arriving with some life in them.
-        gsap.utils.toArray('[data-reveal]').forEach((el) => {
-          gsap.from(el, {
-            y: 50,
-            opacity: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
-          });
-        });
-
+        // Feature blocks land on their offset and stop dead.
         gsap.from('[data-card]', {
-          y: 60,
+          y: 30,
           opacity: 0,
-          scale: 0.96,
-          duration: 0.7,
-          stagger: 0.08,
-          ease: 'power3.out',
+          duration: 0.3,
+          stagger: 0.05,
+          ease: 'power4.out',
           scrollTrigger: { trigger: '.lp-bento', start: 'top 85%', once: true },
         });
 
         gsap.from('[data-final]', {
-          scale: 0.94,
+          y: 40,
           opacity: 0,
-          duration: 0.9,
-          ease: 'power3.out',
+          duration: 0.35,
+          ease: 'power4.out',
           scrollTrigger: { trigger: '[data-final]', start: 'top 88%', once: true },
         });
       });
 
-      /* ----- The pinned scene, wide screens only ------------------------- */
-      // Pinning on a phone would fight the user's own scrolling, so below
+      // Pinning would fight the reader's own scrolling on a phone, so below
       // 900px the section is left as an ordinary stacked block.
       mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
         const steps = gsap.utils.toArray('[data-step]');
         const stages = gsap.utils.toArray('[data-stage]');
         if (!steps.length) return;
 
-        const show = (index) => {
-          steps.forEach((step, i) => step.classList.toggle('is-on', i === index));
-          stages.forEach((img, i) => img.classList.toggle('is-on', i === index));
-        };
-
         ScrollTrigger.create({
           trigger: '[data-scene]',
           start: 'top top',
-          // One viewport of scroll per step, so each one gets equal time.
+          // One viewport of scroll per step, so each gets equal time.
           end: () => `+=${window.innerHeight * steps.length}`,
           pin: '.lp-scene-sticky',
           pinSpacing: true,
           onUpdate: (self) => {
             const index = Math.min(steps.length - 1, Math.floor(self.progress * steps.length));
-            show(index);
+            steps.forEach((step, i) => step.classList.toggle('is-on', i === index));
+            stages.forEach((img, i) => img.classList.toggle('is-on', i === index));
           },
         });
       });

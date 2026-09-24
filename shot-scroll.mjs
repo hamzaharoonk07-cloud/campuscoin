@@ -31,7 +31,7 @@ if (!total) { console.error('page did not render - is the server up?'); process.
 console.log('page height', total);
 for (let i = 0, y = 0; y < total; i++, y += 950) {
   await cdp('Runtime.evaluate', { expression: `window.scrollTo(0, ${y})` });
-  await sleep(500);
+  await sleep(1400);
   const shot = await cdp('Page.captureScreenshot', { format:'png' });
   fs.writeFileSync(`${out}/scroll-${i}.png`, Buffer.from(shot.data,'base64'));
   console.log('captured scroll-' + i, 'at y=' + y);
