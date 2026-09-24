@@ -5,27 +5,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 /* ---------------------------------------------------------------------------
-   Scroll behaviour for the landing page.
+   Motion for the landing page.
 
-   The deliberate omission here is the obvious one: no section fades up as it
-   comes into view. That pattern is on every marketing page built in the last
-   five years, and applying it everywhere would flatten the difference between
-   the parts of this page that mean something and the parts that are just text.
+   The set piece is the pinned scene: the steps column sticks to the viewport
+   while the page scrolls past it, and the screenshot beside it swaps to the
+   part of the app each step is describing. Scroll position drives which step
+   is lit, so the reader is moving through the product rather than watching it
+   play.
 
-   So only four things move, and each one is doing a job:
-
-     1. A progress line, because the page is long enough to want one.
-     2. The facts count up when they arrive - a number landing on its value
-        reads as a measurement being taken.
-     3. The step connector draws left to right, because the three steps are a
-        sequence and the line is what says so.
-     4. The category bars are tied to scroll position rather than triggered by
-        it, so the month's spending fills in under your own scrolling. This is
-        the one real flourish on the page and it is on the data, not the chrome.
-
-   Everything is registered inside gsap.matchMedia() under a
-   prefers-reduced-motion query, so a viewer who has asked for less motion gets
-   the finished state immediately and no ScrollTriggers are created at all.
+   Everything is registered inside gsap.matchMedia(). Under
+   prefers-reduced-motion nothing is created at all: no pinning, no drifting
+   colour, no counters - the page renders as a normal static document with the
+   first step lit and the first screenshot showing.
 --------------------------------------------------------------------------- */
 
 export function useLandingMotion(scope) {
@@ -35,75 +26,140 @@ export function useLandingMotion(scope) {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
+      /* ----- Things that run at every size ------------------------------- */
       mm.add('(prefers-reduced-motion: no-preference)', () => {
-        // 1. Scroll progress -------------------------------------------------
-        gsap.to('[data-progress]', {
-          scaleX: 1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: document.documentElement,
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 0.25,
-          },
+        // The colour behind the page, drifting slowly and never repeating the
+        // same way twice.
+        gsap.utils.toArray('[data-blob]').forEach((blob, i) => {
+          gsap.to(blob, {
+            xPercent: gsap.utils.random(-18, 18),
+            yPercent: gsap.utils.random(-16, 16),
+            scale: gsap.utils.random(0.85, 1.25),
+            duration: gsap.utils.random(14, 22),
+            delay: i * 0.4,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+          });
         });
 
-        // 2. The facts ------------------------------------------------------
-        gsap.utils.toArray('[data-count]').forEach((el) => {
-          const target = Number(el.dataset.count);
-          const counter = { value: 0 };
+        // The hero, arriving in one staggered sequence.
+        gsap.from('[data-hero]', {
+          y: 40,
+          opacity: 0,
+          duration: 0.9,
+          stagger: 0.09,
+          ease: 'power3.out',
+        });
 
+        // The gradient in the headline slides continuously.
+        gsap.to('[data-grad]', {
+          backgroundPosition: '250% 50%',
+          duration: 9,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+        });
+
+        // The screenshot rises into place, then tilts back as you scroll off it.
+        gsap.from('[data-shot]', {
+          y: 90,
+          opacity: 0,
+          scale: 0.94,
+          duration: 1.1,
+          delay: 0.3,
+          ease: 'power3.out',
+        });
+
+        gsap.to('[data-shot] .lp-shot-main', {
+          rotateX: 16,
+          scale: 0.94,
+          ease: 'none',
+          scrollTrigger: { trigger: '[data-shot]', start: 'top 15%', end: 'bottom top', scrub: 0.5 },
+        });
+
+        gsap.to('[data-float]', {
+          y: -50,
+          ease: 'none',
+          scrollTrigger: { trigger: '[data-shot]', start: 'top bottom', end: 'bottom top', scrub: 0.6 },
+        });
+
+        // The spending ticker. Half the track is a duplicate of the other half,
+        // so resetting at -50% makes it seamless.
+        const marquee = document.querySelector('[data-marquee]');
+        if (marquee) {
+          gsap.to(marquee, { xPercent: -50, duration: 38, repeat: -1, ease: 'none' });
+        }
+
+        // The stats count up when they arrive.
+        gsap.utils.toArray('[data-stat]').forEach((el) => {
+          const target = Number(el.dataset.stat);
+          const counter = { value: 0 };
           gsap.to(counter, {
             value: target,
-            duration: 1.1,
+            duration: 1.5,
             ease: 'power2.out',
-            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+            scrollTrigger: { trigger: el, start: 'top 90%', once: true },
             onUpdate: () => {
               el.textContent = String(Math.round(counter.value));
             },
           });
         });
 
-        // 3. The line joining the three steps -------------------------------
-        gsap.to('[data-steps-line]', {
-          scaleX: 1,
+        // Headings and cards, arriving with some life in them.
+        gsap.utils.toArray('[data-reveal]').forEach((el) => {
+          gsap.from(el, {
+            y: 50,
+            opacity: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          });
+        });
+
+        gsap.from('[data-card]', {
+          y: 60,
+          opacity: 0,
+          scale: 0.96,
+          duration: 0.7,
+          stagger: 0.08,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: '.lp-bento', start: 'top 85%', once: true },
+        });
+
+        gsap.from('[data-final]', {
+          scale: 0.94,
+          opacity: 0,
           duration: 0.9,
-          ease: 'power2.inOut',
-          scrollTrigger: { trigger: '[data-steps-line]', start: 'top 85%', once: true },
+          ease: 'power3.out',
+          scrollTrigger: { trigger: '[data-final]', start: 'top 88%', once: true },
         });
+      });
 
-        gsap.from('.steps-n', {
-          scale: 0.4,
-          opacity: 0,
-          duration: 0.5,
-          stagger: 0.12,
-          ease: 'back.out(2)',
-          scrollTrigger: { trigger: '.steps', start: 'top 82%', once: true },
-        });
+      /* ----- The pinned scene, wide screens only ------------------------- */
+      // Pinning on a phone would fight the user's own scrolling, so below
+      // 900px the section is left as an ordinary stacked block.
+      mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
+        const steps = gsap.utils.toArray('[data-step]');
+        const stages = gsap.utils.toArray('[data-stage]');
+        if (!steps.length) return;
 
-        // 4. The month filling in as you scroll through it -------------------
-        // scrub ties progress to scroll position instead of playing on entry,
-        // so the bars are drawn by the reader rather than at them.
-        gsap.from('.showcase .spine-fill', {
-          scaleX: 0,
-          transformOrigin: 'left center',
-          stagger: 0.12,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: '.showcase',
-            start: 'top 85%',
-            end: 'center 60%',
-            scrub: 0.4,
+        const show = (index) => {
+          steps.forEach((step, i) => step.classList.toggle('is-on', i === index));
+          stages.forEach((img, i) => img.classList.toggle('is-on', i === index));
+        };
+
+        ScrollTrigger.create({
+          trigger: '[data-scene]',
+          start: 'top top',
+          // One viewport of scroll per step, so each one gets equal time.
+          end: () => `+=${window.innerHeight * steps.length}`,
+          pin: '.lp-scene-sticky',
+          pinSpacing: true,
+          onUpdate: (self) => {
+            const index = Math.min(steps.length - 1, Math.floor(self.progress * steps.length));
+            show(index);
           },
-        });
-
-        // The figure it sums to arrives with the bars.
-        gsap.from('.showcase-figure', {
-          opacity: 0,
-          y: 12,
-          duration: 0.6,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: '.showcase', start: 'top 80%', once: true },
         });
       });
     }, scope);
