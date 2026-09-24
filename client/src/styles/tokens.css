@@ -1,14 +1,15 @@
 /* ===========================================================================
    Campus Coin design tokens
    ---------------------------------------------------------------------------
-   Calm and clear: near-white pages, a deep petrol blue for anything you can
-   act on, navy for the few moments that deserve weight, and soft pastel tiles
+   Calm and clear: near-white pages with a green cast, a deep emerald for
+   anything you can act on, midnight green for the few moments that deserve
+   weight, and soft pastel tiles
    for the four kinds of money a student deals with. Inter Tight sets the
    headings - tight and even at large sizes - and Inter does the reading.
 
    Colour is assigned by the job it does, never by decoration:
      accent    - the brand and anything you can act on.
-     navy/sky  - the hero band and its highlight.
+     navy/sky  - midnight green for the hero band, and its mint highlight.
      tile-*    - pastel backgrounds for money tiles: out (rose), in (mint),
                  budget (cream), goal (blue). Text on them stays dark, so each
                  tile is readable without relying on its colour.
@@ -22,40 +23,40 @@
 :root {
   color-scheme: light;
 
-  --bg: #f8fafc;
+  --bg: #f5f8f6;
   --surface: #ffffff;
-  --raised: #f3f6f9;
-  --sunken: #e9eef3;
-  --line: #e5eaf0;
-  --line-strong: #cfd8e2;
+  --raised: #f0f5f2;
+  --sunken: #e4ece7;
+  --line: #e1e9e4;
+  --line-strong: #c7d5cd;
   --input-bg: #ffffff;
 
   --edge: inset 0 0 0 0 transparent;
   --edge-strong: inset 0 0 0 0 transparent;
 
-  --text: #0f2a3d;
-  --muted: #4f6272;
-  --faint: #7a8a98;
+  --text: #0f1f19;
+  --muted: #4e6259;
+  --faint: #788a82;
 
-  /* Petrol blue: white text on it measures 7.1:1. */
-  --accent: #0b5f80;
-  --accent-deep: #084a64;
-  --accent-soft: rgba(11, 95, 128, 0.08);
-  --accent-line: rgba(11, 95, 128, 0.24);
-  --accent-text: #0b5f80;
+  /* Emerald 700: white text on it measures 5.5:1. */
+  --accent: #047857;
+  --accent-deep: #065f46;
+  --accent-soft: rgba(4, 120, 87, 0.09);
+  --accent-line: rgba(4, 120, 87, 0.26);
+  --accent-text: #047857;
   --on-accent: #ffffff;
-  --accent-glow: 0 10px 24px -12px rgba(11, 95, 128, 0.55);
+  --accent-glow: 0 10px 24px -12px rgba(4, 120, 87, 0.55);
 
-  --navy: #0a3550;
-  --navy-raised: #144862;
-  --sky: #8cccf2;
+  --navy: #0b2e23;
+  --navy-raised: #134231;
+  --sky: #6ee7b7;
   --on-navy: #ffffff;
-  --on-navy-muted: #b9cedb;
+  --on-navy-muted: #b5cfc4;
 
-  --tile-out: #fbe6e3;
-  --tile-in: #e3f3e6;
-  --tile-budget: #f4efdc;
-  --tile-goal: #e2edf9;
+  --tile-out: #fde4e2;
+  --tile-in: #d8f5e5;
+  --tile-budget: #fbf0d2;
+  --tile-goal: #dcf0fb;
 
   --series-in: #2a78d6;
   --series-out: #eb6834;
@@ -68,21 +69,21 @@
   --cat-6: #008300;
   --cat-7: #4a3aa7;
 
-  --good: #17845c;
-  --good-soft: rgba(23, 132, 92, 0.1);
+  --good: #15803d;
+  --good-soft: rgba(21, 128, 61, 0.1);
   --warn: #a9690a;
   --warn-soft: rgba(169, 105, 10, 0.1);
   --bad: #c23b3a;
   --bad-soft: rgba(194, 59, 58, 0.09);
 
   /* Soft and low: the cards are separated by space more than by shadow. */
-  --shadow-1: 0 1px 2px rgba(15, 42, 61, 0.04);
-  --shadow-2: 0 2px 6px rgba(15, 42, 61, 0.05), 0 12px 28px -12px rgba(15, 42, 61, 0.12);
-  --shadow-3: 0 4px 10px rgba(15, 42, 61, 0.06), 0 24px 48px -16px rgba(15, 42, 61, 0.2);
+  --shadow-1: 0 1px 2px rgba(15, 31, 25, 0.05);
+  --shadow-2: 0 2px 6px rgba(15, 31, 25, 0.05), 0 12px 28px -12px rgba(15, 31, 25, 0.13);
+  --shadow-3: 0 4px 10px rgba(15, 31, 25, 0.06), 0 24px 48px -16px rgba(15, 31, 25, 0.22);
 
-  --wash-1: rgba(140, 204, 242, 0.22);
-  --wash-2: rgba(11, 95, 128, 0.06);
-  --wash-3: rgba(140, 204, 242, 0.1);
+  --wash-1: rgba(110, 231, 183, 0.22);
+  --wash-2: rgba(4, 120, 87, 0.06);
+  --wash-3: rgba(190, 242, 100, 0.1);
 
   --grain-opacity: 0;
 
@@ -119,34 +120,34 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --bg: #07192a;
-  --surface: #0d2438;
-  --raised: #133047;
-  --sunken: #051320;
-  --line: #1b3a52;
-  --line-strong: #29506c;
-  --input-bg: #0a1f31;
+  --bg: #06120e;
+  --surface: #0c1d17;
+  --raised: #122920;
+  --sunken: #040c09;
+  --line: #1a3429;
+  --line-strong: #284f3e;
+  --input-bg: #09180f;
 
-  --text: #e8f1f7;
-  --muted: #9fb6c6;
-  --faint: #6f8a9d;
+  --text: #e6f3ec;
+  --muted: #9ab7a9;
+  --faint: #6a887a;
 
-  /* On navy the petrol would disappear, so the sky blue takes over. */
-  --accent: #8cccf2;
-  --accent-deep: #6ab8e8;
-  --accent-soft: rgba(140, 204, 242, 0.12);
-  --accent-line: rgba(140, 204, 242, 0.3);
-  --accent-text: #a6d8f6;
-  --on-accent: #07192a;
-  --accent-glow: 0 10px 24px -12px rgba(140, 204, 242, 0.45);
+  /* On the dark surfaces the deep emerald would disappear, so a lighter one takes over. */
+  --accent: #34d399;
+  --accent-deep: #10b981;
+  --accent-soft: rgba(52, 211, 153, 0.12);
+  --accent-line: rgba(52, 211, 153, 0.3);
+  --accent-text: #6ee7b7;
+  --on-accent: #052e22;
+  --accent-glow: 0 10px 24px -12px rgba(52, 211, 153, 0.45);
 
-  --navy: #0f3a57;
-  --navy-raised: #1a4d6d;
+  --navy: #0e3a2b;
+  --navy-raised: #174a38;
 
-  --tile-out: #3a2527;
-  --tile-in: #1d3528;
-  --tile-budget: #37321f;
-  --tile-goal: #1b3450;
+  --tile-out: #3a2425;
+  --tile-in: #153828;
+  --tile-budget: #383018;
+  --tile-goal: #15314a;
 
   --series-in: #3987e5;
   --series-out: #d95926;
@@ -159,8 +160,8 @@
   --cat-6: #008300;
   --cat-7: #9085e9;
 
-  --good: #3fc48f;
-  --good-soft: rgba(63, 196, 143, 0.13);
+  --good: #4ade80;
+  --good-soft: rgba(74, 222, 128, 0.13);
   --warn: #e0a83c;
   --warn-soft: rgba(224, 168, 60, 0.13);
   --bad: #f07a78;
@@ -170,7 +171,7 @@
   --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.25), 0 12px 28px -12px rgba(0, 0, 0, 0.5);
   --shadow-3: 0 4px 10px rgba(0, 0, 0, 0.3), 0 24px 48px -16px rgba(0, 0, 0, 0.6);
 
-  --wash-1: rgba(140, 204, 242, 0.07);
-  --wash-2: rgba(57, 135, 229, 0.06);
-  --wash-3: rgba(140, 204, 242, 0.04);
+  --wash-1: rgba(110, 231, 183, 0.07);
+  --wash-2: rgba(52, 211, 153, 0.05);
+  --wash-3: rgba(190, 242, 100, 0.04);
 }

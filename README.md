@@ -224,24 +224,16 @@ The interface is written rather than assembled. A few decisions worth naming:
   surface rather than one being an inversion of the other. The choice is saved
   to the device *and* the account, so it follows the student to another machine.
   Settings also offers "match my device", which follows the operating system live.
-- **Calm and clear.** A deep petrol blue (`#0b5f80`, white text at 7.1:1) for
-  anything you can act on, navy for the dashboard hero and sign-in panel, and
-  pastel tiles for the four kinds of money (rose for spending, mint for income,
-  cream for budgets, blue for savings). Headings are set in Inter Tight, body
-  text in Inter; buttons are pills and cards are generously rounded. The
-  landing page is built from the same tokens, so the page you arrive on and the
-  app you sign into are visibly one product. The visual direction was modelled
-  on the style of the Hisab Kitab expense app; the layout code and all the
-  copy are our own.
-- **Chart colour is assigned by the job it does.** Income and spending are blue
-  and orange rather than the obvious green and red: measured against a
-  colour-blindness simulation, the green/red pair separates by ΔE 6.9 while
-  blue/orange holds at 24.7. Green and red are kept for *status* — under or over
-  budget — where they always appear with a word, never colour alone.
-- **Category colour is stored as a palette slot, not a hex value**, so the same
-  category takes its correct light-mode and dark-mode step. The seven slots come
-  from a categorical palette validated for colour-blind separation and contrast
-  against both surfaces.
+- **Emerald and midnight.** A deep emerald (, white text at 5.5:1)
+  for anything you can act on, midnight green for the dashboard hero, the
+  sign-in panel and the landing hero, with mint and lime highlights, and pastel
+  tiles for the four kinds of money (rose for spending, mint for income, cream
+  for budgets, blue for savings). Green was chosen because it reads as money
+  that is growing. Headings are set in Inter Tight, body text in Inter; buttons
+  are pills and cards are generously rounded. The landing page is built from
+  the same tokens, so the page you arrive on and the app you sign into are
+  visibly one product. The layout was modelled on the style of the Hisab Kitab
+  expense app; the code and all the copy are our own.
 - **Motion explains, it does not decorate** (`client/src/styles/motion.css`).
   Sections arrive top to bottom, charts draw themselves (the donut sweeps in
   ranked order, lines trace, bars grow), headline figures count up, and budget

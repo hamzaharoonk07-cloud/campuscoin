@@ -1308,7 +1308,7 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   top: -18rem;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(140, 204, 242, 0.2), transparent 65%);
+  background: radial-gradient(circle, rgba(110, 231, 183, 0.2), transparent 65%);
 }
 
 .auth-aside > * { position: relative; }
@@ -1352,19 +1352,19 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   padding: 0.8rem 1.05rem;
   border-radius: 16px;
   background: #fff;
-  color: #0f2a3d;
+  color: #0f1f19;
   box-shadow: 0 20px 40px -18px rgba(0, 0, 0, 0.5);
 }
 .auth-preview-card strong { display: block; font-size: 0.88rem; }
-.auth-preview-card span:not(.auth-preview-icon) { display: block; font-size: 0.78rem; color: #4f6272; }
+.auth-preview-card span:not(.auth-preview-icon) { display: block; font-size: 0.78rem; color: #4e6259; }
 .auth-preview-icon {
   display: grid;
   place-items: center;
   width: 36px;
   height: 36px;
   border-radius: 11px;
-  background: #e2edf9;
-  color: #0b5f80;
+  background: #d9f5e6;
+  color: #047857;
   flex: none;
 }
 
@@ -1505,11 +1505,11 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 }
 
 .auth-demo {
-  background: var(--tile-goal);
+  background: var(--tile-in);
   border-color: transparent;
   color: var(--accent-text);
 }
-.auth-demo:hover:not(:disabled) { background: color-mix(in srgb, var(--tile-goal) 70%, var(--sky)); border-color: transparent; }
+.auth-demo:hover:not(:disabled) { background: color-mix(in srgb, var(--tile-in) 65%, var(--sky)); border-color: transparent; }
 
 .auth-alt {
   margin: 0;
@@ -2677,7 +2677,7 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   right: -12rem;
   top: -16rem;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(140, 204, 242, 0.22), transparent 65%);
+  background: radial-gradient(circle, rgba(110, 231, 183, 0.22), transparent 65%);
   pointer-events: none;
 }
 
@@ -2715,13 +2715,13 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 .btn-sky {
   background: var(--sky);
   border-color: var(--sky);
-  color: #07233a;
+  color: #052e22;
   box-shadow: none;
 }
 .btn-sky:hover:not(:disabled) {
   background: #fff;
   border-color: #fff;
-  color: #07233a;
+  color: #052e22;
 }
 
 .dash-hero-link {

@@ -293,7 +293,8 @@ export default function Layout({ title, crumbs, actions, children }) {
                 height: 28,
                 borderRadius: 999,
                 background: user?.avatarColor || 'var(--accent)',
-                color: 'var(--on-accent)',
+                // White on every avatar colour, in both themes.
+                color: '#fff',
                 display: 'grid',
                 placeItems: 'center',
                 fontWeight: 700,
