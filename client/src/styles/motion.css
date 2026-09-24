@@ -66,7 +66,6 @@
 :is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(9) { --row: 8; }
 :is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(n + 10) { --row: 9; }
 
-.auth-form { animation: enter 0.7s var(--ease-out) 0.1s backwards; }
 
 /* --- Charts draw themselves ---------------------------------------------- */
 
@@ -214,3 +213,41 @@
 @media (max-width: 900px) {
   .backdrop { inset: 0; }
 }
+
+/* --- Dashboard hero and the sign-in panel -------------------------------- */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@keyframes tile-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.92); }
+}
+
+.dash-hero-text > * { animation: rise 0.6s var(--ease-out) backwards; }
+.dash-hero-text > :nth-child(1) { animation-delay: 0.15s; }
+.dash-hero-text > :nth-child(2) { animation-delay: 0.25s; }
+.dash-hero-text > :nth-child(3) { animation-delay: 0.35s; }
+.dash-hero-text > :nth-child(4) { animation-delay: 0.45s; }
+
+.money-tile { animation: tile-in 0.65s var(--ease-out) backwards; }
+.money-tile:nth-child(1) { animation-delay: 0.3s; }
+.money-tile:nth-child(2) { animation-delay: 0.4s; }
+.money-tile:nth-child(3) { animation-delay: 0.5s; }
+.money-tile:nth-child(4) { animation-delay: 0.6s; }
+
+/* The glow in the hero's corner drifts slowly, so the navy never looks flat. */
+.dash-hero::before,
+.auth-aside::before { animation: glow-drift 16s ease-in-out infinite alternate; }
+@keyframes glow-drift {
+  to { transform: translate(-6rem, 5rem) scale(1.1); }
+}
+
+.auth-aside > * { animation: rise 0.7s var(--ease-out) backwards; }
+.auth-aside > :nth-child(2) { animation-delay: 0.1s; }
+.auth-aside > :nth-child(3) { animation-delay: 0.2s; }
+.auth-aside > :nth-child(4) { animation-delay: 0.3s; }
+.auth-form > * { animation: rise 0.6s var(--ease-out) backwards; }
+.auth-form > :nth-child(2) { animation-delay: 0.05s; }
+.auth-form > :nth-child(3) { animation-delay: 0.1s; }
+.auth-form > :nth-child(4) { animation-delay: 0.15s; }
+.auth-form > :nth-child(n + 5) { animation-delay: 0.2s; }

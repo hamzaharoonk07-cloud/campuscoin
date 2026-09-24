@@ -38,6 +38,101 @@ function useReveal(root) {
   }, [root]);
 }
 
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * Tracks scroll for the navigation: whether the page has left the top (the bar
+ * gains a shadow) and how far through it you are (the thin progress line).
+ * The progress is written straight to a CSS variable rather than React state,
+ * so scrolling never re-renders the page.
+ */
+function useScrollState(root) {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      root.current?.style.setProperty('--progress', max > 0 ? String(window.scrollY / max) : '0');
+      setScrolled(window.scrollY > 8);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [root]);
+  return scrolled;
+}
+
+// What the categoriser really does with these words, shown as a loop: a
+// description is typed, then the category it would suggest appears.
+const TYPING = [
+  ['chai at the canteen', 'Food'],
+  ['rickshaw to campus', 'Transport'],
+  ['netflix monthly', 'Subscriptions'],
+  ['data structures book', 'Academics'],
+];
+
+function TypingFlow() {
+  const holder = useRef(null);
+  const [index, setIndex] = useState(0);
+  const [typed, setTyped] = useState(prefersReducedMotion() ? TYPING[0][0] : '');
+  const [visible, setVisible] = useState(false);
+
+  // Only runs while the card is on screen.
+  useEffect(() => {
+    const node = holder.current;
+    if (!node || !('IntersectionObserver' in window)) return undefined;
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.4 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!visible || prefersReducedMotion()) return undefined;
+    const [text] = TYPING[index];
+    if (typed.length < text.length) {
+      const timer = setTimeout(() => setTyped(text.slice(0, typed.length + 1)), 70);
+      return () => clearTimeout(timer);
+    }
+    // Hold the finished pair on screen, then start the next description.
+    const timer = setTimeout(() => {
+      setTyped('');
+      setIndex((i) => (i + 1) % TYPING.length);
+    }, 2400);
+    return () => clearTimeout(timer);
+  }, [visible, typed, index]);
+
+  const [text, category] = TYPING[index];
+  const done = typed.length === text.length;
+
+  return (
+    <div className="lp-flow" ref={holder}>
+      <div className="lp-flow-box">
+        <Icon name="edit" size={18} />
+        <span className="lp-typed">
+          &ldquo;{typed}
+          <i className="lp-caret" aria-hidden="true" />
+          &rdquo;
+        </span>
+      </div>
+      <Icon name="right" size={18} className={`lp-flow-arrow${done ? ' is-on' : ''}`} />
+      <div className={`lp-flow-box lp-flow-result${done ? ' is-on' : ''}`}>
+        <Icon name="check" size={18} />
+        <span>
+          <strong>{category}</strong> suggested
+        </span>
+      </div>
+    </div>
+  );
+}
+
 const TABS = [
   {
     key: 'all',
@@ -115,13 +210,24 @@ const FAQ = [
 export default function Landing() {
   const page = useRef(null);
   const [tab, setTab] = useState(TABS[0].key);
+  const [autoplay] = useState(() => !prefersReducedMotion());
   useReveal(page);
+  const scrolled = useScrollState(page);
+
+  // The tabs advance on their own: the progress line under the active tab is a
+  // CSS animation, and when it finishes it moves to the next tab. Hovering the
+  // tabs pauses the animation, and with it the rotation, for free.
+  const advance = () => {
+    const at = TABS.findIndex((t) => t.key === tab);
+    setTab(TABS[(at + 1) % TABS.length].key);
+  };
 
   const current = TABS.find((t) => t.key === tab);
 
   return (
     <div className="lp" ref={page}>
-      <nav className="lp-nav">
+      <span className="lp-progress" aria-hidden="true" />
+      <nav className={`lp-nav${scrolled ? ' is-scrolled' : ''}`}>
         <div className="lp-wrap lp-nav-inner">
           <Link to="/" className="lp-brand">
             <BrandMark size={30} />
@@ -146,11 +252,11 @@ export default function Landing() {
           <div className="lp-hero-copy">
             <span className="lp-eyebrow has-rule">Student money. Clearly sorted.</span>
             <h1>
-              Your allowance.
-              <br />
-              Your spending.
-              <br />
-              <em>One clear picture.</em>
+              {['Your allowance.', 'Your spending.', 'One clear picture.'].map((line, i) => (
+                <span className="lp-line" key={line} style={{ '--i': i }}>
+                  {i === 2 ? <em>{line}</em> : <span>{line}</span>}
+                </span>
+              ))}
             </h1>
             <p className="lp-lead">
               From your morning chai at the canteen to the hostel rent at the end of the month. Log it, budget it and
@@ -245,7 +351,7 @@ export default function Landing() {
             </p>
           </div>
 
-          <div className="lp-tabs" role="tablist" aria-label="Features">
+          <div className={`lp-tabs${autoplay ? ' is-auto' : ''}`} role="tablist" aria-label="Features">
             {TABS.map((t) => (
               <button
                 key={t.key}
@@ -257,6 +363,9 @@ export default function Landing() {
               >
                 {t.label}
                 <Icon name="arrow-ne" size={15} />
+                {autoplay && tab === t.key ? (
+                  <i className="lp-tab-progress" aria-hidden="true" onAnimationEnd={advance} />
+                ) : null}
               </button>
             ))}
           </div>
@@ -341,17 +450,7 @@ export default function Landing() {
               It remembers.
             </h3>
             <p>Describe a purchase the way you would say it and the category fills itself in. Correct it once and it learns your words.</p>
-            <div className="lp-flow">
-              <div className="lp-flow-box">
-                <Icon name="edit" size={18} />
-                <span>&ldquo;chai at the canteen&rdquo;</span>
-              </div>
-              <Icon name="right" size={18} className="lp-flow-arrow" />
-              <div className="lp-flow-box">
-                <Icon name="check" size={18} />
-                <span>Food · 100% sure</span>
-              </div>
-            </div>
+            <TypingFlow />
             <Link to="/login" className="lp-text-link">
               See the categoriser
               <Icon name="right" size={16} />
