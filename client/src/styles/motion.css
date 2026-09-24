@@ -1,0 +1,233 @@
+/* ===========================================================================
+   Motion
+   ---------------------------------------------------------------------------
+   Everything that moves does so for a reason: to show what just arrived, how
+   a figure is made up, or that something can be pressed.
+
+   Entrances use `backwards` fill, so an element's resting style is always its
+   final state. That is what makes the reduced-motion rule in app.css (every
+   duration cut to nothing) leave each page complete and still, never
+   half-drawn. Where possible only transform and opacity are animated, which
+   the browser can hand to the GPU, so it stays smooth on a cheap phone.
+   =========================================================================== */
+
+@keyframes enter {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes enter-side {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0); }
+}
+
+/* --- Page choreography: sections arrive top to bottom ------------------- */
+
+.page > * {
+  animation: enter 0.6s var(--ease-out) backwards;
+  animation-delay: calc(var(--stagger, 0) * 80ms);
+}
+.page > :nth-child(2) { --stagger: 1; }
+.page > :nth-child(3) { --stagger: 2; }
+.page > :nth-child(4) { --stagger: 3; }
+.page > :nth-child(5) { --stagger: 4; }
+.page > :nth-child(n + 6) { --stagger: 5; }
+
+/* Cards in a row follow each other left to right. --stagger is inherited from
+   the row, so a row further down the page starts later. */
+:is(.dash-row, .grid) > * {
+  animation: enter 0.6s var(--ease-out) backwards;
+  animation-delay: calc((var(--stagger, 0) + var(--col, 0)) * 80ms);
+}
+:is(.dash-row, .grid) > :nth-child(2) { --col: 1; }
+:is(.dash-row, .grid) > :nth-child(3) { --col: 2; }
+:is(.dash-row, .grid) > :nth-child(4) { --col: 3; }
+
+.topbar h1,
+.topbar .crumbs { animation: enter-side 0.45s var(--ease-out) backwards; }
+
+/* Lists arrive a row at a time - only the first ten are staggered, so a long
+   ledger never keeps you waiting. */
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li) {
+  animation: enter-side 0.45s var(--ease-out) backwards;
+  animation-delay: calc(250ms + var(--row, 0) * 45ms);
+}
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(2) { --row: 1; }
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(3) { --row: 2; }
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(4) { --row: 3; }
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(5) { --row: 4; }
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(6) { --row: 5; }
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(7) { --row: 6; }
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(8) { --row: 7; }
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(9) { --row: 8; }
+:is(.ledger-row, .tx-table tbody tr, .spine-row, .donut-legend li):nth-child(n + 10) { --row: 9; }
+
+.auth-form { animation: enter 0.7s var(--ease-out) 0.1s backwards; }
+
+/* --- Charts draw themselves ---------------------------------------------- */
+
+/* pathLength="1" on these lets a single dash cover the whole shape whatever
+   its real length, so one keyframe draws any of them. */
+@keyframes draw {
+  from { stroke-dashoffset: 1; }
+}
+
+/* The donut's mask stroke sweeps a full turn, uncovering the segments in
+   ranked order. */
+.donut-sweep {
+  stroke-dasharray: 1;
+  animation: draw 1.1s var(--ease-out) 0.25s backwards;
+}
+
+.line-draw {
+  stroke-dasharray: 1;
+  animation: draw 1.3s var(--ease-out) 0.3s backwards;
+}
+
+.area-rise {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: area-rise 1s var(--ease-out) 0.35s backwards;
+}
+@keyframes area-rise {
+  from { opacity: 0; transform: scaleY(0.4); }
+}
+
+.dot-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop 0.4s var(--ease-out) backwards;
+  animation-delay: calc(0.6s + var(--i, 0) * 90ms);
+}
+
+.bar-grow {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: bar-grow 0.7s var(--ease-out) backwards;
+  animation-delay: calc(0.25s + var(--i, 0) * 35ms);
+}
+@keyframes bar-grow {
+  from { transform: scaleY(0); }
+}
+
+/* --c is the ring's circumference, set inline: an offset of the full length
+   is an empty ring. */
+.ring-fill { animation: ring-fill 1.1s var(--ease-out) 0.3s backwards; }
+@keyframes ring-fill {
+  from { stroke-dashoffset: var(--c); }
+}
+
+:is(.spine-fill, .kpi-budget-fill) {
+  transform-origin: left;
+  animation: fill-in 0.9s var(--ease-out) backwards;
+  animation-delay: calc(0.35s + var(--row, 0) * 60ms);
+}
+.kpi-budget-row:nth-child(2) .kpi-budget-fill { --row: 1; }
+.kpi-budget-row:nth-child(3) .kpi-budget-fill { --row: 2; }
+@keyframes fill-in {
+  from { transform: scaleX(0); }
+}
+
+/* --- Things you can press answer the pointer ----------------------------- */
+
+.panel.kpi {
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.panel.kpi:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-2), var(--edge);
+}
+
+.btn {
+  transition: transform 0.15s var(--ease-out), background 0.15s var(--ease), box-shadow 0.2s var(--ease),
+    border-color 0.15s var(--ease);
+}
+.btn:active:not(:disabled) { transform: scale(0.97); }
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+
+.rail a svg,
+.tabbar a svg { transition: transform 0.2s var(--ease-out); }
+.rail a:hover svg { transform: translateX(2px) scale(1.08); }
+.tabbar a.active svg { transform: translateY(-2px); }
+
+.icon-btn { transition: background 0.15s var(--ease), color 0.15s var(--ease), transform 0.2s var(--ease-out); }
+.icon-btn:active { transform: scale(0.9); }
+.icon-btn svg { transition: transform 0.4s var(--ease-out); }
+.icon-btn[aria-label^='Switch theme']:hover svg { transform: rotate(40deg); }
+
+.badge-count { animation: pop 0.4s var(--ease-out) 0.5s backwards; }
+
+.ledger-row { transition: background 0.15s var(--ease), transform 0.2s var(--ease-out); }
+.ledger-row:hover { transform: translateX(3px); }
+
+/* The chat bubble sends out a slow ring every few seconds - enough to be
+   found, not enough to nag - and stops once the panel is open. */
+.chat-fab { animation: pop 0.5s var(--ease-out) 0.8s backwards; }
+.chat-fab::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid var(--accent);
+  opacity: 0;
+  animation: beacon 3.2s var(--ease-out) 1.5s infinite;
+  pointer-events: none;
+}
+.chat-fab[aria-expanded='true']::after { animation: none; }
+@keyframes beacon {
+  0% { opacity: 0.6; transform: scale(1); }
+  45%, 100% { opacity: 0; transform: scale(1.6); }
+}
+.chat-fab svg { transition: transform 0.3s var(--ease-out); }
+.chat-fab[aria-expanded='true'] svg { transform: rotate(90deg); }
+
+/* --- The backdrop --------------------------------------------------------- */
+
+.backdrop {
+  position: fixed;
+  inset: 0 0 0 var(--rail);
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wash {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: drift 26s ease-in-out infinite alternate;
+}
+.wash-1 { width: 44rem; height: 34rem; right: -10rem; top: -12rem; background: var(--wash-1); }
+.wash-2 { width: 40rem; height: 32rem; left: -8rem; bottom: -14rem; background: var(--wash-2); animation-duration: 32s; animation-delay: -8s; }
+.wash-3 { width: 26rem; height: 22rem; left: 45%; top: 35%; background: var(--wash-3); animation-duration: 22s; animation-delay: -14s; }
+
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4rem, 3rem) scale(1.08); }
+  100% { transform: translate(-3rem, 5rem) scale(0.95); }
+}
+
+.float {
+  position: absolute;
+  display: block;
+  opacity: 0.9;
+  animation: float 9s ease-in-out infinite;
+}
+.float svg { display: block; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50% { transform: translateY(-22px) rotate(10deg); }
+}
+
+:root[data-theme='dark'] .float { opacity: 0.55; }
+
+@media (max-width: 900px) {
+  .backdrop { inset: 0; }
+  /* On a phone the shapes would sit under the text; the washes are enough. */
+  .float { display: none; }
+}

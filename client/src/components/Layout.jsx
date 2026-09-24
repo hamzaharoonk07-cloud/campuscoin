@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon, { BrandMark } from './Icon.jsx';
 import Chat from './Chat.jsx';
+import Backdrop from './Backdrop.jsx';
 import { api } from '../lib/api.js';
 import { useAuth, useTheme } from '../context/AppContext.jsx';
 
@@ -196,6 +197,8 @@ export default function Layout({ title, crumbs, actions, children }) {
       <a className="skip-link" href="#main">
         Skip to content
       </a>
+
+      <Backdrop />
 
       <nav className="rail" aria-label="Main">
         <Link to={isAdmin ? '/admin' : '/dashboard'} className="brand">

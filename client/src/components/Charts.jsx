@@ -131,6 +131,8 @@ export function TrendChart({ data, currency, title = 'Money in and out by month'
             <g key={row.month}>
               {/* Money in - sits left of centre, with a 2px gap to its neighbour. */}
               <rect
+                className="bar-grow"
+                style={{ '--i': i * 2 }}
                 x={centre - barW - 1}
                 y={PAD.top + plotH - inH}
                 width={barW}
@@ -140,6 +142,8 @@ export function TrendChart({ data, currency, title = 'Money in and out by month'
                 opacity={hover && !active ? 0.45 : 1}
               />
               <rect
+                className="bar-grow"
+                style={{ '--i': i * 2 + 1 }}
                 x={centre + 1}
                 y={PAD.top + plotH - outH}
                 width={barW}
@@ -214,6 +218,8 @@ export function DayBars({ data, currency, average = 0 }) {
           return (
             <g key={row.date}>
               <rect
+                className="bar-grow"
+                style={{ '--i': i * 0.6 }}
                 x={x + 1}
                 y={PAD.top + plotH - h}
                 width={barW}

@@ -7,6 +7,7 @@ import { AreaChart, DonutChart, MiniBars, RingGauge, Sparkline } from '../compon
 import { api } from '../lib/api.js';
 import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import { useCountUp } from '../lib/useCountUp.js';
+import CountUp from '../components/CountUp.jsx';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /* ---------------------------------------------------------------------------
@@ -149,11 +150,11 @@ export default function Dashboard() {
           <div className="kpi-flow">
             <div className="kpi-flow-row is-in">
               <span className="kpi-flow-label">Money in</span>
-              <strong className="num">{money(totals.income, currency)}</strong>
+              <strong className="num"><CountUp value={totals.income} currency={currency} /></strong>
             </div>
             <div className="kpi-flow-row is-out">
               <span className="kpi-flow-label">Money out</span>
-              <strong className="num">{money(totals.expense, currency)}</strong>
+              <strong className="num"><CountUp value={totals.expense} currency={currency} /></strong>
             </div>
           </div>
           <div className="kpi-spark">
@@ -360,7 +361,7 @@ export default function Dashboard() {
               <div className="kpi-split" style={{ marginTop: '0.4rem' }}>
                 <div>
                   <div className="kpi-figure" style={{ fontSize: 'var(--step-2)' }}>
-                    {money(goal.kept, currency)}
+                    <CountUp value={goal.kept} currency={currency} />
                   </div>
                   <div className="kpi-sub">of {money(goal.target, currency)} this month</div>
                 </div>

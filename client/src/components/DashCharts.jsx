@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { compactMoney, money, slotColor } from '../lib/format.js';
 
 /* ---------------------------------------------------------------------------
@@ -28,6 +28,7 @@ function arc(cx, cy, rOuter, rInner, from, to) {
 
 export function DonutChart({ rows, currency, total, caption = 'Spent this month' }) {
   const [hover, setHover] = useState(null);
+  const maskId = `sweep${useId().replace(/:/g, '')}`;
 
   if (!rows?.length) return <p className="muted small">Nothing logged for this month yet.</p>;
 
@@ -53,6 +54,22 @@ export function DonutChart({ rows, currency, total, caption = 'Spent this month'
     <div className="donut">
       <div className="donut-ring">
         <svg viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Spending by category">
+          {/* The ring is revealed by a single stroke that sweeps round once, so
+              the categories appear in the order they are ranked. */}
+          <mask id={maskId}>
+            <circle
+              className="donut-sweep"
+              cx={cx}
+              cy={cy}
+              r="75"
+              fill="none"
+              stroke="#fff"
+              strokeWidth="38"
+              pathLength="1"
+              transform={`rotate(-90 ${cx} ${cy})`}
+            />
+          </mask>
+          <g mask={`url(#${maskId})`}>
           {segments.map((seg, i) => (
             <path
               key={seg.row.categoryId}
@@ -64,6 +81,7 @@ export function DonutChart({ rows, currency, total, caption = 'Spent this month'
               style={{ cursor: 'pointer', transition: 'opacity 0.15s' }}
             />
           ))}
+          </g>
         </svg>
 
         <div className="donut-centre">
@@ -179,11 +197,17 @@ export function AreaChart({ data, currency }) {
           const line = smooth(points);
           return (
             <g key={s.key}>
-              <path d={`${line} L${x(data.length - 1)} ${y(0)} L${x(0)} ${y(0)} Z`} fill={`url(#${s.id})`} />
-              <path d={line} fill="none" stroke={s.colour} strokeWidth="2" strokeLinecap="round" />
+              <path
+                className="area-rise"
+                d={`${line} L${x(data.length - 1)} ${y(0)} L${x(0)} ${y(0)} Z`}
+                fill={`url(#${s.id})`}
+              />
+              <path className="line-draw" pathLength="1" d={line} fill="none" stroke={s.colour} strokeWidth="2" strokeLinecap="round" />
               {points.map(([px, py], i) => (
                 <circle
                   key={i}
+                  className="dot-pop"
+                  style={{ '--i': i }}
                   cx={px}
                   cy={py}
                   r={hover === i ? 5 : 3.5}
@@ -253,7 +277,7 @@ export function Sparkline({ values, colour = 'var(--accent)' }) {
 
   return (
     <svg className="sparkline" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
-      <path d={smooth(points)} fill="none" stroke={colour} strokeWidth="2" strokeLinecap="round" />
+      <path className="line-draw" pathLength="1" d={smooth(points)} fill="none" stroke={colour} strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -285,7 +309,8 @@ export function RingGauge({ pct, label, tone = 'ok' }) {
           strokeDasharray={c}
           strokeDashoffset={c - (clamped / 100) * c}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          style={{ transition: 'stroke-dashoffset 0.6s cubic-bezier(0.16,1,0.3,1)' }}
+          className="ring-fill"
+          style={{ '--c': c, transition: 'stroke-dashoffset 0.6s cubic-bezier(0.16,1,0.3,1)' }}
         />
       </svg>
       <div className="ring-centre">
@@ -313,6 +338,8 @@ export function MiniBars({ data }) {
         return (
           <g key={row.month}>
             <rect
+              className="bar-grow"
+              style={{ '--i': i * 2 }}
               x={cx - w - 1}
               y={H - (row.income / max) * H}
               width={w}
@@ -321,6 +348,8 @@ export function MiniBars({ data }) {
               fill="var(--series-in)"
             />
             <rect
+              className="bar-grow"
+              style={{ '--i': i * 2 + 1 }}
               x={cx + 1}
               y={H - (row.expense / max) * H}
               width={w}

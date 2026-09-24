@@ -141,14 +141,9 @@ a:hover { text-decoration-color: currentColor; }
   display: grid;
   grid-template-columns: var(--rail) minmax(0, 1fr);
   min-height: 100vh;
-  /* Three soft washes of the brand and chart colours behind the workspace, so
-     the white cards sit on something rather than on a flat grey. Fixed, so they
-     stay put while the content scrolls over them. */
-  background:
-    radial-gradient(38rem 30rem at 92% 4%, var(--wash-1), transparent 70%),
-    radial-gradient(34rem 28rem at 28% 100%, var(--wash-2), transparent 70%),
-    radial-gradient(22rem 18rem at 62% 48%, var(--wash-3), transparent 70%);
-  background-attachment: fixed;
+  /* Its own stacking context, so the backdrop's z-index of -1 puts it behind
+     the content but still in front of the page background. */
+  isolation: isolate;
 }
 
 .rail {

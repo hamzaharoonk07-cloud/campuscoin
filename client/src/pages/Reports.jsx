@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout, { MonthPicker } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
+import CountUp from '../components/CountUp.jsx';
 import { CategorySpine, DayBars } from '../components/Charts.jsx';
 import { AreaChart, DonutChart, Sparkline } from '../components/DashCharts.jsx';
 import { api } from '../lib/api.js';
@@ -83,7 +84,7 @@ export default function Reports() {
             <Icon name="download" size={15} />
           </div>
           <div className="kpi-figure" style={{ color: 'var(--good)' }}>
-            {money(totals.income, currency)}
+            <CountUp value={totals.income} currency={currency} />
           </div>
           <div className="kpi-spark">
             <Sparkline values={trend.map((t) => t.income)} colour="var(--series-in)" />
@@ -95,7 +96,7 @@ export default function Reports() {
             <span>Money out</span>
             <Icon name="upload" size={15} />
           </div>
-          <div className="kpi-figure">{money(totals.expense, currency)}</div>
+          <div className="kpi-figure"><CountUp value={totals.expense} currency={currency} /></div>
           <div className="kpi-sub">{totals.transactionCount} transactions</div>
           <div className="kpi-spark">
             <Sparkline values={trend.map((t) => t.expense)} colour="var(--series-out)" />
@@ -108,7 +109,7 @@ export default function Reports() {
             <Icon name="wallet" size={15} />
           </div>
           <div className="kpi-figure" style={{ color: totals.balance < 0 ? 'var(--bad)' : 'var(--good)' }}>
-            {money(totals.balance, currency)}
+            <CountUp value={totals.balance} currency={currency} />
           </div>
           {totals.savingsRate !== null ? (
             <div className="kpi-sub">{totals.savingsRate}% of what came in</div>
@@ -126,7 +127,7 @@ export default function Reports() {
             <span>On a spending day</span>
             <Icon name="chart" size={15} />
           </div>
-          <div className="kpi-figure">{money(pace.perActiveDay, currency)}</div>
+          <div className="kpi-figure"><CountUp value={pace.perActiveDay} currency={currency} /></div>
           <div className="kpi-sub">across {pace.activeDays} days with any spending</div>
         </section>
       </div>

@@ -220,6 +220,12 @@ The interface is written rather than assembled. A few decisions worth naming:
   category takes its correct light-mode and dark-mode step. The seven slots come
   from a categorical palette validated for colour-blind separation and contrast
   against both surfaces.
+- **Motion explains, it does not decorate** (`client/src/styles/motion.css`).
+  Sections arrive top to bottom, charts draw themselves (the donut sweeps in
+  ranked order, lines trace, bars grow), headline figures count up, and budget
+  bars fill, which is the SRS's "smooth transitions while charts and insights
+  are generated". Every entrance ends at the element's normal resting style, so
+  with the system's reduced-motion setting on, pages simply appear complete.
 - **Text size is adjustable** from Settings and scales the whole interface,
   charts included.
 - Keyboard focus is always visible, `prefers-reduced-motion` is respected, the
