@@ -211,23 +211,6 @@
   100% { transform: translate(-3rem, 5rem) scale(0.95); }
 }
 
-.float {
-  position: absolute;
-  display: block;
-  opacity: 0.9;
-  animation: float 9s ease-in-out infinite;
-}
-.float svg { display: block; }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(-8deg); }
-  50% { transform: translateY(-22px) rotate(10deg); }
-}
-
-:root[data-theme='dark'] .float { opacity: 0.55; }
-
 @media (max-width: 900px) {
   .backdrop { inset: 0; }
-  /* On a phone the shapes would sit under the text; the washes are enough. */
-  .float { display: none; }
 }
