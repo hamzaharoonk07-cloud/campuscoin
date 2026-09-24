@@ -208,9 +208,15 @@ The interface is written rather than assembled. A few decisions worth naming:
   surface rather than one being an inversion of the other. The choice is saved
   to the device *and* the account, so it follows the student to another machine.
   Settings also offers "match my device", which follows the operating system live.
-- **The brand colour is teal** (`#0e8a7c`, white text at 4.6:1). It stays clear
-  of the blue and orange used for money in and out, and of the green that means
-  "under budget".
+- **Calm and clear.** A deep petrol blue (`#0b5f80`, white text at 7.1:1) for
+  anything you can act on, navy for the dashboard hero and sign-in panel, and
+  pastel tiles for the four kinds of money (rose for spending, mint for income,
+  cream for budgets, blue for savings). Headings are set in Inter Tight, body
+  text in Inter; buttons are pills and cards are generously rounded. The
+  landing page is built from the same tokens, so the page you arrive on and the
+  app you sign into are visibly one product. The visual direction was modelled
+  on the style of the Hisab Kitab expense app; the layout code and all the
+  copy are our own.
 - **Chart colour is assigned by the job it does.** Income and spending are blue
   and orange rather than the obvious green and red: measured against a
   colour-blindness simulation, the green/red pair separates by ΔE 6.9 while

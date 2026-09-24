@@ -6,5 +6,5 @@ server/data/
 .vercel
 .DS_Store
 *.log
-shots/
+/shots/
 shot*.mjs

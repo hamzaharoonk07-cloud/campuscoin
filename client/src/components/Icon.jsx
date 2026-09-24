@@ -44,6 +44,7 @@ const PATHS = {
   coin: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v10M14.5 9.3C14 8.5 13.1 8 12 8c-1.4 0-2.5.8-2.5 2s1.1 2 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1.1 0-2-.5-2.5-1.3',
   filter: 'M3 5h18l-7 8v6l-4 2v-8z',
   chat: 'M4 5h16v11H9l-5 4zM8 9.5h8M8 12.5h5',
+  'arrow-ne': 'M7 17 17 7M8.5 7H17v8.5',
   send: 'M4 12 20 4l-6 16-3-7zM11 13l9-9',
   sliders:'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h10M18 18h2M14 6a2 2 0 1 0 4 0 2 2 0 0 0-4 0M8 12a2 2 0 1 0 4 0 2 2 0 0 0-4 0M14 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0',
 };
@@ -70,19 +71,19 @@ export default function Icon({ name, size = 18, strokeWidth = 1.75, className = 
   );
 }
 
-/** The wordmark: a coin with a reading line through it. */
+/** The mark: a coin standing on a rounded tile, the shape of an app icon. */
 export function BrandMark({ size = 28 }) {
   return (
     <svg className="brand-mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <circle cx="16" cy="16" r="13" fill="var(--accent)" />
+      <rect width="32" height="32" rx="9" fill="var(--accent)" />
+      <circle cx="16" cy="16" r="9" fill="none" stroke="var(--on-accent)" strokeWidth="2" opacity="0.45" />
       <path
-        d="M20 11.5c-.9-1.2-2.3-2-4-2-2.3 0-4 1.4-4 3.2s1.7 3.2 4 3.2 4 1.4 4 3.2-1.7 3.2-4 3.2c-1.7 0-3.1-.8-4-2"
+        d="M19.2 12.6c-.7-.9-1.8-1.5-3.2-1.5-1.8 0-3.2 1.1-3.2 2.5s1.4 2.2 3.2 2.4c1.8.2 3.2 1 3.2 2.4s-1.4 2.5-3.2 2.5c-1.4 0-2.5-.6-3.2-1.5M16 9.2v13.6"
         fill="none"
         stroke="var(--on-accent)"
-        strokeWidth="2.2"
+        strokeWidth="2"
         strokeLinecap="round"
       />
-      <path d="M16 7v18" stroke="var(--on-accent)" strokeWidth="2.2" strokeLinecap="round" />
     </svg>
   );
 }

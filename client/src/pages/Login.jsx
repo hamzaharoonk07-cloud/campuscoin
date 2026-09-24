@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { BrandMark } from '../components/Icon.jsx';
 import { useAuth } from '../context/AppContext.jsx';
 
+/** The navy half of every sign-in page: the promise, and a glimpse of the tiles. */
 export function AuthAside() {
   return (
     <aside className="auth-aside">
@@ -11,17 +12,32 @@ export function AuthAside() {
         Campus Coin
       </Link>
       <div>
-        <h2 style={{ fontSize: 'var(--step-3)', marginBottom: '0.75rem' }}>
-          Six months from now, you will know where it went.
+        <span className="eyebrow has-rule">Student money. Clearly sorted.</span>
+        <h2 className="auth-title">
+          Six months from now,
+          <em>you will know where it went.</em>
         </h2>
-        <p className="muted" style={{ maxWidth: '38ch' }}>
-          Log what comes in and what goes out. Campus Coin does the rest - the patterns, the budgets, and one
-          honest sentence a month about what changed.
+        <p className="auth-lead">
+          Log what comes in and what goes out. Campus Coin does the rest: the patterns, the budgets, and one honest
+          sentence a month about what changed.
         </p>
       </div>
-      <p className="small muted" style={{ maxWidth: '40ch' }}>
-        No bank connection, no card details, no subscription. Your transactions stay in your own account.
-      </p>
+      {/* Labels only, no invented figures: this panel is seen before sign-in. */}
+      <div className="money-tiles auth-tiles" aria-hidden="true">
+        <span className="money-tile is-in">
+          <span className="money-tile-label">Money in</span>
+        </span>
+        <span className="money-tile is-out">
+          <span className="money-tile-label">Money out</span>
+        </span>
+        <span className="money-tile is-budget">
+          <span className="money-tile-label">Budgets</span>
+        </span>
+        <span className="money-tile is-goal">
+          <span className="money-tile-label">Savings</span>
+        </span>
+      </div>
+      <p className="auth-foot">No bank connection, no card details, no subscription.</p>
     </aside>
   );
 }

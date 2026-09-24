@@ -54,18 +54,35 @@ h4 {
 
 h1 {
   font-size: var(--step-3);
-  font-variation-settings: 'opsz' 32;
-  letter-spacing: -0.028em;
+  letter-spacing: -0.025em;
 }
 h2 {
   font-size: var(--step-2);
-  font-variation-settings: 'opsz' 24;
-  letter-spacing: -0.022em;
+  letter-spacing: -0.02em;
 }
 h3 {
   font-size: var(--step-1);
-  font-variation-settings: 'opsz' 18;
   letter-spacing: -0.015em;
+}
+
+/* The small uppercase label that sits above a heading and says what kind of
+   thing follows. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+.eyebrow.has-rule::before {
+  content: '';
+  width: 1.75rem;
+  height: 1px;
+  background: currentColor;
 }
 
 p { margin: 0 0 0.75em; }
@@ -175,8 +192,14 @@ a:hover { text-decoration-color: currentColor; }
   width: 30px;
   height: 30px;
   flex: none;
-  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--accent) 30%, transparent));
 }
+
+/* Outranks `.rail a`, which would otherwise set the wordmark to body weight. */
+.rail .brand {
+  font-weight: 700;
+  color: var(--text);
+}
+.rail .brand:hover { background: none; }
 
 .rail-group {
   margin-top: 1.15rem;
@@ -217,20 +240,9 @@ a:hover { text-decoration-color: currentColor; }
   color: var(--accent-text);
   font-weight: 600;
 }
+.rail a,
+.rail button.rail-item { border-radius: var(--r-pill); }
 
-/* A lit edge marks the active place without shouting over the content beside it. */
-.rail a.active::before {
-  content: '';
-  position: absolute;
-  left: -0.85rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 18px;
-  border-radius: 0 3px 3px 0;
-  background: var(--accent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 55%, transparent);
-}
 
 .rail-spacer { flex: 1; }
 
@@ -283,10 +295,23 @@ a:hover { text-decoration-color: currentColor; }
     flex-wrap: wrap;
     row-gap: 0.5rem;
   }
+  /* First line: the title with the bell and theme switch beside it. The
+     ::after is a full-width break, so the page's own actions (month picker,
+     Add) take the second line together. */
   .topbar > div:first-child {
-    flex: 1 1 100%;
+    flex: 1 1 0;
     min-width: 0;
+    order: 0;
   }
+  .topbar > .has-menu,
+  .topbar > .icon-btn { order: 1; }
+  .topbar::after {
+    content: '';
+    order: 1;
+    flex-basis: 100%;
+  }
+  .topbar > * { order: 2; }
+  .topbar > .btn-primary { margin-left: auto; }
   .topbar h1 {
     font-size: var(--step-0);
     white-space: nowrap;
@@ -705,10 +730,10 @@ a:hover { text-decoration-color: currentColor; }
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.55rem 1rem;
-  border-radius: var(--r-control);
+  padding: 0.6rem 1.15rem;
+  border-radius: var(--r-pill);
   border: 1px solid var(--line-strong);
-  background: var(--raised);
+  background: var(--surface);
   color: var(--text);
   font: inherit;
   font-weight: 600;
@@ -721,8 +746,8 @@ a:hover { text-decoration-color: currentColor; }
 }
 
 .btn:hover:not(:disabled) {
-  border-color: var(--faint);
-  background: var(--surface);
+  border-color: var(--accent-line);
+  color: var(--accent-text);
 }
 
 .btn:active:not(:disabled) { transform: translateY(1px); }
@@ -733,15 +758,16 @@ a:hover { text-decoration-color: currentColor; }
 }
 
 .btn-primary {
-  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-deep) 100%);
-  border-color: var(--accent-deep);
+  background: var(--accent);
+  border-color: var(--accent);
   color: var(--on-accent);
-  box-shadow: var(--accent-glow), var(--edge-strong);
+  box-shadow: var(--accent-glow);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 85%, #fff) 0%, var(--accent) 100%);
-  border-color: var(--accent);
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+  color: var(--on-accent);
 }
 
 .btn-ghost {
@@ -777,7 +803,7 @@ a:hover { text-decoration-color: currentColor; }
   place-items: center;
   width: 38px;
   height: 38px;
-  border-radius: var(--r-control);
+  border-radius: var(--r-pill);
   border: 1px solid transparent;
   background: none;
   color: var(--muted);
@@ -1261,24 +1287,47 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 .auth-aside {
   position: relative;
   overflow: hidden;
-  background: var(--surface);
-  border-right: 1px solid var(--line);
+  background: var(--navy);
+  color: var(--on-navy);
   padding: clamp(2rem, 5vw, 4.5rem);
   display: flex;
   flex-direction: column;
-  gap: 2.25rem;
+  gap: 2.5rem;
   justify-content: center;
 }
 
 .auth-aside::before {
   content: '';
   position: absolute;
-  inset: 0;
+  width: 40rem;
+  height: 40rem;
+  right: -18rem;
+  top: -18rem;
+  border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(90% 70% at 10% 10%, var(--accent-soft), transparent 60%);
+  background: radial-gradient(circle, rgba(140, 204, 242, 0.2), transparent 65%);
 }
 
 .auth-aside > * { position: relative; }
+.auth-aside .brand { color: var(--on-navy); }
+.auth-aside .brand-mark rect { fill: var(--sky); }
+.auth-aside .brand-mark :is(path, circle) { stroke: var(--navy); }
+.auth-aside .eyebrow { color: var(--sky); }
+
+.auth-title {
+  margin: 1.1rem 0 1rem;
+  font-size: clamp(2rem, 3.4vw, 2.9rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.auth-title em { display: block; font-style: normal; color: var(--sky); }
+.auth-lead { color: var(--on-navy-muted); max-width: 40ch; margin: 0; }
+.auth-foot { color: var(--on-navy-muted); font-size: var(--step--1); margin: 0; }
+
+.auth-tiles { max-width: 26rem; }
+.auth-tiles .money-tile { min-height: 76px; }
+.auth-tiles .money-tile-label { margin-top: auto; }
 
 .auth-form-side {
   display: grid;
@@ -2430,4 +2479,136 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   .chat-log { padding-inline: 1rem; }
   .chat-chips { padding-inline: 1rem; }
   .chat-compose { margin-inline: 1rem; }
+}
+
+/* ===========================================================================
+   Dashboard hero - the month in one sentence, and four pastel money tiles
+   =========================================================================== */
+
+.dash-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: center;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  border-radius: var(--r-panel-lg);
+  background: var(--navy);
+  color: var(--on-navy);
+  overflow: hidden;
+  box-shadow: var(--shadow-2);
+}
+
+/* A single soft ring of light in the corner, so the navy has depth. */
+.dash-hero::before {
+  content: '';
+  position: absolute;
+  width: 34rem;
+  height: 34rem;
+  right: -12rem;
+  top: -16rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(140, 204, 242, 0.22), transparent 65%);
+  pointer-events: none;
+}
+
+.dash-hero-text { position: relative; }
+.dash-hero .eyebrow { color: var(--sky); }
+
+.dash-hero h2 {
+  margin: 1rem 0 0.9rem;
+  font-size: clamp(1.6rem, 2.8vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+.dash-hero h2 em {
+  display: block;
+  font-style: normal;
+  color: var(--sky);
+}
+.dash-hero p {
+  color: var(--on-navy-muted);
+  max-width: 34rem;
+  margin: 0;
+}
+
+.dash-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+/* The primary action on navy: sky blue, so it reads as the brand without
+   disappearing into the background. */
+.btn-sky {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: #07233a;
+  box-shadow: none;
+}
+.btn-sky:hover:not(:disabled) {
+  background: #fff;
+  border-color: #fff;
+  color: #07233a;
+}
+
+.dash-hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--on-navy);
+  font-weight: 600;
+  text-decoration: none;
+}
+.dash-hero-link svg { transition: transform 0.2s var(--ease-out); }
+.dash-hero-link:hover svg { transform: translateX(3px); }
+
+.money-tiles {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.money-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-height: 104px;
+  padding: 1.1rem 1.15rem;
+  border-radius: 18px;
+  color: var(--text);
+  text-decoration: none;
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.money-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px -14px rgba(0, 0, 0, 0.45);
+}
+.money-tile.is-in { background: var(--tile-in); }
+.money-tile.is-out { background: var(--tile-out); }
+.money-tile.is-budget { background: var(--tile-budget); }
+.money-tile.is-goal { background: var(--tile-goal); }
+
+.money-tile-value {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-top: auto;
+}
+.money-tile-label {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+@media (max-width: 1040px) {
+  .dash-hero { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .money-tile { min-height: 88px; padding: 0.9rem; }
 }

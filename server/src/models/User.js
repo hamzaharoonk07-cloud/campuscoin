@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     monthlyAllowance: { type: Number, default: 0, min: 0 },
     savingsGoal: { type: Number, default: 0, min: 0 },
     currency: { type: String, enum: ['PKR', 'USD', 'EUR', 'GBP', 'INR', 'AED'], default: 'PKR' },
-    avatarColor: { type: String, default: '#0e8a7c' },
+    avatarColor: { type: String, default: '#0b5f80' },
 
     // Accessibility preferences (SRS "Accessibility and UI Enhancements")
     preferences: {

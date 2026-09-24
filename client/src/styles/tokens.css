@@ -1,58 +1,61 @@
 /* ===========================================================================
    Campus Coin design tokens
    ---------------------------------------------------------------------------
-   Two typefaces. Bricolage Grotesque is a variable face with an optical-size
-   axis, so display type is cut for its size rather than scaled up from a text
-   weight: headline sizes get the tighter, more closed drawing, small type gets
-   the open one. Public Sans does the reading and carries the figures.
+   Calm and clear: near-white pages, a deep petrol blue for anything you can
+   act on, navy for the few moments that deserve weight, and soft pastel tiles
+   for the four kinds of money a student deals with. Inter Tight sets the
+   headings - tight and even at large sizes - and Inter does the reading.
 
    Colour is assigned by the job it does, never by decoration:
-     accent  - the brand and anything you can act on. A calm teal: it reads as
-               "money that is looked after" without borrowing the status green,
-               and it sits apart from both chart directions below.
-     in/out  - the two money directions in charts. Blue and orange rather than
-               the obvious green and red: the green/red pair collapses for
-               red-green colour blindness (measured dE 6.9), blue/orange holds
-               at 24.7, and green/red is kept for status instead.
-     cat-1-7 - category identity. A fixed order, never cycled or reshuffled, so
-               a category keeps its colour when a filter changes the chart.
-     good/warn/bad - status only. Always paired with a word or an icon.
-
-   Light is the default theme - a student opening this in a lab or on a phone in
-   daylight is the common case - and dark is one tap away. Each is designed
-   against its own surface rather than being an inversion of the other.
+     accent    - the brand and anything you can act on.
+     navy/sky  - the hero band and its highlight.
+     tile-*    - pastel backgrounds for money tiles: out (rose), in (mint),
+                 budget (cream), goal (blue). Text on them stays dark, so each
+                 tile is readable without relying on its colour.
+     in/out    - the two money directions in charts. Blue and orange rather
+                 than green and red: the green/red pair collapses for red-green
+                 colour blindness (measured dE 6.9), blue/orange holds at 24.7.
+     cat-1-7   - category identity, in a fixed order.
+     good/warn/bad - status only, always paired with a word or an icon.
    =========================================================================== */
 
 :root {
   color-scheme: light;
 
-  /* Near-white with a faint cool cast, so white cards lift off the page
-     without needing heavy shadows. */
-  --bg: #f1f4f8;
+  --bg: #f8fafc;
   --surface: #ffffff;
-  --raised: #f5f7fa;
-  --sunken: #e6ebf1;
-  --line: #e2e7ee;
-  --line-strong: #cbd4df;
+  --raised: #f3f6f9;
+  --sunken: #e9eef3;
+  --line: #e5eaf0;
+  --line-strong: #cfd8e2;
   --input-bg: #ffffff;
 
-  /* The hairline of light along the top of a raised surface. */
-  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 1);
+  --edge: inset 0 0 0 0 transparent;
+  --edge-strong: inset 0 0 0 0 transparent;
 
-  --text: #101826;
-  --muted: #56647a;
-  --faint: #7d8a9c;
+  --text: #0f2a3d;
+  --muted: #4f6272;
+  --faint: #7a8a98;
 
-  /* #0e8a7c carries white text at 4.6:1, so the same colour works for a
-     filled button and for its label. */
-  --accent: #0e8a7c;
-  --accent-deep: #0a6f63;
-  --accent-soft: rgba(14, 138, 124, 0.1);
-  --accent-line: rgba(14, 138, 124, 0.3);
-  --accent-text: #0a6f63;
+  /* Petrol blue: white text on it measures 7.1:1. */
+  --accent: #0b5f80;
+  --accent-deep: #084a64;
+  --accent-soft: rgba(11, 95, 128, 0.08);
+  --accent-line: rgba(11, 95, 128, 0.24);
+  --accent-text: #0b5f80;
   --on-accent: #ffffff;
-  --accent-glow: 0 0 0 1px rgba(14, 138, 124, 0.2), 0 10px 24px -10px rgba(14, 138, 124, 0.55);
+  --accent-glow: 0 10px 24px -12px rgba(11, 95, 128, 0.55);
+
+  --navy: #0a3550;
+  --navy-raised: #144862;
+  --sky: #8cccf2;
+  --on-navy: #ffffff;
+  --on-navy-muted: #b9cedb;
+
+  --tile-out: #fbe6e3;
+  --tile-in: #e3f3e6;
+  --tile-budget: #f4efdc;
+  --tile-goal: #e2edf9;
 
   --series-in: #2a78d6;
   --series-out: #eb6834;
@@ -72,30 +75,27 @@
   --bad: #c23b3a;
   --bad-soft: rgba(194, 59, 58, 0.09);
 
-  /* Three stops rather than one blur - a single soft shadow is the tell of a
-     template; layered shadows are what read as depth. */
-  --shadow-1: 0 1px 2px rgba(16, 24, 38, 0.05);
-  --shadow-2: 0 1px 2px rgba(16, 24, 38, 0.05), 0 6px 14px -6px rgba(16, 24, 38, 0.1);
-  --shadow-3: 0 2px 4px rgba(16, 24, 38, 0.06), 0 12px 28px -10px rgba(16, 24, 38, 0.14), 0 28px 56px -24px rgba(16, 24, 38, 0.16);
+  /* Soft and low: the cards are separated by space more than by shadow. */
+  --shadow-1: 0 1px 2px rgba(15, 42, 61, 0.04);
+  --shadow-2: 0 2px 6px rgba(15, 42, 61, 0.05), 0 12px 28px -12px rgba(15, 42, 61, 0.12);
+  --shadow-3: 0 4px 10px rgba(15, 42, 61, 0.06), 0 24px 48px -16px rgba(15, 42, 61, 0.2);
 
-  /* The soft shapes behind the workspace. Low enough that text over them never
-     loses contrast. */
-  --wash-1: rgba(14, 138, 124, 0.09);
-  --wash-2: rgba(42, 120, 214, 0.08);
-  --wash-3: rgba(235, 104, 52, 0.06);
+  --wash-1: rgba(140, 204, 242, 0.22);
+  --wash-2: rgba(11, 95, 128, 0.06);
+  --wash-3: rgba(140, 204, 242, 0.1);
 
-  --grain-opacity: 0.018;
+  --grain-opacity: 0;
 
-  /* Radius encodes hierarchy rather than being one value everywhere:
-     data rows stay square, panels are softly cut, pills are fully round. */
-  --r-row: 3px;
-  --r-panel: 16px;
-  --r-panel-lg: 20px;
-  --r-control: 10px;
+  /* Radius encodes hierarchy: data rows stay square, cards are generously
+     rounded, and everything you can press is a pill. */
+  --r-row: 4px;
+  --r-panel: 20px;
+  --r-panel-lg: 24px;
+  --r-control: 12px;
   --r-pill: 999px;
 
-  --font-display: 'Bricolage Grotesque', 'Public Sans', system-ui, sans-serif;
-  --font-body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Scaled by the accessibility control in Settings. */
   --font-scale: 1;
@@ -109,41 +109,44 @@
   --step-4: calc(2.75rem * var(--font-scale));
   --step-5: calc(4rem * var(--font-scale));
 
-  /* One easing for everything that moves, so the interface has a single feel. */
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --rail: 240px;
+  --rail: 248px;
   --gutter: clamp(1rem, 2.6vw, 2rem);
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  /* The blue cast is deliberate - a neutral grey dark theme goes muddy. */
-  --bg: #0b0f15;
-  --surface: #121821;
-  --raised: #1a222d;
-  --sunken: #080b10;
-  --line: #222c39;
-  --line-strong: #32404f;
-  --input-bg: #0e131b;
+  --bg: #07192a;
+  --surface: #0d2438;
+  --raised: #133047;
+  --sunken: #051320;
+  --line: #1b3a52;
+  --line-strong: #29506c;
+  --input-bg: #0a1f31;
 
-  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.045);
-  --edge-strong: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --text: #e8f1f7;
+  --muted: #9fb6c6;
+  --faint: #6f8a9d;
 
-  --text: #eaeef4;
-  --muted: #94a2b5;
-  --faint: #66748a;
+  /* On navy the petrol would disappear, so the sky blue takes over. */
+  --accent: #8cccf2;
+  --accent-deep: #6ab8e8;
+  --accent-soft: rgba(140, 204, 242, 0.12);
+  --accent-line: rgba(140, 204, 242, 0.3);
+  --accent-text: #a6d8f6;
+  --on-accent: #07192a;
+  --accent-glow: 0 10px 24px -12px rgba(140, 204, 242, 0.45);
 
-  /* Lifted for a dark surface; dark text on it rather than white. */
-  --accent: #3cc7b1;
-  --accent-deep: #25a893;
-  --accent-soft: rgba(60, 199, 177, 0.12);
-  --accent-line: rgba(60, 199, 177, 0.3);
-  --accent-text: #6adac8;
-  --on-accent: #06201c;
-  --accent-glow: 0 0 0 1px rgba(60, 199, 177, 0.35), 0 8px 24px -10px rgba(60, 199, 177, 0.5);
+  --navy: #0f3a57;
+  --navy-raised: #1a4d6d;
+
+  --tile-out: #3a2527;
+  --tile-in: #1d3528;
+  --tile-budget: #37321f;
+  --tile-goal: #1b3450;
 
   --series-in: #3987e5;
   --series-out: #d95926;
@@ -163,13 +166,11 @@
   --bad: #f07a78;
   --bad-soft: rgba(240, 122, 120, 0.13);
 
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-2: 0 2px 4px rgba(0, 0, 0, 0.28), 0 8px 16px -6px rgba(0, 0, 0, 0.4);
-  --shadow-3: 0 4px 8px rgba(0, 0, 0, 0.3), 0 16px 32px -10px rgba(0, 0, 0, 0.55), 0 32px 64px -24px rgba(0, 0, 0, 0.6);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.25), 0 12px 28px -12px rgba(0, 0, 0, 0.5);
+  --shadow-3: 0 4px 10px rgba(0, 0, 0, 0.3), 0 24px 48px -16px rgba(0, 0, 0, 0.6);
 
-  --wash-1: rgba(60, 199, 177, 0.07);
-  --wash-2: rgba(57, 135, 229, 0.07);
-  --wash-3: rgba(217, 89, 38, 0.04);
-
-  --grain-opacity: 0.032;
+  --wash-1: rgba(140, 204, 242, 0.07);
+  --wash-2: rgba(57, 135, 229, 0.06);
+  --wash-3: rgba(140, 204, 242, 0.04);
 }

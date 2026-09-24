@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout, { MonthPicker } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
-import { AreaChart, DonutChart, MiniBars, RingGauge, Sparkline } from '../components/DashCharts.jsx';
+import { AreaChart, DonutChart, RingGauge } from '../components/DashCharts.jsx';
 import { api } from '../lib/api.js';
 import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import { useCountUp } from '../lib/useCountUp.js';
@@ -70,6 +70,8 @@ export default function Dashboard() {
   };
 
   const firstName = user?.name?.split(' ')[0] || 'there';
+  const [year, monthIndex] = month.split('-').map(Number);
+  const monthName = new Date(Date.UTC(year, monthIndex - 1, 1)).toLocaleString('en', { month: 'long', timeZone: 'UTC' });
 
   if (!data) {
     return (
@@ -115,102 +117,66 @@ export default function Dashboard() {
         </div>
       ) : null}
 
-      {/* --- The three headline figures --------------------------------- */}
-      <div className="dash-row">
-        <section className="panel kpi">
-          <div className="kpi-head">
-            <span>Kept this month</span>
-            <Icon name="wallet" size={16} />
-          </div>
-          <div className="kpi-figure" style={{ color: totals.balance < 0 ? 'var(--bad)' : undefined }}>
-            {money(kept, currency)}
-          </div>
-          <div className="kpi-sub">
+      {/* --- The hero: the month in one sentence and four tiles ----------- */}
+      <section className="dash-hero">
+        <div className="dash-hero-text">
+          <span className="eyebrow has-rule">{monthName} · your hisab</span>
+          <h2>
+            {overspent ? 'You spent' : 'You kept'}{' '}
+            <span className="num">{money(Math.abs(kept), currency)}</span>
+            {overspent ? ' more than came in.' : ' this month.'}
+            <em>{overspent ? 'Time for a closer look.' : 'One clear picture.'}</em>
+          </h2>
+          <p>
             {totals.savingsRate === null
-              ? 'Nothing has come in yet this month.'
-              : overspent
-                ? `Spent ${Math.abs(totals.savingsRate)}% more than came in`
-                : `That is ${totals.savingsRate}% of what came in`}
-          </div>
-          <div className="kpi-spark">
-            <Sparkline
-              values={trend.map((t) => t.balance)}
-              colour={totals.balance < 0 ? 'var(--bad)' : 'var(--good)'}
-            />
-          </div>
-        </section>
-
-        <section className="panel kpi">
-          <div className="kpi-head">
-            <span>Cash flow</span>
-            <Link className="btn btn-ghost btn-sm" to="/reports">
-              Details
+              ? 'Nothing has come in yet this month. Log your allowance and the picture fills in.'
+              : `${totals.transactionCount} transactions so far. ${
+                  overspent
+                    ? `Spending is ${Math.abs(totals.savingsRate)}% ahead of what came in.`
+                    : `That is ${totals.savingsRate}% of everything that came in.`
+                }`}
+          </p>
+          <div className="dash-hero-actions">
+            <button type="button" className="btn btn-sky" onClick={() => setAdding(true)}>
+              <Icon name="plus" />
+              Add a transaction
+            </button>
+            <Link className="dash-hero-link" to="/assistant">
+              Ask the assistant
+              <Icon name="right" size={15} />
             </Link>
           </div>
-          <div className="kpi-flow">
-            <div className="kpi-flow-row is-in">
-              <span className="kpi-flow-label">Money in</span>
-              <strong className="num"><CountUp value={totals.income} currency={currency} /></strong>
-            </div>
-            <div className="kpi-flow-row is-out">
-              <span className="kpi-flow-label">Money out</span>
-              <strong className="num"><CountUp value={totals.expense} currency={currency} /></strong>
-            </div>
-          </div>
-          <div className="kpi-spark">
-            <MiniBars data={trend} />
-          </div>
-        </section>
+        </div>
 
-        <section className="panel kpi">
-          <div className="kpi-head">
-            <span>Budget health</span>
-            <Link className="btn btn-ghost btn-sm" to="/budgets">
-              Manage
-            </Link>
-          </div>
-
-          {budgets.length === 0 ? (
-            <div className="kpi-sub" style={{ marginTop: '0.6rem' }}>
-              No caps set this month. One budget on your biggest category is the change most students actually
-              keep to.
-              <div style={{ marginTop: '0.85rem' }}>
-                <Link className="btn btn-sm" to="/budgets">
-                  Set a budget
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="kpi-split" style={{ marginTop: '0.5rem' }}>
-              <div className="kpi-budgets">
-                {budgets.slice(0, 3).map((budget) => (
-                  <div className="kpi-budget-row" key={budget._id}>
-                    <div className="kpi-budget-head">
-                      <span>{budget.category.name}</span>
-                      <span className="num">{budget.pct}%</span>
-                    </div>
-                    <div className="kpi-budget-track">
-                      <div
-                        className="kpi-budget-fill"
-                        style={{
-                          width: `${Math.min(100, budget.pct)}%`,
-                          background:
-                            budget.state === 'exceeded'
-                              ? 'var(--bad)'
-                              : budget.state === 'warning'
-                                ? 'var(--warn)'
-                                : slotColor(budget.category.slot),
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <RingGauge pct={budgetHealth.pct} label="of your budgets used" tone={budgetHealth.tone} />
-            </div>
-          )}
-        </section>
-      </div>
+        <div className="money-tiles">
+          <Link to="/reports" className="money-tile is-in">
+            <span className="money-tile-value num">
+              <CountUp value={totals.income} currency={currency} />
+            </span>
+            <span className="money-tile-label">Money in</span>
+          </Link>
+          <Link to="/transactions" className="money-tile is-out">
+            <span className="money-tile-value num">
+              <CountUp value={totals.expense} currency={currency} />
+            </span>
+            <span className="money-tile-label">Money out</span>
+          </Link>
+          <Link to="/budgets" className="money-tile is-budget">
+            <span className="money-tile-value num">
+              {budgetHealth.limit > 0 ? `${Math.round(budgetHealth.pct)}%` : '—'}
+            </span>
+            <span className="money-tile-label">
+              {budgetHealth.limit > 0 ? 'Of budgets used' : 'No budgets yet'}
+            </span>
+          </Link>
+          <Link to="/tips" className="money-tile is-goal">
+            <span className="money-tile-value num">
+              {goal.target > 0 ? money(goal.target, currency) : tips.length}
+            </span>
+            <span className="money-tile-label">{goal.target > 0 ? 'Savings goal' : 'Saving tips'}</span>
+          </Link>
+        </div>
+      </section>
 
       {/* --- Breakdown and trend ---------------------------------------- */}
       <div className="dash-row dash-row-2">
@@ -338,6 +304,55 @@ export default function Dashboard() {
         </section>
 
         <div className="stack">
+          <section className="panel kpi">
+            <div className="kpi-head">
+              <span>Budget health</span>
+              <Link className="btn btn-ghost btn-sm" to="/budgets">
+                Manage
+              </Link>
+            </div>
+
+            {budgets.length === 0 ? (
+              <div className="kpi-sub" style={{ marginTop: '0.6rem' }}>
+                No caps set this month. One budget on your biggest category is the change most students actually
+                keep to.
+                <div style={{ marginTop: '0.85rem' }}>
+                  <Link className="btn btn-sm" to="/budgets">
+                    Set a budget
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="kpi-split" style={{ marginTop: '0.5rem' }}>
+                <div className="kpi-budgets">
+                  {budgets.slice(0, 3).map((budget) => (
+                    <div className="kpi-budget-row" key={budget._id}>
+                      <div className="kpi-budget-head">
+                        <span>{budget.category.name}</span>
+                        <span className="num">{budget.pct}%</span>
+                      </div>
+                      <div className="kpi-budget-track">
+                        <div
+                          className="kpi-budget-fill"
+                          style={{
+                            width: `${Math.min(100, budget.pct)}%`,
+                            background:
+                              budget.state === 'exceeded'
+                                ? 'var(--bad)'
+                                : budget.state === 'warning'
+                                  ? 'var(--warn)'
+                                  : slotColor(budget.category.slot),
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <RingGauge pct={budgetHealth.pct} label="of your budgets used" tone={budgetHealth.tone} />
+              </div>
+            )}
+          </section>
+
           {insight ? (
             <section className="panel">
               <div className="panel-head">

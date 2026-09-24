@@ -1,275 +1,490 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BrandMark } from '../components/Icon.jsx';
-import { useLandingMotion } from '../lib/useLandingMotion.js';
+import Icon, { BrandMark } from '../components/Icon.jsx';
 import { SITEMAP } from './Sitemap.jsx';
 import '../styles/landing.css';
 
 /* ---------------------------------------------------------------------------
    The public page.
 
-   Built to be driven by scroll. Headings are split into masked lines so they
-   can rise out of their own edge, the chapters are pinned and stepped through,
-   the features run sideways while the page runs down, and the background
-   colour changes as you move between sections.
-
-   Every figure is real: it all comes from the seeded demo account, and the
-   credentials near the foot let anyone sign in and check it.
+   Calm and plain on purpose: one clear promise at the top, the real app shown
+   rather than described, and every section answering one question a student
+   would actually ask before signing up. Every figure and screenshot comes
+   from the seeded demo account, and the credentials further down let anyone
+   sign in and check it.
 --------------------------------------------------------------------------- */
 
-/** A heading split into masked lines, ready for the motion hook to lift. */
-function Lines({ lines, className = '' }) {
-  return (
-    <>
-      {lines.map((line, i) => (
-        <span className="lp-mask" key={i}>
-          <span data-line className={className}>
-            {line}
-          </span>
-        </span>
-      ))}
-    </>
-  );
+/** Adds `is-in` to each [data-reveal] element as it scrolls into view. */
+function useReveal(root) {
+  useEffect(() => {
+    const nodes = root.current?.querySelectorAll('[data-reveal]') || [];
+    if (!('IntersectionObserver' in window)) {
+      nodes.forEach((node) => node.classList.add('is-in'));
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, [root]);
 }
 
-const WORDS = ['Canteen chai', 'Hostel rent', 'Rickshaw fare', 'Spotify', 'Biryani', 'Photocopy', 'Textbooks', 'Foodpanda'];
-
-const CHAPTERS = [
+const TABS = [
   {
-    n: '01',
-    lines: ['Log it', 'in seconds'],
-    body: 'Type what you bought and the category fills itself in. Your allowance and your subscriptions post themselves every month without you touching them.',
-    shot: '/shots/dashboard.jpg',
+    key: 'all',
+    label: 'Your whole month',
+    eyebrow: 'The whole picture',
+    title: 'More than a list of expenses.',
+    body: 'Allowance, tutoring money and scholarship instalments on one side, canteen, hostel and textbooks on the other. Campus Coin puts them together so you can see what is left, not just what went.',
+    points: ['Income and spending side by side', 'Recurring allowance and subscriptions post themselves', 'Import past months from a CSV'],
+    shot: '/shots/dashboard.png',
     alt: 'The Campus Coin dashboard',
-    flipped: false,
   },
   {
-    n: '02',
-    lines: ['See where', 'it went'],
-    body: 'Category splits, daily and weekly views, six months side by side, and every budget cap marked on its own bar. Every chart is backed by a table of the same numbers.',
-    shot: '/shots/reports.jpg',
+    key: 'budgets',
+    label: 'Budgets',
+    eyebrow: 'Told in time',
+    title: 'A cap for each category.',
+    body: 'Set what food, transport or subscriptions should cost this month and watch each bar fill in real time. You hear about it once when you get close and once if you go over, not on every purchase.',
+    points: ['One cap per category, per month', 'Copy last month in one click', 'Alerts at 80% and 100%'],
+    shot: '/shots/budgets.png',
+    alt: 'The Campus Coin budgets page',
+  },
+  {
+    key: 'reports',
+    label: 'Reports',
+    eyebrow: 'Look back',
+    title: 'Make sense of every month.',
+    body: 'Where it went by category, by day and by week, and six months of income against spending. Every chart has a table of the same numbers, and the report saves as a PDF.',
+    points: ['Category, daily and weekly views', 'Six months side by side', 'Save as PDF or CSV'],
+    shot: '/shots/reports.png',
     alt: 'The Campus Coin monthly report',
-    flipped: true,
   },
   {
-    n: '03',
-    lines: ['Know what', 'to do next'],
-    body: 'Every tip quotes your real figures and states what acting on it would save you each month. The list is ranked by that number, so the one at the top moves the most money.',
-    shot: '/shots/tips.jpg',
-    alt: 'The Campus Coin saving tips page',
-    flipped: false,
+    key: 'assistant',
+    label: 'Assistant',
+    eyebrow: 'Ask it anything',
+    title: 'An assistant that knows your numbers.',
+    body: 'Ask "how much on food?" or "can I afford 2,500?" and get an answer from your own transactions. It also files each purchase under the right category as you type, and learns from your corrections.',
+    points: ['Answers from your own data', 'Categorises as you type', 'Never presented as financial advice'],
+    shot: '/shots/assistant.png',
+    alt: 'The Campus Coin assistant answering a question',
   },
 ];
 
-const RAIL = [
-  { label: 'Entry', title: 'Recurring, handled', body: 'Allowance and subscriptions write themselves in each month, so the only things you type are the ones you decided on.' },
-  { label: 'Assistant', title: 'Learns your words', body: 'Type "canteen chai" once and it remembers. Correcting a guess is exactly how it improves, and every suggestion shows its confidence.' },
-  { label: 'Budgets', title: 'Told in time', body: 'A cap per category, filling in real time. You hear about it once when you are close and once if you go over, not on every purchase.' },
-  { label: 'Reports', title: 'Six months at once', body: 'Income against spending, daily and weekly views, and a projection for next month that states how rough it is.' },
-  { label: 'Import', title: 'Bring your history', body: 'Paste or upload a CSV and every row gets a suggested category before a single thing is saved.' },
-  { label: 'Safety', title: 'Catches your slips', body: 'Duplicate entries and amounts far outside your normal range for a category are flagged as you save them.' },
-];
-
-const FIGURES = [
-  { value: 13, suffix: '', label: 'features across nine screens' },
-  { value: 7, suffix: '', label: 'rules hunting for savings' },
-  { value: 6, suffix: '', label: 'months of demo history' },
-  { value: 0, suffix: '', label: 'bank connections required' },
+const STEPS = [
+  ['01', 'Make an account', 'Name, email and your monthly allowance. No bank details and no card, ever.'],
+  ['02', 'Log as you go', 'Type what you bought and the category fills itself in. Or bring last term in from a CSV.'],
+  ['03', 'Read your month', 'Budgets, reports, a plain-language summary and tips ranked by what they would save you.'],
 ];
 
 const CREDS = [
-  ['Student', 'student@campuscoin.app', 'Student@12345'],
-  ['Student', 'bilal@campuscoin.app', 'Student@12345'],
-  ['Administrator', 'admin@campuscoin.app', 'Admin@12345'],
+  ['Student', 'student@campuscoin.app', 'Student@12345', '/login'],
+  ['Student', 'bilal@campuscoin.app', 'Student@12345', '/login'],
+  ['Administrator', 'admin@campuscoin.app', 'Admin@12345', '/admin/login'],
+];
+
+const FAQ = [
+  [
+    'Does Campus Coin connect to my bank?',
+    'No. Everything is entered by you or imported from a CSV file. There is no bank connection, no card and no real money moving anywhere.',
+  ],
+  [
+    'Is the assistant an AI?',
+    'Partly. Categorising runs on Campus Coin’s own server and learns from your corrections. The chat answers from the same calculations as your reports, and only hands a question to a language model when one is configured and no rule understood it.',
+  ],
+  [
+    'Can I change a category it picked?',
+    'Always. Every suggestion shows how sure it is and why, and correcting it is exactly how it learns.',
+  ],
+  [
+    'Is any of this financial advice?',
+    'No. Tips and summaries are prompts to look closer at your own numbers. They are never certified financial advice.',
+  ],
 ];
 
 export default function Landing() {
   const page = useRef(null);
-  useLandingMotion(page);
+  const [tab, setTab] = useState(TABS[0].key);
+  useReveal(page);
+
+  const current = TABS.find((t) => t.key === tab);
 
   return (
     <div className="lp" ref={page}>
-      <div className="lp-bg" data-bg aria-hidden="true" />
-      <div className="lp-grain" aria-hidden="true" />
-      <div className="lp-cursor" data-cursor aria-hidden="true" />
-      <div className="lp-cursor-ring" data-cursor-ring aria-hidden="true" />
-
-      <div className="lp-loader" data-loader aria-hidden="true">
-        <div className="lp-loader-num" data-loader-num>
-          0
-        </div>
-        <span className="lp-loader-bar" data-loader-bar />
-      </div>
-
       <nav className="lp-nav">
-        <Link to="/" className="lp-brand">
-          <BrandMark size={26} />
-          Campus Coin
-        </Link>
-        <span className="lp-spacer" />
-        <Link className="lp-nav-link" to="/login" style={{ marginRight: '1.75rem' }}>
-          Sign in
-        </Link>
-        <Link className="lp-nav-link" to="/register">
-          Get started
-        </Link>
+        <div className="lp-wrap lp-nav-inner">
+          <Link to="/" className="lp-brand">
+            <BrandMark size={30} />
+            Campus Coin
+          </Link>
+          <div className="lp-nav-links">
+            <a href="#features">Features</a>
+            <a href="#how">How it works</a>
+            <a href="#demo">Demo</a>
+            <a href="#faq">Help</a>
+            <Link to="/login">Sign in</Link>
+          </div>
+          <Link to="/register" className="lp-btn lp-btn-solid lp-nav-cta">
+            Get started
+            <Icon name="arrow-ne" size={16} />
+          </Link>
+        </div>
       </nav>
 
       <header className="lp-hero">
-        <div className="lp-wrap">
-          <div className="lp-hero-head">
-            <h1 className="lp-mega">
-              <Lines lines={['Where']} />
-              <Lines lines={['did it']} className="lp-outline" />
-              <Lines lines={['all go?']} className="lp-amber" />
+        <div className="lp-wrap lp-hero-grid">
+          <div className="lp-hero-copy">
+            <span className="lp-eyebrow has-rule">Student money. Clearly sorted.</span>
+            <h1>
+              Your allowance.
+              <br />
+              Your spending.
+              <br />
+              <em>One clear picture.</em>
             </h1>
-          </div>
-
-          <div className="lp-hero-shot" data-hero-shot>
-            <img src="/shots/dashboard.jpg" alt="The Campus Coin dashboard showing a month of income and spending" />
-          </div>
-
-          <div className="lp-hero-meta">
-            <p className="lp-lead" data-fade>
-              An allowance that turns up when it turns up. A bit of tutoring money. A scholarship instalment if
-              you are lucky. The budget tracker built for that, not for a salary.
+            <p className="lp-lead">
+              From your morning chai at the canteen to the hostel rent at the end of the month. Log it, budget it and
+              understand it, with a tracker built for irregular student income rather than a salary.
             </p>
-            <div className="lp-hero-actions" data-fade>
-              <Link className="lp-btn lp-btn-solid" to="/register" data-magnet>
-                <span>Start tracking</span>
+            <div className="lp-actions">
+              <Link to="/register" className="lp-btn lp-btn-solid">
+                Start tracking
+                <Icon name="arrow-ne" size={16} />
               </Link>
-              <Link className="lp-btn" to="/login" data-magnet>
-                <span>Try the demo</span>
-              </Link>
+              <a href="#features" className="lp-text-link">
+                Take a closer look
+                <Icon name="right" size={16} />
+              </a>
+            </div>
+            <ul className="lp-ticks">
+              <li>
+                <Icon name="check" size={15} /> Free, no bank needed
+              </li>
+              <li>
+                <Icon name="check" size={15} /> Works on your phone
+              </li>
+            </ul>
+          </div>
+
+          <div className="lp-hero-visual">
+            <span className="lp-eyebrow lp-hero-tag">A little clarity. A lot less guessing.</span>
+            <div className="lp-orbit" aria-hidden="true" />
+            <figure className="lp-frame">
+              <div className="lp-frame-bar" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </div>
+              <img src="/shots/hero.png" alt="The Campus Coin dashboard showing a month of income and spending" />
+            </figure>
+            <div className="lp-float lp-float-a">
+              <span className="lp-float-icon">
+                <Icon name="bulb" size={18} />
+              </span>
+              <div>
+                <strong>Tip of the day</strong>
+                <span>Worth up to Rs 10,847 a month</span>
+              </div>
+            </div>
+            <div className="lp-float lp-float-b">
+              <span className="lp-float-icon is-green">
+                <Icon name="chart" size={18} />
+              </span>
+              <div>
+                <strong>See the bigger picture</strong>
+                <span>Six months, side by side</span>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="lp-scrollcue" aria-hidden="true">
-          <span className="lp-label">Scroll</span>
-          <i />
         </div>
       </header>
 
-      <div className="lp-marquee" aria-hidden="true">
-        <div className="lp-marquee-track" data-marquee>
-          {[...WORDS, ...WORDS].map((word, i) => (
-            <span className={`lp-marquee-item${i % 3 === 0 ? ' is-solid' : ''}`} key={`${word}-${i}`}>
-              {word}
-              <b>&mdash;</b>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <section className="lp-section" data-chapter-zone>
-        <div className="lp-wrap">
-          <div className="lp-section-head">
-            <span className="lp-label">How it works</span>
-            <h2 className="lp-big">
-              <Lines lines={['Three things,', 'that is it.']} />
-            </h2>
-          </div>
-
-          {CHAPTERS.map((chapter) => (
-            <article className={`lp-chapter${chapter.flipped ? ' is-flipped' : ''}`} key={chapter.n}>
-              <div className="lp-chapter-text">
-                <span className="lp-chapter-num" data-fade>
-                  Chapter {chapter.n}
-                </span>
-                <h2 className="lp-big">
-                  <Lines lines={chapter.lines} />
-                </h2>
-                <p className="lp-lead" data-fade>
-                  {chapter.body}
-                </p>
-              </div>
-              <div className="lp-chapter-shot" data-reveal>
-                <img src={chapter.shot} alt={chapter.alt} data-parallax loading="lazy" />
-              </div>
-            </article>
-          ))}
+      <section className="lp-strip">
+        <div className="lp-wrap lp-strip-inner">
+          <span className="lp-eyebrow is-muted">One app. Every side of student money.</span>
+          <ul>
+            <li>
+              <i style={{ background: 'var(--cat-2)' }} /> Spending
+            </li>
+            <li>
+              <i style={{ background: 'var(--cat-3)' }} /> Income
+            </li>
+            <li>
+              <i style={{ background: 'var(--cat-4)' }} /> Budgets
+            </li>
+            <li>
+              <i style={{ background: 'var(--cat-1)' }} /> Savings
+            </li>
+          </ul>
         </div>
       </section>
 
-      {/* Runs sideways while the page runs down. */}
-      <section className="lp-rail" data-rail>
-        <div className="lp-wrap" style={{ marginBottom: '3rem' }}>
-          <span className="lp-label">Everything in it</span>
-          <h2 className="lp-big" style={{ marginTop: '1.5rem' }}>
-            <Lines lines={['Small app.', 'Does a lot.']} />
-          </h2>
-        </div>
-        <div className="lp-rail-track" data-rail-track>
-          {RAIL.map((card) => (
-            <article className="lp-rail-card" key={card.title}>
-              <span className="lp-label">{card.label}</span>
-              <h3>{card.title}</h3>
-              <p>{card.body}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="lp-statement">
+      <section className="lp-section" id="features">
         <div className="lp-wrap">
-          <h2 className="lp-big">
-            <Lines lines={['It compares you']} />
-            <Lines lines={['to you.']} className="lp-amber" />
-          </h2>
-          <p className="lp-lead" data-fade>
-            Not to a budget somebody else wrote. Every figure is measured against your own three-month
-            average, which is the only reason the advice is worth anything.
-          </p>
-        </div>
-      </section>
-
-      <section className="lp-section">
-        <div className="lp-wrap">
-          <div className="lp-figures">
-            {FIGURES.map((figure) => (
-              <div key={figure.label}>
-                <div className="lp-figure-value">
-                  <span data-count={figure.value}>{figure.value}</span>
-                  {figure.suffix}
-                </div>
-                <p className="lp-figure-label">{figure.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="lp-section">
-        <div className="lp-wrap">
-          <div className="lp-section-head">
-            <span className="lp-label">Demo accounts</span>
-            <h2 className="lp-big">
-              <Lines lines={['Try it without', 'signing up.']} />
-            </h2>
-          </div>
-
-          <div className="lp-creds" data-fade>
-            <div className="lp-creds-row">
-              <span>Role</span>
-              <span>Email</span>
-              <span>Password</span>
+          <div className="lp-head-split" data-reveal>
+            <div>
+              <span className="lp-eyebrow">Made for student life</span>
+              <h2 className="lp-h2 is-light">
+                One app.
+                <br />
+                Everything sorted.
+              </h2>
             </div>
-            {CREDS.map(([role, email, password]) => (
-              <div className="lp-creds-row" key={email}>
-                <span className="lp-amber">{role}</span>
-                <span>{email}</span>
-                <span>{password}</span>
-              </div>
+            <p className="lp-aside">
+              Money does not arrive on a schedule when you are a student. Your tracker should not assume it does.
+            </p>
+          </div>
+
+          <div className="lp-tabs" role="tablist" aria-label="Features">
+            {TABS.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                role="tab"
+                aria-selected={tab === t.key}
+                className={tab === t.key ? 'is-on' : undefined}
+                onClick={() => setTab(t.key)}
+              >
+                {t.label}
+                <Icon name="arrow-ne" size={15} />
+              </button>
             ))}
           </div>
 
-          <div className="lp-hero-actions" style={{ marginTop: '2.5rem' }} data-fade>
-            <Link className="lp-btn" to="/login" data-magnet>
-              <span>Student sign-in</span>
+          <div className="lp-tab-panel" role="tabpanel" key={current.key}>
+            <div className="lp-tab-copy">
+              <span className="lp-eyebrow">{current.eyebrow}</span>
+              <h3>{current.title}</h3>
+              <p>{current.body}</p>
+              <ul className="lp-checks">
+                {current.points.map((point) => (
+                  <li key={point}>
+                    <Icon name="check" size={16} />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+              <Link to="/login" className="lp-text-link">
+                Try it in the demo
+                <Icon name="right" size={16} />
+              </Link>
+            </div>
+            <div className="lp-tab-shot">
+              <span className="lp-eyebrow is-muted">A look inside Campus Coin</span>
+              <img src={current.shot} alt={current.alt} loading="lazy" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="lp-navy">
+        <div className="lp-wrap lp-navy-grid">
+          <div data-reveal>
+            <span className="lp-eyebrow is-sky">For the way students are paid</span>
+            <h2 className="lp-h2 is-light">
+              One allowance.
+              <br />
+              One semester.
+              <br />
+              <em>One clear hisab.</em>
+            </h2>
+            <p>
+              An allowance that turns up when it turns up, a bit of tutoring money, a scholarship instalment if you
+              are lucky. Campus Coin was built for exactly that.
+            </p>
+            <Link to="/register" className="lp-text-link is-light">
+              Create your account
+              <Icon name="right" size={16} />
             </Link>
-            <Link className="lp-btn" to="/admin/login" data-magnet>
-              <span>Administrator</span>
+          </div>
+          <div className="lp-navy-cards">
+            <article className="lp-navy-card" data-reveal>
+              <span className="lp-card-num">01 / Recurring</span>
+              <h3>
+                The monthly things,
+                <br />
+                handled.
+              </h3>
+              <p>Your allowance and your subscriptions post themselves on the right day, so the only things you type are the ones you chose.</p>
+              <Icon name="repeat" size={22} />
+            </article>
+            <article className="lp-navy-card is-pale" data-reveal>
+              <span className="lp-card-num">02 / Compared to you</span>
+              <h3>
+                Your average,
+                <br />
+                not someone else’s.
+              </h3>
+              <p>Every tip measures this month against your own last three, which is the only reason the advice is worth anything.</p>
+              <Icon name="target" size={22} />
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="lp-section">
+        <div className="lp-wrap lp-duo">
+          <article className="lp-duo-card is-blue" data-reveal>
+            <h3>
+              Type it once.
+              <br />
+              It remembers.
+            </h3>
+            <p>Describe a purchase the way you would say it and the category fills itself in. Correct it once and it learns your words.</p>
+            <div className="lp-flow">
+              <div className="lp-flow-box">
+                <Icon name="edit" size={18} />
+                <span>&ldquo;chai at the canteen&rdquo;</span>
+              </div>
+              <Icon name="right" size={18} className="lp-flow-arrow" />
+              <div className="lp-flow-box">
+                <Icon name="check" size={18} />
+                <span>Food · 100% sure</span>
+              </div>
+            </div>
+            <Link to="/login" className="lp-text-link">
+              See the categoriser
+              <Icon name="right" size={16} />
+            </Link>
+          </article>
+
+          <article className="lp-duo-card is-grey" data-reveal>
+            <h3>
+              Make sense
+              <br />
+              of every month.
+            </h3>
+            <p>Category breakdowns and six months of history turn your entries into a picture you can actually read.</p>
+            <div className="lp-pastels">
+              <span className="is-out">Spending</span>
+              <span className="is-in">Income</span>
+              <span className="is-budget">Budgets</span>
+              <span className="is-goal">Savings</span>
+            </div>
+            <Link to="/login" className="lp-text-link">
+              Explore the reports
+              <Icon name="right" size={16} />
+            </Link>
+          </article>
+        </div>
+      </section>
+
+      <section className="lp-section" id="how">
+        <div className="lp-wrap">
+          <div className="lp-center" data-reveal>
+            <span className="lp-eyebrow">Less setup. More clarity.</span>
+            <h2 className="lp-h2 is-light">
+              Your next semester.
+              <br />
+              In three simple steps.
+            </h2>
+          </div>
+          <ol className="lp-steps">
+            {STEPS.map(([n, title, body]) => (
+              <li key={n} data-reveal>
+                <span>{n}</span>
+                <h3>{title}</h3>
+                <p>{body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="lp-band" id="demo">
+        <div className="lp-wrap">
+          <div className="lp-head-split" data-reveal>
+            <div>
+              <span className="lp-eyebrow">Try before you sign up</span>
+              <h2 className="lp-h2 is-light">
+                Real data.
+                <br />
+                Real accounts.
+              </h2>
+            </div>
+            <Link to="/sitemap" className="lp-text-link">
+              See every page
+              <Icon name="right" size={16} />
+            </Link>
+          </div>
+          <div className="lp-creds">
+            {CREDS.map(([role, email, password, to]) => (
+              <article className="lp-cred" key={email} data-reveal>
+                <span className="lp-cred-role">{role}</span>
+                <dl>
+                  <div>
+                    <dt>Email</dt>
+                    <dd>{email}</dd>
+                  </div>
+                  <div>
+                    <dt>Password</dt>
+                    <dd>{password}</dd>
+                  </div>
+                </dl>
+                <Link to={to} className="lp-text-link">
+                  Sign in as {role.toLowerCase()}
+                  <Icon name="right" size={16} />
+                </Link>
+              </article>
+            ))}
+          </div>
+          <p className="lp-note">Six months of history is already in the demo accounts, so every chart has something to show.</p>
+        </div>
+      </section>
+
+      <section className="lp-section" id="faq">
+        <div className="lp-wrap lp-faq-grid">
+          <div data-reveal>
+            <span className="lp-eyebrow">Good questions</span>
+            <h2 className="lp-h2 is-light">
+              A little more
+              <br />
+              peace of mind.
+            </h2>
+          </div>
+          <div className="lp-faq">
+            {FAQ.map(([q, a]) => (
+              <details key={q}>
+                <summary>
+                  {q}
+                  <Icon name="plus" size={18} />
+                </summary>
+                <p>{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="lp-cta">
+        <div className="lp-wrap lp-center" data-reveal>
+          <span className="lp-cta-mark">
+            <BrandMark size={44} />
+          </span>
+          <span className="lp-eyebrow">Your money, a little more sorted</span>
+          <h2 className="lp-h2 is-light">
+            Good semesters start
+            <br />
+            with a clear hisab.
+          </h2>
+          <p className="lp-lead">Six months from now, you will know exactly where it went.</p>
+          <div className="lp-actions is-center">
+            <Link to="/register" className="lp-btn lp-btn-solid">
+              Create your account
+              <Icon name="arrow-ne" size={16} />
+            </Link>
+            <Link to="/login" className="lp-btn">
+              Sign in
             </Link>
           </div>
         </div>
@@ -277,39 +492,33 @@ export default function Landing() {
 
       <footer className="lp-footer">
         <div className="lp-wrap">
-          <div className="lp-footer-cta">
-            <h2 className="lp-mega">
-              <Lines lines={['Six months']} />
-              <Lines lines={['from now']} className="lp-outline" />
-              <Lines lines={['you will know.']} className="lp-amber" />
-            </h2>
-            <div className="lp-hero-actions" style={{ marginTop: '3rem' }} data-fade>
-              <Link className="lp-btn lp-btn-solid" to="/register" data-magnet>
-                <span>Create your account</span>
+          <div className="lp-footer-top">
+            <div>
+              <Link to="/" className="lp-brand">
+                <BrandMark size={28} />
+                Campus Coin
               </Link>
+              <p>Smart spending, student style.</p>
             </div>
+            {/* The SRS asks for a sitemap on the home page. */}
+            <nav className="lp-sitemap" aria-label="Sitemap">
+              {SITEMAP.map((group) => (
+                <div key={group.title}>
+                  <h4>{group.title}</h4>
+                  <ul>
+                    {group.links.map((link) => (
+                      <li key={link.to}>
+                        <Link to={link.to}>{link.label}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </nav>
           </div>
-
-          {/* The SRS asks for a sitemap on the home page. */}
-          <nav className="lp-sitemap" aria-label="Sitemap">
-            {SITEMAP.map((group) => (
-              <div key={group.title}>
-                <h4>{group.title}</h4>
-                <ul>
-                  {group.links.map((link) => (
-                    <li key={link.to}>
-                      <Link to={link.to}>{link.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </nav>
-
           <p className="lp-colophon">
-            Campus Coin is a student project built for the Aptech End-to-End Web Solutions category. It holds
-            no real money, connects to no bank, and its suggestions are prompts to look closer &mdash; not
-            financial advice.
+            Campus Coin is a student project for the Aptech End-to-End Web Solutions category. It holds no real money,
+            connects to no bank, and its suggestions are prompts to look closer, not financial advice.
           </p>
         </div>
       </footer>

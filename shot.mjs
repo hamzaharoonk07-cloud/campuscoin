@@ -16,7 +16,8 @@ const OPEN_BUBBLE = `document.querySelector('.chat-fab').click()`;
 
 // name, path, token, theme, width, height, optional script run after load
 const PAGES = [
-  ['landing', '/', null, 'dark', 1440, 1050],
+  ['landing', '/', null, 'light', 1440, 900],
+  ['hero', '/dashboard', token, 'light', 1440, 900],
   ['login', '/login', null, 'light', 1440, 900],
   ['dashboard', '/dashboard', token, 'light', 1440, 1320],
   ['dashboard-dark', '/dashboard', token, 'dark', 1440, 1320],
