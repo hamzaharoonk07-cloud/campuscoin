@@ -12,8 +12,8 @@ export const DEFAULT_CATEGORIES = [
   { name: 'Other Income', type: 'income', icon: 'plus-circle', slot: 5, keywords: ['refund', 'cashback', 'sold', 'return', 'misc'] },
 
   // Expenses
-  { name: 'Food', type: 'expense', icon: 'utensils', slot: 1, keywords: ['food', 'lunch', 'dinner', 'breakfast', 'canteen', 'cafe', 'cafeteria', 'mess', 'snack', 'tea', 'coffee', 'biryani', 'burger', 'pizza', 'restaurant', 'foodpanda', 'delivery', 'groceries'] },
-  { name: 'Transport', type: 'expense', icon: 'bus', slot: 3, keywords: ['bus', 'rickshaw', 'uber', 'careem', 'indrive', 'fuel', 'petrol', 'metro', 'train', 'fare', 'taxi', 'bike', 'ride'] },
+  { name: 'Food', type: 'expense', icon: 'utensils', slot: 1, keywords: ['food', 'lunch', 'dinner', 'breakfast', 'canteen', 'cafe', 'cafeteria', 'mess', 'snack', 'tea', 'coffee', 'biryani', 'burger', 'pizza', 'restaurant', 'foodpanda', 'delivery', 'groceries', 'grocery', 'chai', 'paratha', 'samosa', 'roti', 'naan', 'dhaba', 'shawarma', 'sandwich', 'fries', 'juice', 'kebab', 'bakery', 'nashta', 'khana'] },
+  { name: 'Transport', type: 'expense', icon: 'bus', slot: 3, keywords: ['bus', 'rickshaw', 'uber', 'careem', 'indrive', 'fuel', 'petrol', 'metro', 'train', 'fare', 'taxi', 'bike', 'ride', 'bykea', 'qingqi', 'chingchi', 'van', 'auto', 'parking', 'toll'] },
   { name: 'Hostel/Rent', type: 'expense', icon: 'home', slot: 2, keywords: ['rent', 'hostel', 'room', 'deposit', 'electricity', 'utility', 'gas', 'water', 'wifi', 'internet', 'bill'] },
   { name: 'Academics', type: 'expense', icon: 'book', slot: 4, keywords: ['book', 'books', 'stationery', 'notebook', 'printing', 'photocopy', 'lab', 'semester', 'fee', 'course', 'exam', 'library', 'pen'] },
   { name: 'Subscriptions', type: 'expense', icon: 'repeat', slot: 6, keywords: ['netflix', 'spotify', 'youtube', 'subscription', 'premium', 'plan', 'package', 'cloud', 'chatgpt', 'canva', 'gym', 'membership'] },

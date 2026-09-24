@@ -77,7 +77,13 @@ export async function suggestCategory({ userId, description, type = 'expense' })
   }, {});
   for (const hint of hints) {
     const share = hint.count / (totalPerToken[hint.token] || 1);
-    bump(hint.category, PERSONAL_WEIGHT * share, 'your past entries');
+    // Trust in a pairing grows with how often it has been seen: a third of full
+    // weight after one entry (just under one seed keyword), a half after two
+    // (enough to overrule one), approaching full with use. Without this, a
+    // word that merely happened to appear once - "campus" in "rickshaw to
+    // campus" - outvoted the food words in "chai at campus cafe".
+    const seen = hint.count / (hint.count + 2);
+    bump(hint.category, PERSONAL_WEIGHT * share * seen, 'your past entries');
   }
 
   // 2. Seed keywords and the category name itself.

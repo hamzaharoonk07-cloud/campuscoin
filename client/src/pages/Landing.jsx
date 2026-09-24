@@ -616,10 +616,10 @@ export default function Landing() {
                 Real accounts.
               </h2>
             </div>
-            <Link to="/sitemap" className="lp-text-link">
+            <a href="#sitemap" className="lp-text-link">
               See every page
               <Icon name="right" size={16} />
-            </Link>
+            </a>
           </div>
           <div className="lp-creds">
             {CREDS.map(([role, email, password, to]) => (
@@ -705,7 +705,7 @@ export default function Landing() {
               <p>Smart spending, student style.</p>
             </div>
             {/* The SRS asks for a sitemap on the home page. */}
-            <nav className="lp-sitemap" aria-label="Sitemap">
+            <nav className="lp-sitemap" id="sitemap" aria-label="Sitemap">
               {SITEMAP.map((group) => (
                 <div key={group.title}>
                   <h4>{group.title}</h4>

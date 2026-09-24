@@ -46,6 +46,22 @@ npm run dev          # API on http://localhost:5000
 npm run dev:client   # React on http://localhost:5173 (proxies /api to the API)
 ```
 
+### Testing every feature
+
+With the server running (`npm start`), in a second terminal:
+
+```bash
+npm run test:e2e --prefix server
+```
+
+It registers a throwaway student and works through every functional
+requirement in the SRS - sign-up, login, password reset, profile, categories,
+income and expenses, recurring entries, CSV import and export, the
+categoriser learning from corrections, anomaly flags, budgets and alerts,
+reports and filters, insights, tips, sharing, the chat assistant and every
+administrator control - then deletes the account. It prints PASS or FAIL for
+each of its 58 checks.
+
 ### Reseeding
 
 ```bash

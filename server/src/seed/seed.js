@@ -63,7 +63,19 @@ const SPEND_PROFILE = {
 
 async function seedCategories() {
   const existing = await Category.countDocuments({ owner: null });
-  if (existing >= DEFAULT_CATEGORIES.length) return Category.find({ owner: null });
+  if (existing >= DEFAULT_CATEGORIES.length) {
+    // Keywords added in a later version still reach a database seeded before
+    // it. $addToSet only ever adds, so keywords an administrator added are kept.
+    await Category.bulkWrite(
+      DEFAULT_CATEGORIES.map((category) => ({
+        updateOne: {
+          filter: { owner: null, type: category.type, name: category.name },
+          update: { $addToSet: { keywords: { $each: category.keywords } } },
+        },
+      }))
+    );
+    return Category.find({ owner: null });
+  }
 
   await Category.bulkWrite(
     DEFAULT_CATEGORIES.map((category) => ({
