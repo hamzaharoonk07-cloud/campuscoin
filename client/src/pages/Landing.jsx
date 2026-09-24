@@ -263,7 +263,7 @@ export default function Landing() {
   return (
     <div className="lp" ref={page}>
       <span className="lp-progress" aria-hidden="true" />
-      <nav className={`lp-nav${scrolled ? ' is-scrolled' : ''}`}>
+      <nav className={`lp-nav ${scrolled ? 'is-scrolled' : 'is-top'}`}>
         <div className="lp-wrap lp-nav-inner">
           <Link to="/" className="lp-brand">
             <BrandMark size={30} />
@@ -288,7 +288,9 @@ export default function Landing() {
         <div className="lp-hero-bg" aria-hidden="true">
           <span className="lp-mesh lp-mesh-a" />
           <span className="lp-mesh lp-mesh-b" />
+          <span className="lp-mesh lp-mesh-c" />
           <span className="lp-grid" />
+          <span className="lp-stars" />
         </div>
 
         <div className="lp-wrap lp-hero-grid">

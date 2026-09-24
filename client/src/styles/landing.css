@@ -1198,3 +1198,149 @@
 @media (prefers-reduced-motion: reduce) {
   .lp-depth { transform: none; }
 }
+
+/* ===========================================================================
+   Hero colour theme - deep navy to petrol
+   ---------------------------------------------------------------------------
+   The one dark, saturated moment on the page, so it is unmistakably the
+   start. The white cards and the phone keep their light surfaces and so jump
+   forward off it. The navigation takes the same colour while it sits over
+   the hero, and turns light once the page scrolls.
+   =========================================================================== */
+
+.lp-hero {
+  --hero-top: #051d31;
+  background:
+    radial-gradient(120% 90% at 85% 10%, #0d6f93 0%, transparent 55%),
+    linear-gradient(160deg, var(--hero-top) 0%, #0a3550 45%, #0b4d6c 100%);
+  color: #fff;
+  border-bottom: 0;
+}
+
+.lp-mesh-a { background: #3fb3ea; opacity: 0.35; }
+.lp-mesh-b { background: #2fd1a4; opacity: 0.22; right: 30%; }
+.lp-mesh-c {
+  width: 26rem;
+  height: 22rem;
+  left: -8rem;
+  top: 10%;
+  background: #7c6cf0;
+  opacity: 0.22;
+  animation-duration: 26s;
+  animation-delay: -10s;
+}
+
+.lp-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+}
+
+/* Small lights scattered across the dark, twinkling slowly out of step. */
+.lp-stars,
+.lp-stars::after {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 22%, #fff, transparent),
+    radial-gradient(1px 1px at 28% 68%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 46% 14%, #cdeeff, transparent),
+    radial-gradient(1px 1px at 58% 82%, #fff, transparent),
+    radial-gradient(2px 2px at 72% 30%, #cdeeff, transparent),
+    radial-gradient(1px 1px at 86% 58%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 94% 16%, #fff, transparent),
+    radial-gradient(1px 1px at 38% 40%, #fff, transparent);
+  animation: lp-twinkle 5s ease-in-out infinite alternate;
+}
+.lp-stars::after {
+  content: '';
+  transform: translate(7%, 11%);
+  animation-delay: -2.5s;
+}
+@keyframes lp-twinkle {
+  from { opacity: 0.25; }
+  to { opacity: 0.9; }
+}
+
+/* --- Text on the dark ------------------------------------------------------ */
+
+.lp-hero h1 { color: #fff; }
+.lp-hero h1 em {
+  background: linear-gradient(95deg, #8cccf2 0%, #7ee6c8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lp-underline path { stroke: #7ee6c8; opacity: 0.8; }
+.lp-hero .lp-lead { color: #b9cedb; }
+
+.lp-badge {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #e8f4fb;
+  backdrop-filter: blur(8px);
+  box-shadow: none;
+}
+.lp-badge:hover { border-color: rgba(140, 204, 242, 0.6); box-shadow: 0 0 0 4px rgba(140, 204, 242, 0.12); }
+.lp-badge svg { color: #8cccf2; }
+.lp-badge-tag { background: #8cccf2; color: #05233a; }
+
+.lp-hero .lp-btn-solid {
+  background: #8cccf2;
+  border-color: #8cccf2;
+  color: #05233a;
+  box-shadow: 0 14px 30px -12px rgba(140, 204, 242, 0.6);
+}
+.lp-hero .lp-btn-solid:hover { background: #fff; border-color: #fff; }
+.lp-hero .lp-text-link { color: #fff; }
+
+.lp-facts { border-top-color: rgba(255, 255, 255, 0.14); }
+.lp-facts strong { color: #fff; }
+.lp-facts li > span:last-child { color: #9fb9ca; }
+.lp-fact-icon,
+.lp-fact-icon.is-mint,
+.lp-fact-icon.is-cream {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.lp-fact-icon { color: #8cccf2; }
+.lp-fact-icon.is-mint { color: #7ee6c8; }
+.lp-fact-icon.is-cream { color: #f5d38a; }
+
+.lp-orbit { border-color: rgba(255, 255, 255, 0.16); }
+.lp-orbit-coin { box-shadow: 0 0 18px 2px rgba(140, 204, 242, 0.6); }
+.lp-orbit-coin.is-small { background: #7ee6c8; box-shadow: 0 0 14px 2px rgba(126, 230, 200, 0.6); }
+
+/* The desktop frame gets a thin light rim so it separates from the navy. */
+.lp-frame {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.lp-phone { box-shadow: 0 40px 80px -24px rgba(0, 0, 0, 0.7), inset 0 0 0 2px #2f5570; }
+/* Cards are light surfaces on the dark hero, so they set their own text colour
+   rather than inheriting the hero's white. */
+.lp-card { color: var(--text); border-color: transparent; box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.55); }
+
+/* --- Navigation while it sits over the hero ------------------------------- */
+
+.lp-nav.is-top {
+  background: var(--hero-top, #051d31);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: none;
+}
+.lp-nav.is-top .lp-brand,
+.lp-nav.is-top .lp-nav-links a { color: #fff; }
+.lp-nav.is-top .lp-nav-links a:hover { color: #8cccf2; }
+.lp-nav.is-top .lp-nav-links a::after { background: #8cccf2; }
+.lp-nav.is-top .brand-mark rect { fill: #8cccf2; }
+.lp-nav.is-top .brand-mark :is(path, circle) { stroke: #05233a; }
+.lp-nav.is-top .lp-nav-cta {
+  background: #8cccf2;
+  border-color: #8cccf2;
+  color: #05233a;
+  box-shadow: none;
+}
+.lp-nav { transition: background 0.35s var(--ease), box-shadow 0.3s var(--ease), border-color 0.35s var(--ease); }
+.lp-nav .lp-brand,
+.lp-nav .lp-nav-links a,
+.lp-nav .lp-nav-cta { transition: color 0.35s var(--ease), background 0.35s var(--ease), border-color 0.35s var(--ease); }
