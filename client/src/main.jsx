@@ -6,6 +6,9 @@ import { AuthProvider, ThemeProvider, ToastProvider } from './context/AppContext
 import './styles/app.css';
 // After app.css, so motion rules win over same-specificity base rules.
 import './styles/motion.css';
+import { installPointerEffects } from './lib/pointerEffects.js';
+
+installPointerEffects();
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

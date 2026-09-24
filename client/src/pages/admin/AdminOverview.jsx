@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../../components/Layout.jsx';
 import { api } from '../../lib/api.js';
-import { money, slotColor } from '../../lib/format.js';
+import { slotColor } from '../../lib/format.js';
+import CountUp, { CountNumber } from '../../components/CountUp.jsx';
 import { useToast } from '../../context/AppContext.jsx';
 
 export default function AdminOverview() {
@@ -32,21 +33,21 @@ export default function AdminOverview() {
       <div className="stat-row">
         <div className="stat">
           <div className="stat-label">Students</div>
-          <div className="stat-value num">{stats.users.total}</div>
+          <div className="stat-value num"><CountNumber value={stats.users.total} /></div>
           <div className="stat-meta">{stats.users.activeLast30Days} signed in this month</div>
         </div>
         <div className="stat">
           <div className="stat-label">Transactions logged</div>
-          <div className="stat-value num">{stats.transactions.total.toLocaleString()}</div>
+          <div className="stat-value num"><CountNumber value={stats.transactions.total} /></div>
           <div className="stat-meta">{stats.transactions.thisMonth} this month</div>
         </div>
         <div className="stat">
           <div className="stat-label">Income recorded</div>
-          <div className="stat-value num">{money(stats.volume.income, 'PKR')}</div>
+          <div className="stat-value num"><CountUp value={stats.volume.income} currency="PKR" /></div>
         </div>
         <div className="stat">
           <div className="stat-label">Spending recorded</div>
-          <div className="stat-value num">{money(stats.volume.expense, 'PKR')}</div>
+          <div className="stat-value num"><CountUp value={stats.volume.expense} currency="PKR" /></div>
         </div>
       </div>
 

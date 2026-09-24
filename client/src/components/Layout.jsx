@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon, { BrandMark } from './Icon.jsx';
 import Chat from './Chat.jsx';
@@ -28,6 +29,9 @@ const ADMIN_NAV = [
   { to: '/admin/categories', label: 'Default categories', icon: 'tag' },
   { to: '/admin/announcements', label: 'Announcements', icon: 'bell' },
 ];
+
+/** Where the rail's highlight last sat, so the next page can slide it from there. */
+let lastRailSpot = null;
 
 /** The five destinations that earn a place in the phone tab bar. */
 const TAB_NAV = STUDENT_NAV.slice(0, 5);
@@ -109,8 +113,28 @@ function ThemeButton() {
 
   // The choice is saved to the account as well as this device, so it carries
   // over to a phone or a lab machine without being set again.
-  const flip = async () => {
-    const next = toggle();
+  const flip = async (event) => {
+    let next;
+    const apply = () => {
+      next = toggle();
+      // Set straight away rather than waiting for the theme effect, so the
+      // view transition below captures the new colours.
+      document.documentElement.setAttribute('data-theme', next);
+    };
+
+    // Where supported, the new theme spreads out in a circle from the button.
+    // The browser snapshots the page before and after, and motion.css clips
+    // the new snapshot to a growing circle centred on the click.
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (document.startViewTransition && !reduced) {
+      const root = document.documentElement;
+      root.style.setProperty('--vt-x', `${event.clientX}px`);
+      root.style.setProperty('--vt-y', `${event.clientY}px`);
+      await document.startViewTransition(() => flushSync(apply)).updateCallbackDone;
+    } else {
+      apply();
+    }
+
     try {
       await updateProfile({ preferences: { theme: next } });
     } catch {
@@ -186,6 +210,35 @@ export default function Layout({ title, crumbs, actions, children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const nav = isAdmin ? ADMIN_NAV : STUDENT_NAV;
+  const rail = useRef(null);
+  const indicator = useRef(null);
+
+  // Every page renders its own Layout, so the rail is rebuilt on each
+  // navigation. The highlight still slides from the previous item because
+  // its last position is kept outside React (lastRailSpot), placed there
+  // instantly, then moved to the new active item.
+  useLayoutEffect(() => {
+    const bar = indicator.current;
+    const active = rail.current?.querySelector('a.active');
+    if (!bar) return;
+    if (!active) {
+      bar.style.opacity = '0';
+      return;
+    }
+    const to = { top: active.offsetTop, height: active.offsetHeight };
+    const place = (spot) => {
+      bar.style.transform = `translateY(${spot.top}px)`;
+      bar.style.height = `${spot.height}px`;
+    };
+    bar.style.opacity = '1';
+    bar.style.transition = 'none';
+    place(lastRailSpot || to);
+    bar.getBoundingClientRect(); // commit the starting point before animating
+    bar.style.transition = '';
+    const frame = requestAnimationFrame(() => place(to));
+    lastRailSpot = to;
+    return () => cancelAnimationFrame(frame);
+  }, [location.pathname]);
 
   const signOut = () => {
     logout();
@@ -198,9 +251,13 @@ export default function Layout({ title, crumbs, actions, children }) {
         Skip to content
       </a>
 
+      {/* A thin bar that sweeps across the top as each page opens. */}
+      <span className="route-progress" aria-hidden="true" />
+
       <Backdrop />
 
-      <nav className="rail" aria-label="Main">
+      <nav className="rail" aria-label="Main" ref={rail}>
+        <span className="rail-indicator" ref={indicator} aria-hidden="true" />
         <Link to={isAdmin ? '/admin' : '/dashboard'} className="brand">
           <BrandMark />
           Campus Coin

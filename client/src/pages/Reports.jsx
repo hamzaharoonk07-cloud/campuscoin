@@ -226,16 +226,16 @@ export default function Reports() {
               <div className="row row-wrap" style={{ gap: '2rem' }}>
                 <div>
                   <div className="stat-label">Likely spending</div>
-                  <div className="stat-value num">{money(forecast.expense, currency)}</div>
+                  <div className="stat-value num"><CountUp value={forecast.expense} currency={currency} /></div>
                 </div>
                 <div>
                   <div className="stat-label">Likely income</div>
-                  <div className="stat-value num">{money(forecast.income, currency)}</div>
+                  <div className="stat-value num"><CountUp value={forecast.income} currency={currency} /></div>
                 </div>
                 <div>
                   <div className="stat-label">Which leaves</div>
                   <div className="stat-value num" style={{ color: forecast.balance < 0 ? 'var(--bad)' : 'var(--good)' }}>
-                    {money(forecast.balance, currency)}
+                    <CountUp value={forecast.balance} currency={currency} />
                   </div>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout, { MonthPicker } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
+import CountUp, { CountNumber } from '../components/CountUp.jsx';
 import { BudgetMeter } from '../components/Charts.jsx';
 import { api } from '../lib/api.js';
 import { money, monthKey, shiftMonth, slotColor } from '../lib/format.js';
@@ -77,22 +78,22 @@ export default function Budgets() {
         <div className="stat-row">
           <div className="stat">
             <div className="stat-label">Budgeted</div>
-            <div className="stat-value num">{money(data.summary.totalLimit, currency)}</div>
+            <div className="stat-value num"><CountUp value={data.summary.totalLimit} currency={currency} /></div>
           </div>
           <div className="stat">
             <div className="stat-label">Spent against it</div>
-            <div className="stat-value num">{money(data.summary.totalSpent, currency)}</div>
+            <div className="stat-value num"><CountUp value={data.summary.totalSpent} currency={currency} /></div>
             <div className="stat-meta">{data.summary.pct}% of the total cap</div>
           </div>
           <div className="stat">
             <div className="stat-label">Still available</div>
             <div className="stat-value num" style={{ color: data.summary.totalRemaining < 0 ? 'var(--bad)' : undefined }}>
-              {money(data.summary.totalRemaining, currency)}
+              <CountUp value={data.summary.totalRemaining} currency={currency} />
             </div>
           </div>
           <div className="stat">
             <div className="stat-label">Over their cap</div>
-            <div className="stat-value num">{data.summary.overCount}</div>
+            <div className="stat-value num"><CountNumber value={data.summary.overCount} /></div>
             <div className="stat-meta">{data.summary.overCount === 0 ? 'Nothing has gone over' : 'categories'}</div>
           </div>
         </div>

@@ -1344,3 +1344,51 @@
 .lp-nav .lp-brand,
 .lp-nav .lp-nav-links a,
 .lp-nav .lp-nav-cta { transition: color 0.35s var(--ease), background 0.35s var(--ease), border-color 0.35s var(--ease); }
+
+/* --- Parallax as the page scrolls ------------------------------------------ */
+
+/* Scroll-driven animation: each element's own progress through the viewport
+   drives it, with no scroll listener at all. The keyframes use the separate
+   `translate` property, so they never fight the reveal and hover effects,
+   which use `transform`. Browsers without support simply get a still page. */
+@supports (animation-timeline: view()) {
+  @keyframes lp-parallax-up {
+    from { translate: 0 60px; }
+    to { translate: 0 -60px; }
+  }
+  @keyframes lp-parallax-down {
+    from { translate: 0 -30px; }
+    to { translate: 0 30px; }
+  }
+  @keyframes lp-zoom-in {
+    from { scale: 0.92; opacity: 0.6; }
+    to { scale: 1; opacity: 1; }
+  }
+  .lp-navy-cards,
+  .lp-duo > :nth-child(2),
+  .lp-steps li:nth-child(2) {
+    animation: lp-parallax-up linear both;
+    animation-timeline: view();
+  }
+  .lp-head-split .lp-aside,
+  .lp-navy-grid > div:first-child {
+    animation: lp-parallax-down linear both;
+    animation-timeline: view();
+  }
+  .lp-tab-panel,
+  .lp-cta .lp-center {
+    animation: lp-zoom-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 35%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-navy-cards,
+  .lp-duo > :nth-child(2),
+  .lp-steps li:nth-child(2),
+  .lp-head-split .lp-aside,
+  .lp-navy-grid > div:first-child,
+  .lp-tab-panel,
+  .lp-cta .lp-center { animation: none !important; }
+}

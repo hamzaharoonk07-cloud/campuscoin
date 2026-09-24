@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import Chat from '../components/Chat.jsx';
+import { CountNumber } from '../components/CountUp.jsx';
 import { api } from '../lib/api.js';
 import { slotColor } from '../lib/format.js';
 import { useToast } from '../context/AppContext.jsx';
@@ -189,7 +190,7 @@ export default function Assistant() {
               <div className="stat-row" style={{ gridTemplateColumns: '1fr 1fr' }}>
                 <div className="stat">
                   <div className="stat-label">Words learned</div>
-                  <div className="stat-value num">{status?.categorisation?.wordsLearned ?? 0}</div>
+                  <div className="stat-value num"><CountNumber value={status?.categorisation?.wordsLearned ?? 0} /></div>
                 </div>
                 <div className="stat">
                   <div className="stat-label">Suggestions kept</div>
