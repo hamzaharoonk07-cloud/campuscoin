@@ -129,7 +129,7 @@ export default function Categories() {
     >
       <section className="panel">
         <div className="panel-head">
-          <h2>Your own categories</h2>
+          <h2>Manage own categories</h2>
           <span className="panel-note">Only you see these</span>
         </div>
         <div className="panel-body">
@@ -153,7 +153,7 @@ export default function Categories() {
 
       <section className="panel">
         <div className="panel-head">
-          <h2>Shared categories</h2>
+          <h2>Default income and expense categories</h2>
           <span className="panel-note">Set up by the administrator for everyone</span>
         </div>
         <div className="panel-body">

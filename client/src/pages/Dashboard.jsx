@@ -4,10 +4,11 @@ import Layout, { MonthPicker, openChat } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
 import { api } from '../lib/api.js';
-import { formatDate, money, monthKey } from '../lib/format.js';
+import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import CountUp from '../components/CountUp.jsx';
 import { DonutChart, MonthBars } from '../components/DashCharts.jsx';
-import { artUrl, CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
+import { artUrl, categoryArt, CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
+
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /* ---------------------------------------------------------------------------
@@ -232,6 +233,87 @@ export default function Dashboard() {
             <span className="d9-flow-note">Last 6 months · tap a month</span>
           </div>
           <MonthBars data={trend} currency={currency} dark />
+        </section>
+      </div>
+
+      {/* --- The SRS's two named widgets --------------------------------- */}
+      <div className="d9-row d9-row-srs">
+        <section className="d9-card d9-topcat">
+          <div className="d9-head">
+            <h2>This month's top category</h2>
+            <Link to="/reports" className="d9-link">
+              Report
+            </Link>
+          </div>
+          {spending.length ? (
+            <>
+              <div className="d9-topcat-hero">
+                <span className="d9-topcat-art" style={{ background: `color-mix(in srgb, ${slotColor(spending[0].slot)} 18%, var(--surface))` }}>
+                  <img src={categoryArt(spending[0].icon)} alt="" width="46" height="46" />
+                </span>
+                <span>
+                  <strong>{spending[0].name}</strong>
+                  <span className="num">{money(spending[0].total, currency)}</span>
+                </span>
+              </div>
+              <div className="d9-topcat-bar" aria-label={`${spending[0].share}% of spending`}>
+                <i style={{ width: `${spending[0].share}%`, background: slotColor(spending[0].slot) }} />
+              </div>
+              <p className="d9-muted">
+                {spending[0].share}% of everything you spent
+                {spending[1] ? `, ahead of ${spending[1].name} at ${spending[1].share}%` : ''}.
+              </p>
+            </>
+          ) : (
+            <p className="d9-muted">Nothing spent yet this month.</p>
+          )}
+        </section>
+
+        <section className="d9-card d9-bva">
+          <div className="d9-head">
+            <h2>Budget vs. actual</h2>
+            <Link to="/budgets" className="d9-link">
+              Manage
+            </Link>
+          </div>
+          {budgets.length ? (
+            <ul className="d9-bva-list">
+              {budgets.map((b) => {
+                const tone = b.state === 'exceeded' ? 'is-over' : b.state === 'warning' ? 'is-close' : 'is-ok';
+                return (
+                  <li key={b._id}>
+                    <CategoryIcon icon={b.category.icon} slot={b.category.slot} size={36} />
+                    <span className="d9-bva-main">
+                      <span className="d9-bva-top">
+                        <strong>{b.category.name}</strong>
+                        <span className={`d9-bva-chip ${tone}`}>
+                          {b.state === 'exceeded' ? 'Over' : b.state === 'warning' ? 'Close' : 'On track'}
+                        </span>
+                        <span className="d9-bva-figures num">
+                          {money(b.spent, currency)} <small>of {money(b.limitAmount, currency)}</small>
+                        </span>
+                      </span>
+                      <span className={`d9-bva-track ${tone}`} aria-label={`${b.pct}% of the budget used`}>
+                        <i style={{ width: `${Math.min(100, b.pct)}%` }} />
+                      </span>
+                      <small className="d9-bva-note">
+                        {b.spent > b.limitAmount
+                          ? `${money(b.spent - b.limitAmount, currency)} over the budget`
+                          : `${money(b.limitAmount - b.spent, currency)} left · ${b.pct}% used`}
+                      </small>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <div className="d9-bva-empty">
+              <p className="d9-muted">No budgets this month. One budget on your biggest category is the change most students actually keep to.</p>
+              <Link to="/budgets" className="d9-pill is-dark">
+                Set a budget
+              </Link>
+            </div>
+          )}
         </section>
       </div>
 

@@ -327,10 +327,15 @@ The interface is written rather than assembled. A few decisions worth naming:
 - **Pictures only where they help.** Navigation and lists use clean line
   icons; categories are their icon in their own colour. The 3D scenes are kept
   for empty states, quick add, the receipt card and the landing page.
-- **The dashboard widgets the SRS names:** quick-add buttons (chai, rickshaw,
-  printing, allowance) that open the form already filled in, "Top category
-  this month", budget against actual (the budget score), and the repeating
-  payments coming up next. The sidebar searches every transaction from any page.
+- **The dashboard, against SRS 1.6 "Personalized Dashboard":** a personal
+  greeting; the month's balance as money in against money out; quick-add
+  buttons (chai, rickshaw, printing, allowance) that open the form already
+  filled in; saving tips and Coin's insight built from the student's own
+  history; and the two named widgets - **This Month's Top Category** (its
+  picture, amount and share) and **Budget vs. Actual** (each budget's cap
+  against what was spent, with a status). Categories has a **Manage Own
+  Categories** section for adding, editing and deleting personal income and
+  expense categories beside the defaults.
 - **Motion explains, it does not decorate** (`client/src/styles/motion.css`).
   Sections arrive top to bottom, charts draw themselves (the donut sweeps in
   ranked order, lines trace, bars grow), headline figures count up, and budget
