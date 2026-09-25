@@ -4,6 +4,7 @@ import Icon, { BrandMark, Wordmark } from '../components/Icon.jsx';
 import { SITEMAP } from './Sitemap.jsx';
 import { ArtIcon, artUrl, ChartArt, ChatArt, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
 import CoinBot from '../components/CoinBot.jsx';
+import { brandFor, inkOn } from '../lib/brands.js';
 import '../styles/landing.css';
 
 /* ---------------------------------------------------------------------------
@@ -236,6 +237,33 @@ const RIBBON = [
   ['dollar_banknote', 'Allowance'],
   ['pizza', 'Pizza Friday'],
 ];
+
+// The places students actually pay, in two rows that slide opposite ways.
+const LOGO_ROWS = [
+  ['Foodpanda', 'Careem', 'Daraz', 'Netflix', 'Spotify', 'JazzCash', 'KFC', 'YouTube', 'Easypaisa', 'Cheezious', 'Uber', 'Steam'],
+  ['SadaPay', 'Bykea', 'inDrive', 'Coursera', 'Starbucks', 'Pizza Hut', 'Udemy', 'ChatGPT', 'Canva', 'Zong', 'Duolingo', "McDonald's"],
+];
+
+/** One merchant as a pill: its logo (or coloured initials) and its name. */
+function LogoPill({ name }) {
+  const brand = brandFor(name);
+  if (!brand) return null;
+  const ink = brand.dark ? '#121214' : inkOn(brand.hex);
+  return (
+    <span className="lp-logo">
+      <span className="lp-logo-mark" style={{ background: `#${brand.hex}`, color: ink }}>
+        {brand.path ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d={brand.path} />
+          </svg>
+        ) : (
+          <strong>{brand.letter}</strong>
+        )}
+      </span>
+      {name}
+    </span>
+  );
+}
 
 // Everything in the app, each with its object. The first two are the ones
 // that most set Campus Coin apart, so they take the larger cards.
@@ -778,6 +806,33 @@ export default function Landing() {
             </Link>
           </article>
         </div>
+      </section>
+
+      <section className="lp-logos" aria-label="Places students pay, recognised by Campus Coin">
+        <div className="lp-wrap lp-center" data-reveal>
+          <span className="lp-eyebrow">Knows where you spend</span>
+          <h2 className="lp-h2">
+            Type the shop.
+            <br />
+            <em>See its logo.</em>
+          </h2>
+          <p className="lp-lead">
+            Write "Foodpanda dinner" or "Careem to uni" and the entry shows the brand you paid, filed in the right
+            category.
+          </p>
+        </div>
+        {LOGO_ROWS.map((row, r) => (
+          <div className={`lp-logos-row${r ? ' is-reverse' : ''}`} key={r}>
+            <div className="lp-logos-track">
+              {[...row, ...row].map((name, i) => (
+                <span key={`${name}-${i}`} aria-hidden={i >= row.length || undefined}>
+                  <LogoPill name={name} />
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+        <p className="lp-logos-note">Logos identify the merchant only. Campus Coin is not affiliated with these brands.</p>
       </section>
 
       <section className="lp-section" id="how">
