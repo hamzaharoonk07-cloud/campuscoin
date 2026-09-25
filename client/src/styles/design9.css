@@ -582,3 +582,128 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 }
 .must-change span { flex: 1; min-width: 14rem; }
 .must-change .btn-primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+/* --- Money in and out, month by month (MonthBars in DashCharts.jsx) ---------- */
+
+.mbars { --in: var(--blue); --out: var(--accent); --ink: var(--text); --soft: var(--faint); --rule: var(--line); }
+.mbars.is-dark { --in: #6b9cff; --out: #f4f4f6; --ink: #fff; --soft: #a1a1aa; --rule: rgba(255, 255, 255, 0.1); }
+.mbars-legend { display: flex; gap: 1.1rem; margin-bottom: 0.9rem; font-size: 0.85rem; color: var(--ink); }
+.mbars-legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.mbars-legend i { width: 10px; height: 10px; border-radius: 3px; }
+.mbars-legend i.is-in { background: var(--in); }
+.mbars-legend i.is-out { background: var(--out); }
+.mbars-plot { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.6rem; height: 200px; }
+.mbars-scale { position: relative; width: 3rem; }
+.mbars-scale span {
+  position: absolute;
+  right: 0;
+  translate: 0 50%;
+  font-size: 0.75rem;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.mbars-area { position: relative; display: flex; align-items: flex-end; gap: 4px; }
+.mbars-grid { position: absolute; left: 0; right: 0; height: 1px; background: var(--rule); }
+.mbars-month {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+.mbars-month:hover,
+.mbars-month.is-on { background: color-mix(in srgb, var(--in) 12%, transparent); }
+.mbars-pair { display: flex; align-items: flex-end; gap: 3px; height: 100%; width: min(70%, 44px); }
+.mbars-pair i {
+  flex: 1;
+  min-height: 2px;
+  border-radius: 5px 5px 2px 2px;
+  transform-origin: bottom;
+  animation: mbars-grow 0.7s var(--ease-out) backwards;
+  animation-delay: calc(0.1s + var(--i, 0) * 60ms);
+}
+.mbars-pair i.is-in { background: var(--in); }
+.mbars-pair i.is-out { background: var(--out); }
+@keyframes mbars-grow { from { transform: scaleY(0); } }
+.mbars-labels { display: flex; gap: 4px; margin: 0.45rem 0 0 3.6rem; }
+.mbars-labels span { flex: 1; text-align: center; font-size: 0.8rem; color: var(--soft); }
+.mbars-labels span.is-on { color: var(--ink); font-weight: 600; }
+.mbars-detail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--rule);
+}
+.mbars-detail dt { font-size: 0.78rem; color: var(--soft); }
+.mbars-detail dd { margin: 0.15rem 0 0; font-size: 1.05rem; font-weight: 500; color: var(--ink); }
+.mbars-detail dd.is-good { color: var(--in); }
+.mbars-detail dd.is-bad { color: #ff7a7f; }
+.mbars:not(.is-dark) .mbars-detail dd.is-bad { color: var(--bad); }
+.d9-flow-note { font-size: 0.8rem; color: #a1a1aa; }
+@media (max-width: 520px) {
+  .mbars-plot { height: 170px; }
+  .mbars-scale { width: 2.4rem; }
+  .mbars-labels { margin-left: 3rem; }
+  .mbars-detail dd { font-size: 0.95rem; }
+}
+
+/* Trend lines on the report cards, with their first and last month. */
+.spark-wrap { display: grid; gap: 0.3rem; }
+.spark-ends { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--faint); }
+
+/* The spending calendar: weekday initials and the date in each square. */
+.d9-weekday { text-align: center; font-size: 0.7rem; color: var(--faint); padding-bottom: 2px; }
+.d9-days .d9-day {
+  display: grid;
+  place-items: center;
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.d9-days .d9-day.is-2,
+.d9-days .d9-day.is-3 { color: #fff; }
+.d9-days .d9-day.is-1 { color: #121214; }
+:root[data-theme='dark'] .d9-days .d9-day.is-3 { color: #121214; }
+
+/* --- The dashboard on a phone -------------------------------------------- */
+
+@media (max-width: 760px) {
+  .d9-top,
+  .d9-row { gap: 0.75rem; }
+  .d9-card { padding: 1rem 1.05rem; border-radius: 18px; }
+  .d9-head { margin-bottom: 0.75rem; }
+  .d9-head h2 { font-size: 1.1rem; }
+  /* The three figures become short rows: name on the left, amount on the right. */
+  .d9-stat { flex-direction: row; align-items: center; justify-content: space-between; gap: 0.75rem; }
+  .d9-stat-head { font-size: 0.95rem; }
+  .d9-stat-row { justify-content: flex-end; }
+  .d9-stat-row strong { font-size: 1.3rem; }
+  .d9-stat-row small { display: none; }
+  .d9-month-figure { margin-bottom: 1rem; }
+  .d9-month-figure strong { font-size: 2rem; }
+  .d9-days { max-width: none; }
+  .d9-quick button { padding: 0.75rem; }
+  .d9-quick-icon { margin-bottom: 0.45rem; }
+  .d9-insight { font-size: 1rem; }
+  /* Report cards: the figure and its trend, without the tall empty space. */
+  .kpi { padding: 1rem 1.1rem; }
+}
+
+/* Transactions on a phone: the search, and the other filters behind a button. */
+.tx-filter-toggle { display: none; }
+.tx-filter-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+@media (max-width: 720px) {
+  .tx-filter-toggle { display: inline-flex; margin-top: 0.75rem; }
+  .tx-filters:not(.is-open) .field-row > .field:not(:first-child),
+  .tx-filters:not(.is-open) .row-wrap { display: none; }
+  .tx-filters .panel-body { padding: 1rem; }
+}

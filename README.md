@@ -302,6 +302,18 @@ The interface is written rather than assembled. A few decisions worth naming:
   a white glyph on a round black tile with a dot in the category's colour.
   The line icons (`Icon.jsx`) are drawn on one 24px grid with round joins,
   following the conventions of the Lucide set (ISC licence).
+- **Real brand logos.** When a transaction names a company - "Netflix share",
+  "Foodpanda dinner", "Spotify Premium" - the list shows that company's logo on
+  its brand colour instead of the category icon (`client/src/lib/brands.js`).
+  The logos come from **Simple Icons** (CC0), bundled with the app so nothing
+  is fetched. Careem and inDrive are not in that set, so they get a tile in
+  their brand colour with their initial rather than an imitation logo. The
+  logos only identify the merchant; Campus Coin is not affiliated with them.
+- **Charts that read on a phone.** Money in against money out is drawn as
+  paired bars built from HTML (`MonthBars` in `DashCharts.jsx`), so the scale,
+  months and figures stay full size on any screen instead of shrinking with an
+  SVG. Tapping a month shows its three figures. The trend lines on the report
+  cards are labelled with their first and last month.
 - **A logo and a mascot.** The mark is a blue coin with a white C cut into it, drawn
   in SVG (`client/src/components/Brand.jsx`) so it is sharp from the favicon
   to the hero. The chat assistant has a face - Coin, the blue coin from the

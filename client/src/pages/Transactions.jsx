@@ -18,6 +18,8 @@ export default function Transactions() {
   // The rail's search arrives as ?q=, the dashboard's Flagged button as ?flagged=1.
   const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS, q: params.get('q') || '', flagged: params.get('flagged') || '' }));
   const [page, setPage] = useState(1);
+  // On a phone only the search shows until the student opens the other filters.
+  const [moreFilters, setMoreFilters] = useState(false);
   const [result, setResult] = useState(null);
   const [categories, setCategories] = useState([]);
   const [editing, setEditing] = useState(null);
@@ -107,7 +109,7 @@ export default function Transactions() {
         </>
       }
     >
-      <section className="panel">
+      <section className={`panel tx-filters${moreFilters ? ' is-open' : ''}`}>
         <div className="panel-body">
           <div className="field-row">
             <div className="field">
@@ -142,6 +144,12 @@ export default function Transactions() {
               <input id="to" type="date" value={filters.to} onChange={setFilter('to')} />
             </div>
           </div>
+
+          <button type="button" className="btn btn-sm tx-filter-toggle" onClick={() => setMoreFilters((was) => !was)} aria-expanded={moreFilters}>
+            <Icon name="filter" size={14} />
+            {moreFilters ? 'Fewer filters' : 'More filters'}
+            {!moreFilters && ['type', 'category', 'from', 'to', 'flagged'].some((k) => filters[k]) ? <span className="tx-filter-dot" /> : null}
+          </button>
 
           <div className="row row-wrap" style={{ marginTop: '0.85rem' }}>
             <label className="check">
@@ -209,7 +217,7 @@ export default function Transactions() {
                   </div>
                   {group.rows.map((row) => (
                     <button type="button" className="ledger-row" key={row._id} onClick={() => setEditing(row)}>
-                      <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={42} />
+                      <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={42} text={row.description} />
                       <span className="ledger-main">
                         <span className="ledger-title">{row.description || row.category?.name}</span>
                         <span className="ledger-sub">

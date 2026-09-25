@@ -12,6 +12,7 @@
 import { useId } from 'react';
 import Icon from './Icon.jsx';
 import { slotColor } from '../lib/format.js';
+import { brandFor, inkOn } from '../lib/brands.js';
 
 // What goes on the tilted card behind the coin.
 const CARDS = {
@@ -122,8 +123,30 @@ export function ArtIcon({ name, size = 44, className = '' }) {
 /**
  * A category as an icon: its line icon in white on a round black tile, with a
  * small dot in the category's own colour so the charts' colours still match.
+ * When `text` (a transaction's description) names a brand, the brand's own
+ * logo is shown on its brand colour instead, keeping the category dot.
  */
-export function CategoryIcon({ icon, slot, size = 38 }) {
+export function CategoryIcon({ icon, slot, size = 38, text }) {
+  const brand = brandFor(text);
+  if (brand) {
+    const ink = brand.dark ? '#121214' : inkOn(brand.hex);
+    return (
+      <span
+        className="cat-art is-brand"
+        title={brand.name}
+        aria-hidden="true"
+        style={{ width: size, height: size, '--cat': slotColor(slot), background: `#${brand.hex}`, color: ink }}
+      >
+        {brand.path ? (
+          <svg width={Math.round(size * 0.5)} height={Math.round(size * 0.5)} viewBox="0 0 24 24" fill="currentColor">
+            <path d={brand.path} />
+          </svg>
+        ) : (
+          <strong style={{ fontSize: Math.round(size * 0.46) }}>{brand.letter}</strong>
+        )}
+      </span>
+    );
+  }
   return (
     <span className="cat-art" aria-hidden="true" style={{ width: size, height: size, '--cat': slotColor(slot) }}>
       <Icon name={icon} size={Math.round(size * 0.46)} />

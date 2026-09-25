@@ -6,6 +6,7 @@ import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
 import { api } from '../lib/api.js';
 import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import CountUp from '../components/CountUp.jsx';
+import { MonthBars } from '../components/DashCharts.jsx';
 import { CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
@@ -27,12 +28,6 @@ const QUICK = [
   { label: 'Allowance', icon: 'wallet', type: 'income', description: 'Monthly allowance' },
 ];
 
-const SERIES = [
-  ['income', 'In'],
-  ['expense', 'Out'],
-  ['balance', 'Kept'],
-];
-
 /** Percentage change from last month, or null when there is nothing to compare. */
 const change = (now, before) => (before ? Math.round(((now - before) / Math.abs(before)) * 100) : null);
 
@@ -47,69 +42,6 @@ function Chip({ pct }) {
   );
 }
 
-/* --- The black cash-flow chart -------------------------------------------- */
-
-function FlowChart({ data, series, currency }) {
-  const [hover, setHover] = useState(null);
-  const W = 720;
-  const H = 230;
-  const PAD = { top: 44, bottom: 30, side: 8 };
-  const values = data.map((m) => m[series]);
-  // The scale hugs the data with a margin either side, so the line shows how
-  // the months differ rather than sitting flat far above zero.
-  const hi = Math.max(...values);
-  const lo = Math.min(...values);
-  const margin = (hi - lo || Math.abs(hi) || 1) * 0.35;
-  const max = hi + margin;
-  const min = lo - margin;
-  const span = max - min;
-  const step = (W - PAD.side * 2) / Math.max(1, data.length - 1);
-  const x = (i) => PAD.side + i * step;
-  const y = (v) => PAD.top + (1 - (v - min) / span) * (H - PAD.top - PAD.bottom);
-  // A smooth line through the points (Catmull-Rom turned into Bezier curves).
-  const pts = values.map((v, i) => [x(i), y(v)]);
-  let line = `M ${pts[0][0]} ${pts[0][1]}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] || pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2] || p2;
-    line += ` C ${p1[0] + (p2[0] - p0[0]) / 6} ${p1[1] + (p2[1] - p0[1]) / 6}, ${p2[0] - (p3[0] - p1[0]) / 6} ${p2[1] - (p3[1] - p1[1]) / 6}, ${p2[0]} ${p2[1]}`;
-  }
-  const area = `${line} L ${x(data.length - 1)} ${H - PAD.bottom} L ${x(0)} ${H - PAD.bottom} Z`;
-  const at = hover ?? data.length - 1;
-
-  return (
-    <div className="d9-flow">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Money by month for the last six months" onMouseLeave={() => setHover(null)}>
-        <defs>
-          <linearGradient id="d9-area" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#fff" stopOpacity="0.32" />
-            <stop offset="1" stopColor="#fff" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={area} fill="url(#d9-area)" className="d9-flow-area" />
-        <path d={line} fill="none" stroke="#fff" strokeWidth="2.2" className="line-draw" pathLength="1" />
-        <line x1={x(at)} x2={x(at)} y1={y(values[at])} y2={H - PAD.bottom} stroke="#fff" strokeOpacity="0.6" />
-        <circle cx={x(at)} cy={y(values[at])} r="6" fill="#121214" stroke="#fff" strokeWidth="2.5" />
-        {data.map((m, i) => (
-          <g key={m.month}>
-            <text x={x(i)} y={H - 8} textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'} className="d9-flow-label">
-              {m.label}
-            </text>
-            <rect x={x(i) - step / 2} y="0" width={step} height={H} fill="transparent" onMouseEnter={() => setHover(i)} />
-          </g>
-        ))}
-      </svg>
-      <span
-        className={`d9-flow-tip num${at === data.length - 1 ? ' is-end' : at === 0 ? ' is-start' : ''}`}
-        style={{ left: `${(x(at) / W) * 100}%`, top: `${(y(values[at]) / H) * 100}%` }}>
-        {money(values[at], currency)}
-      </span>
-    </div>
-  );
-}
-
 /* --- The month as a grid of days ------------------------------------------ */
 
 function DayGrid({ daily, currency }) {
@@ -121,9 +53,20 @@ function DayGrid({ daily, currency }) {
   const cells = [...Array(first).fill(null), ...daily];
   return (
     <div className="d9-days">
+      {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((w, i) => (
+        <span key={`w${i}`} className="d9-weekday" aria-hidden="true">
+          {w}
+        </span>
+      ))}
       {cells.map((d, i) =>
         d ? (
-          <span key={d.date} className={`d9-day ${shade(d.total)}`} title={`${formatDate(d.date, { day: 'numeric', month: 'short' })}: ${money(d.total, currency)}`} />
+          <span
+            key={d.date}
+            className={`d9-day ${shade(d.total)}`}
+            title={`${formatDate(d.date, { day: 'numeric', month: 'short' })}: ${d.total ? money(d.total, currency) : 'nothing spent'}`}
+          >
+            {d.day}
+          </span>
         ) : (
           <span key={`pad${i}`} className="d9-day is-pad" />
         )
@@ -143,7 +86,6 @@ export default function Dashboard() {
   // A quick-add button opens the form already filled in.
   const [preset, setPreset] = useState(null);
   const [upcoming, setUpcoming] = useState([]);
-  const [series, setSeries] = useState('expense');
 
   const load = useCallback(() => {
     api
@@ -303,15 +245,9 @@ export default function Dashboard() {
         <section className="d9-card d9-dark d9-flow-card">
           <div className="d9-head">
             <h2>Cash flow</h2>
-            <div className="d9-seg" role="tablist" aria-label="Which figure to plot">
-              {SERIES.map(([key, label]) => (
-                <button key={key} type="button" role="tab" aria-selected={series === key} className={series === key ? 'is-on' : ''} onClick={() => setSeries(key)}>
-                  {label}
-                </button>
-              ))}
-            </div>
+            <span className="d9-flow-note">Last 6 months · tap a month</span>
           </div>
-          <FlowChart data={trend} series={series} currency={currency} />
+          <MonthBars data={trend} currency={currency} dark />
         </section>
       </div>
 
@@ -385,7 +321,7 @@ export default function Dashboard() {
                 const flagged = row.flags?.includes('duplicate') || row.flags?.includes('large');
                 return (
                   <li key={row._id}>
-                    <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} />
+                    <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} text={row.description} />
                     <span className="d9-tx-name">
                       <strong>{row.description || row.category?.name}</strong>
                       <small>
@@ -418,7 +354,7 @@ export default function Dashboard() {
             <ul className="d9-tx">
               {upcoming.map((row) => (
                 <li key={row._id}>
-                  <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} />
+                  <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} text={row.description} />
                   <span className="d9-tx-name">
                     <strong>{row.description || row.category?.name}</strong>
                     <small>{row.recurring.frequency}</small>

@@ -262,7 +262,12 @@ export function AreaChart({ data, currency }) {
 
 /* --- Sparkline ------------------------------------------------------------ */
 
-export function Sparkline({ values, colour = 'var(--accent)' }) {
+/**
+ * A small line of the last few months. `from` and `to` label its two ends
+ * (the first and last month), so it reads as a trend over time and not as
+ * decoration.
+ */
+export function Sparkline({ values, colour = 'var(--accent)', from, to }) {
   if (!values?.length) return null;
 
   const W = 160;
@@ -275,10 +280,21 @@ export function Sparkline({ values, colour = 'var(--accent)' }) {
     H - 4 - ((v - min) / span) * (H - 10),
   ]);
 
-  return (
+  const line = (
     <svg className="sparkline" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
       <path className="line-draw" pathLength="1" d={smooth(points)} fill="none" stroke={colour} strokeWidth="2" strokeLinecap="round" />
     </svg>
+  );
+  if (!from) return line;
+  return (
+    <div className="spark-wrap">
+      {line}
+      <span className="spark-ends">
+        <span>{from}</span>
+        <span>{values.length} months</span>
+        <span>{to}</span>
+      </span>
+    </div>
   );
 }
 
@@ -361,5 +377,90 @@ export function MiniBars({ data }) {
         );
       })}
     </svg>
+  );
+}
+
+/* --- Money in and out by month, as plain bars ------------------------------ */
+
+/**
+ * Two bars a month - money in (blue) beside money out (black) - with the
+ * scale on the left and the month under each pair. Built from HTML rather
+ * than SVG so the text stays full size on a phone instead of shrinking with
+ * the drawing. Tapping a month shows its three figures underneath; the
+ * latest month is shown to begin with.
+ */
+export function MonthBars({ data, currency, dark = false }) {
+  const [picked, setPicked] = useState(null);
+  if (!data?.length) return <p className="muted small">No months to compare yet.</p>;
+
+  const { max, ticks } = niceScale(Math.max(...data.flatMap((d) => [d.income, d.expense]), 1));
+  const at = picked ?? data.length - 1;
+  const shown = data[at];
+  const kept = shown.income - shown.expense;
+  const pct = (v) => `${Math.max(0, (v / max) * 100)}%`;
+
+  return (
+    <div className={`mbars${dark ? ' is-dark' : ''}`}>
+      <div className="mbars-legend">
+        <span>
+          <i className="is-in" /> Money in
+        </span>
+        <span>
+          <i className="is-out" /> Money out
+        </span>
+      </div>
+
+      <div className="mbars-plot">
+        <div className="mbars-scale" aria-hidden="true">
+          {Array.from({ length: ticks + 1 }, (_, i) => ticks - i).map((t) => (
+            <span key={t} style={{ bottom: `${(t / ticks) * 100}%` }}>
+              {compactMoney((max / ticks) * t, currency)}
+            </span>
+          ))}
+        </div>
+        <div className="mbars-area">
+          {Array.from({ length: ticks + 1 }, (_, i) => i).map((t) => (
+            <i key={t} className="mbars-grid" style={{ bottom: `${(t / ticks) * 100}%` }} />
+          ))}
+          {data.map((m, i) => (
+            <button
+              key={m.month}
+              type="button"
+              className={`mbars-month${i === at ? ' is-on' : ''}`}
+              onClick={() => setPicked(i)}
+              aria-pressed={i === at}
+              aria-label={`${m.label}: in ${money(m.income, currency)}, out ${money(m.expense, currency)}`}
+            >
+              <span className="mbars-pair">
+                <i className="is-in" style={{ height: pct(m.income), '--i': i }} />
+                <i className="is-out" style={{ height: pct(m.expense), '--i': i }} />
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mbars-labels" aria-hidden="true">
+        {data.map((m, i) => (
+          <span key={m.month} className={i === at ? 'is-on' : ''}>
+            {m.label}
+          </span>
+        ))}
+      </div>
+
+      <dl className="mbars-detail">
+        <div>
+          <dt>{shown.label} in</dt>
+          <dd className="num">{money(shown.income, currency)}</dd>
+        </div>
+        <div>
+          <dt>Out</dt>
+          <dd className="num">{money(shown.expense, currency)}</dd>
+        </div>
+        <div>
+          <dt>{kept >= 0 ? 'Kept' : 'Over by'}</dt>
+          <dd className={`num${kept < 0 ? ' is-bad' : ' is-good'}`}>{money(Math.abs(kept), currency)}</dd>
+        </div>
+      </dl>
+    </div>
   );
 }

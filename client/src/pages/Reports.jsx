@@ -4,7 +4,7 @@ import Layout, { MonthPicker } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import CountUp from '../components/CountUp.jsx';
 import { CategorySpine, DayBars } from '../components/Charts.jsx';
-import { AreaChart, DonutChart, Sparkline } from '../components/DashCharts.jsx';
+import { DonutChart, MonthBars, Sparkline } from '../components/DashCharts.jsx';
 import { api } from '../lib/api.js';
 import { formatDate, money, monthKey } from '../lib/format.js';
 import { useAuth, useToast } from '../context/AppContext.jsx';
@@ -87,7 +87,7 @@ export default function Reports() {
             <CountUp value={totals.income} currency={currency} />
           </div>
           <div className="kpi-spark">
-            <Sparkline values={trend.map((t) => t.income)} colour="var(--series-in)" />
+            <Sparkline values={trend.map((t) => t.income)} colour="var(--series-in)" from={trend[0]?.label} to={trend.at(-1)?.label} />
           </div>
         </section>
 
@@ -99,7 +99,7 @@ export default function Reports() {
           <div className="kpi-figure"><CountUp value={totals.expense} currency={currency} /></div>
           <div className="kpi-sub">{totals.transactionCount} transactions</div>
           <div className="kpi-spark">
-            <Sparkline values={trend.map((t) => t.expense)} colour="var(--series-out)" />
+            <Sparkline values={trend.map((t) => t.expense)} colour="var(--series-out)" from={trend[0]?.label} to={trend.at(-1)?.label} />
           </div>
         </section>
 
@@ -118,6 +118,8 @@ export default function Reports() {
             <Sparkline
               values={trend.map((t) => t.balance)}
               colour={totals.balance < 0 ? 'var(--bad)' : 'var(--good)'}
+              from={trend[0]?.label}
+              to={trend.at(-1)?.label}
             />
           </div>
         </section>
@@ -210,7 +212,7 @@ export default function Reports() {
           <h3>Income against spending, last six months</h3>
         </div>
         <div className="panel-body">
-          <AreaChart data={trend} currency={currency} />
+          <MonthBars data={trend} currency={currency} />
         </div>
       </section>
 
