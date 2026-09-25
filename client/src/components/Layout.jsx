@@ -76,16 +76,6 @@ function RailSearch() {
   );
 }
 
-/** Whether the rail stays open (icons and names) or collapses to icons, per device. */
-const RAIL_KEY = 'campuscoin.railOpen';
-const readRailOpen = () => {
-  try {
-    return localStorage.getItem(RAIL_KEY) === '1';
-  } catch {
-    return false;
-  }
-};
-
 /** Where the rail's highlight last sat, so the next page can slide it from there. */
 let lastRailSpot = null;
 
@@ -313,29 +303,6 @@ export default function Layout({ title, subtitle, crumbs, actions, children }) {
   const page = pageFor(location.pathname);
   const rail = useRef(null);
   const indicator = useRef(null);
-  const [railOpen, setRailOpen] = useState(readRailOpen);
-
-  const toggleRail = useCallback(() => {
-    setRailOpen((was) => {
-      try {
-        localStorage.setItem(RAIL_KEY, was ? '0' : '1');
-      } catch {
-        /* private mode: the choice lasts for this visit */
-      }
-      return !was;
-    });
-  }, []);
-
-  // "[" toggles it from the keyboard, outside text fields.
-  useEffect(() => {
-    const onKey = (event) => {
-      if (event.key !== '[' || /input|textarea|select/i.test(event.target.tagName)) return;
-      toggleRail();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [toggleRail]);
-
   // Every page renders its own Layout, so the rail is rebuilt on each
   // navigation. The highlight still slides from the previous item because
   // its last position is kept outside React (lastRailSpot), placed there
@@ -369,7 +336,7 @@ export default function Layout({ title, subtitle, crumbs, actions, children }) {
   };
 
   return (
-    <div className={`shell${railOpen ? ' is-rail-open' : ''}`}>
+    <div className="shell">
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -417,17 +384,6 @@ export default function Layout({ title, subtitle, crumbs, actions, children }) {
           <span className="rail-tip">Sign out</span>
         </button>
 
-        <button
-          type="button"
-          className="rail-btn rail-item rail-toggle"
-          onClick={toggleRail}
-          aria-expanded={railOpen}
-          aria-label={railOpen ? 'Collapse the menu' : 'Keep the menu open'}
-          title={railOpen ? 'Collapse the menu  [' : 'Keep the menu open  ['}
-        >
-          <Icon name={railOpen ? 'left' : 'right'} size={20} />
-          <span className="rail-tip">{railOpen ? 'Collapse' : 'Keep open'}</span>
-        </button>
       </nav>
 
       <div className="main">
