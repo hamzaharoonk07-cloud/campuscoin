@@ -36,12 +36,12 @@ const pick = (random, list) => list[Math.floor(random() * list.length)];
 const between = (random, min, max) => Math.round(min + random() * (max - min));
 
 const DESCRIPTIONS = {
-  Food: ['Campus cafe lunch', 'Canteen chai and paratha', 'Biryani with friends', 'Foodpanda dinner', 'Groceries for the room', 'Shawarma after class', 'Coffee before the lab'],
-  Transport: ['Rickshaw to campus', 'Careem to the station', 'Bus card top up', 'Petrol for the bike', 'InDrive home', 'Metro fare'],
-  'Hostel/Rent': ['Monthly hostel rent', 'Electricity share', 'Wifi bill'],
-  Academics: ['Printing lab report', 'Data structures textbook', 'Stationery restock', 'Photocopy of notes', 'Semester lab fee'],
-  Subscriptions: ['Spotify Premium', 'Netflix share', 'Gym membership', 'Cloud storage plan'],
-  Entertainment: ['Cinema ticket', 'Cricket match with the hostel', 'Weekend outing', 'Game top up'],
+  Food: ['Campus cafe lunch', 'Canteen chai and paratha', 'Biryani with friends', 'Foodpanda dinner', 'Groceries for the room', 'Cheezious with friends', 'Shawarma after class', 'Coffee before the lab'],
+  Transport: ['Rickshaw to campus', 'Careem to the station', 'Bus card top up', 'Petrol for the bike', 'InDrive home', 'Metro fare', 'Bykea to the market'],
+  'Hostel/Rent': ['Monthly hostel rent', 'Electricity share', 'PTCL wifi bill', 'Jazz mobile package'],
+  Academics: ['Printing lab report', 'Data structures textbook', 'Stationery from Daraz', 'Photocopy of notes', 'Semester lab fee'],
+  Subscriptions: ['Spotify Premium', 'Netflix share', 'Gym membership', 'Google One storage', 'ChatGPT Plus share'],
+  Entertainment: ['Cinema ticket', 'Cricket match with the hostel', 'Weekend outing', 'PUBG UC top up'],
   Miscellaneous: ['Laundry', 'Haircut', 'Medicine from the pharmacy', 'Birthday gift for a friend'],
   Allowance: ['Monthly allowance from home'],
   'Part-time Job': ['Tutoring payment', 'Freelance design work', 'Weekend shift'],

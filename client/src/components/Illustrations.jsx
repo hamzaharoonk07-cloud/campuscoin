@@ -1,130 +1,189 @@
 /* ---------------------------------------------------------------------------
-   Illustrations: flat spot drawings in the app's three colours.
+   Illustrations and icons drawn from real SVG artwork.
 
-   Each one is the same small composition, drawn in SVG: a pale disc, a black
-   card tilted behind it with a few lines of "content", a blue coin carrying
-   the subject's icon, and a couple of sparkles. Only the icon and the card's
-   content change, so every empty state and feature card looks like part of
-   one set, and nothing is fetched from outside. All of it is decoration: the
-   drawing carries one label for screen readers.
+   The objects are Microsoft's Fluent Emoji in the flat style (MIT licence),
+   copied into client/src/assets/emoji by client/scripts/extract-emoji.cjs so
+   only the ones used are shipped and nothing is fetched from outside.
+
+   - CategoryIcon: a category's object (a burger for Food, a bus for
+     Transport...) on a soft tint of the category colour, or a merchant's own
+     logo when the transaction names one (lib/brands.js).
+   - ArtIcon: one object on a round tile, for feature cards and chips.
+   - The *Art scenes: a few objects arranged at different sizes, angles and
+     depths over a soft glow, each floating slowly, for empty states and
+     feature panels. All of it is decoration, labelled once for screen readers.
 --------------------------------------------------------------------------- */
 
-import { useId } from 'react';
-import Icon from './Icon.jsx';
 import { slotColor } from '../lib/format.js';
 import { brandFor, inkOn } from '../lib/brands.js';
 
-// What goes on the tilted card behind the coin.
-const CARDS = {
-  lines: (
-    <>
-      <rect x="18" y="20" width="40" height="6" rx="3" fill="#fff" opacity="0.9" />
-      <rect x="18" y="34" width="56" height="5" rx="2.5" fill="#fff" opacity="0.35" />
-      <rect x="18" y="45" width="46" height="5" rx="2.5" fill="#fff" opacity="0.35" />
-      <rect x="18" y="56" width="30" height="5" rx="2.5" fill="#fff" opacity="0.35" />
-    </>
-  ),
-  bars: (
-    <>
-      <rect x="20" y="46" width="9" height="20" rx="3" fill="#fff" opacity="0.35" />
-      <rect x="35" y="32" width="9" height="34" rx="3" fill="#5b91ff" />
-      <rect x="50" y="40" width="9" height="26" rx="3" fill="#fff" opacity="0.35" />
-      <rect x="65" y="22" width="9" height="44" rx="3" fill="#fff" opacity="0.9" />
-    </>
-  ),
-  ring: (
-    <>
-      <circle cx="47" cy="44" r="20" fill="none" stroke="#fff" strokeOpacity="0.25" strokeWidth="7" />
-      <path d="M47 24a20 20 0 0 1 19 26" fill="none" stroke="#5b91ff" strokeWidth="7" strokeLinecap="round" />
-    </>
-  ),
-  bubble: (
-    <>
-      <rect x="16" y="18" width="46" height="18" rx="9" fill="#fff" opacity="0.9" />
-      <rect x="34" y="44" width="46" height="18" rx="9" fill="#5b91ff" />
-    </>
-  ),
+// Every extracted SVG, by file name, as a URL Vite serves (and caches).
+const FILES = import.meta.glob('../assets/emoji/*.svg', { eager: true, query: '?url', import: 'default' });
+const EMOJI = Object.fromEntries(Object.entries(FILES).map(([file, url]) => [file.split('/').pop().replace('.svg', ''), url]));
+const emoji = (name) => EMOJI[name] || EMOJI.coin;
+
+/** The URL of one object's SVG, by file name (hot-beverage, bus...). */
+export const artUrl = emoji;
+
+// The line-icon name a category is saved with, to the object that shows it.
+const CATEGORY_ART = {
+  utensils: 'hamburger',
+  bus: 'bus',
+  home: 'house',
+  book: 'books',
+  repeat: 'mobile-phone',
+  film: 'clapper-board',
+  wallet: 'dollar-banknote',
+  briefcase: 'briefcase',
+  award: 'graduation-cap',
+  gift: 'wrapped-gift',
+  'plus-circle': 'money-bag',
+  tag: 'shopping-bags',
 };
 
-function Spot({ label, icon, card = 'lines' }) {
-  const id = `sp${useId().replace(/:/g, '')}`;
+/**
+ * One object in a scene.
+ *   x, y  - centre, as a percentage of the scene
+ *   s     - width, as a percentage of the scene
+ *   r     - resting tilt in degrees
+ *   z     - depth: 1 is nearest; nearer objects float further
+ *   d     - animation delay in seconds, so objects never move in step
+ */
+function Piece({ name, x, y, s, r = 0, z = 2, d = 0, shadow = true }) {
   return (
-    <div className="spot" role="img" aria-label={label}>
-      <svg viewBox="0 0 200 150" aria-hidden="true">
-        <defs>
-          <linearGradient id={`${id}-coin`} x1="0.2" y1="0" x2="0.8" y2="1">
-            <stop offset="0" stopColor="#8db3ff" />
-            <stop offset="1" stopColor="#3566dc" />
-          </linearGradient>
-        </defs>
-        <circle className="spot-disc" cx="100" cy="78" r="64" />
-        <g transform="translate(28 30) rotate(-8 47 44)">
-          <rect className="spot-card" width="94" height="84" rx="16" />
-          {CARDS[card]}
-        </g>
-        <g className="spot-float">
-          <circle cx="132" cy="92" r="31" fill="#1e3f96" opacity="0.25" transform="translate(3 5)" />
-          <circle cx="132" cy="92" r="31" fill={`url(#${id}-coin)`} />
-          <circle cx="132" cy="92" r="27" fill="none" stroke="#fff" strokeOpacity="0.35" />
-        </g>
-        <path className="spot-sparkle" d="M166 30c.8 5 3.6 7.8 8.6 8.6-5 .8-7.8 3.6-8.6 8.6-.8-5-3.6-7.8-8.6-8.6 5-.8 7.8-3.6 8.6-8.6z" />
-        <path className="spot-sparkle is-small" d="M30 112c.5 3 2.1 4.6 5.1 5.1-3 .5-4.6 2.1-5.1 5.1-.5-3-2.1-4.6-5.1-5.1 3-.5 4.6-2.1 5.1-5.1z" />
-      </svg>
-      <span className="spot-icon">
-        <Icon name={icon} size={26} strokeWidth={2} />
-      </span>
+    <span
+      className={`scene-piece depth-${z}`}
+      style={{ left: `${x}%`, top: `${y}%`, width: `${s}%`, '--r': `${r}deg`, animationDelay: `${d}s` }}
+    >
+      {shadow ? <i className="scene-shadow" /> : null}
+      <img src={emoji(name)} alt="" draggable="false" loading="lazy" />
+    </span>
+  );
+}
+
+function Scene({ label, children }) {
+  return (
+    <div className="scene" role="img" aria-label={label}>
+      <span className="scene-glow" aria-hidden="true" />
+      <span className="scene-ring" aria-hidden="true" />
+      <span className="scene-floor" aria-hidden="true" />
+      {children}
     </div>
   );
 }
 
-export const WalletArt = ({ label = 'A wallet on a card' }) => <Spot label={label} icon="wallet" />;
-export const GaugeArt = ({ label = 'A budget filling up' }) => <Spot label={label} icon="target" card="ring" />;
-export const ReceiptArt = ({ label = 'A receipt being read' }) => <Spot label={label} icon="camera" />;
-export const ChartArt = ({ label = 'A rising chart' }) => <Spot label={label} icon="trend" card="bars" />;
-export const SproutArt = ({ label = 'An idea for saving' }) => <Spot label={label} icon="bulb" card="bars" />;
-export const ChatArt = ({ label = 'Coin, the assistant, in conversation' }) => <Spot label={label} icon="chat" card="bubble" />;
-export const TagsArt = ({ label = 'Labels for sorting money' }) => <Spot label={label} icon="tag" />;
-export const MegaphoneArt = ({ label = 'An announcement' }) => <Spot label={label} icon="bell" card="bubble" />;
+export function WalletArt({ label = 'A purse with a card, coins and a banknote' }) {
+  return (
+    <Scene label={label}>
+      <Piece name="credit-card" x={66} y={38} s={32} r={14} z={3} d={-1.2} />
+      <Piece name="purse" x={46} y={58} s={44} r={-6} z={1} />
+      <Piece name="coin" x={20} y={38} s={17} r={-18} z={2} d={-2.4} />
+      <Piece name="coin" x={80} y={72} s={13} r={20} z={2} d={-0.8} />
+      <Piece name="dollar-banknote" x={80} y={20} s={20} r={-12} z={3} d={-3} shadow={false} />
+      <Piece name="sparkles" x={16} y={72} s={12} z={3} d={-1.6} shadow={false} />
+    </Scene>
+  );
+}
 
-// The older 3D picture names, mapped to the matching line icon.
-const ART_ICONS = {
-  bar_chart: 'chart',
-  bell: 'bell',
-  bullseye: 'target',
-  busts_in_silhouette: 'user',
-  calendar: 'calendar',
-  card_index_dividers: 'tag',
-  dollar_banknote: 'wallet',
-  gear: 'sliders',
-  house: 'home',
-  label: 'tag',
-  light_bulb: 'bulb',
-  magnifying_glass_tilted_left: 'search',
-  megaphone: 'bell',
-  money_bag: 'coin',
-  money_with_wings: 'trend',
-  receipt: 'receipt',
-  seedling: 'trend',
-  shield: 'shield',
-  sparkles: 'spark',
-  speech_balloon: 'chat',
-  world_map: 'map',
-};
+export function GaugeArt({ label = 'A target with a chart and a coin' }) {
+  return (
+    <Scene label={label}>
+      <Piece name="bar-chart" x={70} y={44} s={30} r={10} z={3} d={-1.4} />
+      <Piece name="bullseye" x={42} y={56} s={44} r={-4} z={1} />
+      <Piece name="coin" x={78} y={76} s={15} r={-14} z={2} d={-2.2} />
+      <Piece name="check-mark-button" x={20} y={28} s={15} r={-10} z={2} d={-0.6} />
+      <Piece name="sparkles" x={84} y={18} s={11} z={3} d={-2.8} shadow={false} />
+    </Scene>
+  );
+}
 
-/** A single icon on a round tile, for feature cards and chips. */
+export function ReceiptArt({ label = 'A phone scanning a receipt' }) {
+  return (
+    <Scene label={label}>
+      <Piece name="mobile-phone" x={62} y={50} s={38} r={10} z={2} d={-1} />
+      <Piece name="receipt" x={34} y={56} s={36} r={-12} z={1} />
+      <Piece name="magnifying-glass-tilted-left" x={80} y={76} s={20} r={8} z={1} d={-2.4} />
+      <Piece name="check-mark-button" x={82} y={20} s={15} r={12} z={2} d={-3.2} shadow={false} />
+      <Piece name="sparkles" x={16} y={24} s={12} z={3} d={-1.8} shadow={false} />
+    </Scene>
+  );
+}
+
+export function ChartArt({ label = 'A rising chart with a rocket' }) {
+  return (
+    <Scene label={label}>
+      <Piece name="bar-chart" x={30} y={54} s={30} r={-10} z={3} d={-1.6} />
+      <Piece name="chart-increasing" x={56} y={54} s={44} r={4} z={1} />
+      <Piece name="rocket" x={82} y={24} s={19} r={10} z={2} d={-2.6} shadow={false} />
+      <Piece name="coin" x={20} y={80} s={13} r={-20} z={2} d={-0.4} />
+      <Piece name="sparkles" x={18} y={22} s={11} z={3} d={-3} shadow={false} />
+    </Scene>
+  );
+}
+
+export function SproutArt({ label = 'A money bag with a seedling and coins' }) {
+  return (
+    <Scene label={label}>
+      <Piece name="money-bag" x={44} y={58} s={42} r={-6} z={1} />
+      <Piece name="seedling" x={74} y={40} s={24} r={8} z={2} d={-1.8} />
+      <Piece name="coin" x={78} y={76} s={15} r={16} z={2} d={-0.6} />
+      <Piece name="coin" x={16} y={72} s={12} r={-22} z={3} d={-2.8} />
+      <Piece name="light-bulb" x={20} y={28} s={17} r={-12} z={2} d={-1.2} />
+      <Piece name="sparkles" x={82} y={16} s={11} z={3} d={-2.2} shadow={false} />
+    </Scene>
+  );
+}
+
+export function ChatArt({ label = 'A conversation with the assistant' }) {
+  return (
+    <Scene label={label}>
+      <Piece name="speech-balloon" x={62} y={40} s={38} r={8} z={1} d={-1.4} />
+      <Piece name="robot" x={34} y={58} s={34} r={-6} z={2} />
+      <Piece name="light-bulb" x={82} y={74} s={17} r={14} z={2} d={-2.4} />
+      <Piece name="sparkles" x={16} y={24} s={12} z={3} d={-0.8} shadow={false} />
+    </Scene>
+  );
+}
+
+export function TagsArt({ label = 'A label surrounded by things students spend on' }) {
+  return (
+    <Scene label={label}>
+      <Piece name="label" x={48} y={54} s={38} r={-10} z={1} />
+      <Piece name="hot-beverage" x={18} y={34} s={19} r={-8} z={2} d={-1} />
+      <Piece name="bus" x={82} y={30} s={21} r={8} z={3} d={-2.2} />
+      <Piece name="books" x={18} y={76} s={19} r={6} z={2} d={-3} />
+      <Piece name="house" x={82} y={74} s={19} r={-6} z={2} d={-1.6} />
+    </Scene>
+  );
+}
+
+export function MegaphoneArt({ label = 'A megaphone with a bell and confetti' }) {
+  return (
+    <Scene label={label}>
+      <Piece name="megaphone" x={46} y={56} s={42} r={-10} z={1} />
+      <Piece name="bell" x={78} y={30} s={21} r={14} z={2} d={-1.8} />
+      <Piece name="party-popper" x={20} y={28} s={19} r={-12} z={3} d={-0.8} shadow={false} />
+      <Piece name="sparkles" x={82} y={74} s={12} z={3} d={-2.6} shadow={false} />
+    </Scene>
+  );
+}
+
+/** One object on a round tile, for feature cards and chips. Takes the old
+    underscore names (light_bulb) as well as the file names (light-bulb). */
 export function ArtIcon({ name, size = 44, className = '' }) {
+  const file = String(name).replace(/_/g, '-');
   return (
     <span className={`art-icon ${className}`} style={{ width: size, height: size }} aria-hidden="true">
-      <Icon name={ART_ICONS[name] || 'coin'} size={Math.round(size * 0.48)} />
+      <img src={emoji(file)} alt="" width={Math.round(size * 0.62)} height={Math.round(size * 0.62)} draggable="false" />
     </span>
   );
 }
 
 /**
- * A category as an icon: its line icon in white on a round black tile, with a
- * small dot in the category's own colour so the charts' colours still match.
- * When `text` (a transaction's description) names a brand, the brand's own
- * logo is shown on its brand colour instead, keeping the category dot.
+ * A category as an icon: its object on a soft tint of the category colour, so
+ * both the picture and the colour say which category it is. When `text` (a
+ * transaction's description) names a brand, that brand's own logo is shown
+ * on its brand colour instead.
  */
 export function CategoryIcon({ icon, slot, size = 38, text }) {
   const brand = brandFor(text);
@@ -135,21 +194,29 @@ export function CategoryIcon({ icon, slot, size = 38, text }) {
         className="cat-art is-brand"
         title={brand.name}
         aria-hidden="true"
-        style={{ width: size, height: size, '--cat': slotColor(slot), background: `#${brand.hex}`, color: ink }}
+        style={{ width: size, height: size, background: `#${brand.hex}`, color: ink }}
       >
         {brand.path ? (
           <svg width={Math.round(size * 0.5)} height={Math.round(size * 0.5)} viewBox="0 0 24 24" fill="currentColor">
             <path d={brand.path} />
           </svg>
         ) : (
-          <strong style={{ fontSize: Math.round(size * 0.46) }}>{brand.letter}</strong>
+          <strong style={{ fontSize: Math.round(size * (brand.letter.length > 1 ? 0.34 : 0.46)) }}>{brand.letter}</strong>
         )}
       </span>
     );
   }
+  const colour = slotColor(slot);
   return (
-    <span className="cat-art" aria-hidden="true" style={{ width: size, height: size, '--cat': slotColor(slot) }}>
-      <Icon name={icon} size={Math.round(size * 0.46)} />
+    <span
+      className="cat-art is-object"
+      aria-hidden="true"
+      style={{ width: size, height: size, background: `color-mix(in srgb, ${colour} 16%, var(--surface))` }}
+    >
+      <img src={emoji(CATEGORY_ART[icon] || 'shopping-bags')} alt="" width={Math.round(size * 0.6)} height={Math.round(size * 0.6)} draggable="false" />
     </span>
   );
 }
+
+/** The object for a category, for places that want just the picture. */
+export const categoryArt = (icon) => emoji(CATEGORY_ART[icon] || 'shopping-bags');

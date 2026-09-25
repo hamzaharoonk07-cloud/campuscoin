@@ -707,3 +707,42 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
   .tx-filters:not(.is-open) .row-wrap { display: none; }
   .tx-filters .panel-body { padding: 1rem; }
 }
+
+/* --- Real SVG objects (Fluent Emoji, flat) ---------------------------------- */
+
+/* A category tile: its object on a soft tint of its colour. Brand tiles carry
+   the merchant's logo on the brand colour. Neither needs the colour dot. */
+.cat-art.is-object,
+.cat-art.is-brand { color: inherit; }
+.cat-art.is-object::after,
+.cat-art.is-brand::after { display: none; }
+.cat-art.is-object img { display: block; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12)); }
+.cat-art.is-brand { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06); }
+.cat-art.is-brand strong { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+:root[data-theme='dark'] .cat-art.is-object { background: color-mix(in srgb, var(--surface) 70%, #fff 8%) !important; }
+
+.art-icon { background: var(--raised); color: inherit; }
+.art-icon img { display: block; }
+
+/* Scenes: a soft blue light, a dashed orbit and a floor, in the app's colours. */
+.scene .scene-glow { background: radial-gradient(circle, color-mix(in srgb, var(--blue) 30%, transparent), transparent 70%); }
+.scene .scene-ring { border-color: color-mix(in srgb, var(--text) 16%, transparent); }
+.scene-piece img { filter: drop-shadow(0 8px 10px rgba(18, 18, 20, 0.18)); }
+.scene-piece { animation: scene-float 5s ease-in-out infinite; }
+@keyframes scene-float { 50% { translate: -50% calc(-50% + var(--lift, -6px)); } }
+@media (prefers-reduced-motion: reduce) { .scene-piece { animation: none; } }
+
+/* The donut with its pictures. */
+.donut-legend li { grid-template-columns: 10px 20px minmax(0, 1fr) auto; cursor: pointer; }
+.donut-legend li small { margin-left: 0.25rem; color: var(--faint); font-size: 0.75rem; }
+.donut-legend-art { display: block; }
+.donut-art { animation: d9-pop 0.4s var(--ease-out) backwards; animation-delay: calc(0.7s + var(--i, 0) * 70ms); transform-box: fill-box; transform-origin: center; }
+.d9-month .donut { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 1rem; margin: 0.6rem 0 1rem; }
+.d9-month .donut-ring { width: min(210px, 100%); }
+.d9-month .donut-legend { width: 100%; }
+
+/* The cash-flow chart fills its card, which is as tall as "My month" beside it. */
+.d9-flow-card .mbars { flex: 1; display: flex; flex-direction: column; }
+.d9-flow-card .mbars-plot { flex: 1; min-height: 200px; height: auto; }
+.d9-quick-icon img { display: block; }
+.d9-quick button:nth-child(4) .d9-quick-icon { background: #fff; }

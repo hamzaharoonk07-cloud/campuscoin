@@ -295,16 +295,20 @@ The interface is written rather than assembled. A few decisions worth naming:
   the latest transactions. Every other tab uses the same cards, pills, inputs
   and segmented controls. The styles live in `client/src/styles/design9.css`;
   the code and all the copy are our own.
-- **Illustrations are flat spot drawings** (`client/src/components/Illustrations.jsx`).
-  Each is the same small SVG composition - a pale disc, a black card with a
-  few lines of content, and a blue coin carrying the subject's icon - so every
-  empty state and feature card looks like part of one set. Category icons are
-  a white glyph on a round black tile with a dot in the category's colour.
-  The line icons (`Icon.jsx`) are drawn on one 24px grid with round joins,
-  following the conventions of the Lucide set (ISC licence).
+- **Real SVG pictures** (`client/src/components/Illustrations.jsx`). Every
+  category has its own object - a burger for Food, a bus for Transport, a house
+  for Hostel/Rent, books, a clapper board, a banknote, a graduation cap - drawn
+  from Microsoft's **Fluent Emoji** in the flat style (MIT licence). Only the
+  49 SVGs the app uses are copied into `client/src/assets/emoji` by
+  `client/scripts/extract-emoji.cjs`, with the licence beside them, so nothing
+  is fetched from outside. The same objects appear on the spending donut (on
+  each slice and in its legend), on the quick-add tiles and feature cards, and
+  in the small scenes on empty pages, where a few are arranged at different
+  sizes and depths and float slowly. Menu and button icons stay as clean line
+  icons (`Icon.jsx`), drawn on one 24px grid following the Lucide conventions.
 - **Real brand logos.** When a transaction names a company - "Netflix share",
-  "Foodpanda dinner", "Spotify Premium" - the list shows that company's logo on
-  its brand colour instead of the category icon (`client/src/lib/brands.js`).
+  "Foodpanda dinner", "Spotify Premium", "Daraz", "JazzCash", "PTCL" - the list
+  shows that company's logo on its brand colour instead of the category picture (`client/src/lib/brands.js`).
   The logos come from **Simple Icons** (CC0), bundled with the app so nothing
   is fetched. Careem and inDrive are not in that set, so they get a tile in
   their brand colour with their initial rather than an imitation logo. The

@@ -4,10 +4,10 @@ import Layout, { MonthPicker, openChat } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
 import { api } from '../lib/api.js';
-import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
+import { formatDate, money, monthKey } from '../lib/format.js';
 import CountUp from '../components/CountUp.jsx';
-import { MonthBars } from '../components/DashCharts.jsx';
-import { CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
+import { DonutChart, MonthBars } from '../components/DashCharts.jsx';
+import { artUrl, CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /* ---------------------------------------------------------------------------
@@ -22,10 +22,10 @@ import { useAuth, useToast } from '../context/AppContext.jsx';
 // The things students log most often, one tap away. The description is what
 // the categoriser reads, so each lands in the right category by itself.
 const QUICK = [
-  { label: 'Chai', icon: 'utensils', type: 'expense', description: 'Chai at the canteen' },
-  { label: 'Rickshaw', icon: 'bus', type: 'expense', description: 'Rickshaw to campus' },
-  { label: 'Printing', icon: 'book', type: 'expense', description: 'Printing notes' },
-  { label: 'Allowance', icon: 'wallet', type: 'income', description: 'Monthly allowance' },
+  { label: 'Chai', art: 'hot-beverage', type: 'expense', description: 'Chai at the canteen' },
+  { label: 'Rickshaw', art: 'bus', type: 'expense', description: 'Rickshaw to campus' },
+  { label: 'Printing', art: 'page-facing-up', type: 'expense', description: 'Printing notes' },
+  { label: 'Allowance', art: 'dollar-banknote', type: 'income', description: 'Monthly allowance' },
 ];
 
 /** Percentage change from last month, or null when there is nothing to compare. */
@@ -211,25 +211,9 @@ export default function Dashboard() {
               {totals.savingsRate !== null ? `, ${totals.savingsRate >= 0 ? totals.savingsRate + '% of income kept' : Math.abs(totals.savingsRate) + '% over income'}` : ''}
             </span>
           </div>
-          <span className="d9-sub">Where it went</span>
+          <span className="d9-sub">Where it went · tap a category</span>
           {spending.length ? (
-            <>
-              <div className="d9-alloc" aria-hidden="true">
-                {spending.map((c) => (
-                  <i key={c.name} style={{ flexGrow: c.share, background: slotColor(c.slot) }} />
-                ))}
-              </div>
-              <ul className="d9-alloc-list">
-                {spending.slice(0, 5).map((c) => (
-                  <li key={c.name}>
-                    <i style={{ background: slotColor(c.slot) }} />
-                    <span>{c.name}</span>
-                    <small>{c.share}%</small>
-                    <strong className="num">{money(c.total, currency)}</strong>
-                  </li>
-                ))}
-              </ul>
-            </>
+            <DonutChart rows={spending} currency={currency} total={totals.expense} caption="Spent" />
           ) : (
             <p className="d9-muted">Nothing spent yet this month.</p>
           )}
@@ -288,7 +272,7 @@ export default function Dashboard() {
             {QUICK.map((item) => (
               <button key={item.label} type="button" onClick={() => quickAdd(item)}>
                 <span className="d9-quick-icon">
-                  <Icon name={item.icon} size={18} />
+                  <img src={artUrl(item.art)} alt="" width="22" height="22" />
                 </span>
                 <strong>{item.label}</strong>
                 <small>{item.type === 'income' ? 'Money in' : 'Money out'}</small>

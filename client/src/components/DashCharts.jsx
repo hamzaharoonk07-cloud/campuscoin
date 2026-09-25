@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { compactMoney, money, slotColor } from '../lib/format.js';
+import { categoryArt } from './Illustrations.jsx';
 
 /* ---------------------------------------------------------------------------
    The dashboard's chart set, drawn by hand in SVG.
@@ -82,6 +83,20 @@ export function DonutChart({ rows, currency, total, caption = 'Spent this month'
             />
           ))}
           </g>
+          {/* Each slice big enough to hold it carries its category's picture,
+              so the chart reads without matching colours to the legend. */}
+          {segments.map((seg, i) => {
+            if (seg.to - seg.from < 0.42) return null;
+            const mid = (seg.from + seg.to) / 2;
+            const x = cx + 77 * Math.cos(mid);
+            const y = cy + 77 * Math.sin(mid);
+            return (
+              <g key={`art${seg.row.categoryId}`} className="donut-art" style={{ '--i': i }} pointerEvents="none">
+                <circle cx={x} cy={y} r="15" fill="#fff" />
+                <image href={categoryArt(seg.row.icon)} x={x - 10} y={y - 10} width="20" height="20" />
+              </g>
+            );
+          })}
         </svg>
 
         <div className="donut-centre">
@@ -99,10 +114,14 @@ export function DonutChart({ rows, currency, total, caption = 'Spent this month'
             key={row.categoryId}
             onMouseEnter={() => setHover(i)}
             onMouseLeave={() => setHover(null)}
+            onClick={() => setHover((was) => (was === i ? null : i))}
             className={hover === i ? 'is-on' : undefined}
           >
             <i style={{ background: slotColor(row.slot) }} />
-            <span>{row.name}</span>
+            <img className="donut-legend-art" src={categoryArt(row.icon)} alt="" width="20" height="20" />
+            <span>
+              {row.name} <small className="num">{row.share}%</small>
+            </span>
             <strong className="num">{money(row.total, currency)}</strong>
           </li>
         ))}
