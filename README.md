@@ -246,12 +246,12 @@ The interface is written rather than assembled. A few decisions worth naming:
   surface rather than one being an inversion of the other. The choice is saved
   to the device *and* the account, so it follows the student to another machine.
   Settings also offers "match my device", which follows the operating system live.
-- **Emerald and midnight.** A deep emerald (, white text at 5.5:1)
-  for anything you can act on, midnight green for the dashboard hero, the
-  sign-in panel and the landing hero, with mint and lime highlights, and pastel
-  tiles for the four kinds of money (rose for spending, mint for income, cream
-  for budgets, blue for savings). Green was chosen because it reads as money
-  that is growing. Headings are set in Inter Tight, body text in Inter; buttons
+- **Neutral, with one green.** Grey and white pages (charcoal in dark mode),
+  and a single deep emerald (`#047857`, white text at 5.5:1) kept for what you
+  can act on and the few highlights - green because it reads as money that is
+  growing. Near-black ink carries the dashboard hero, the sign-in panel and the
+  landing hero; soft tints separate the four kinds of money (rose for
+  spending, mint for income, cream for budgets, blue for savings). Headings are set in Inter Tight, body text in Inter; buttons
   are pills and cards are generously rounded. The landing page is built from
   the same tokens, so the page you arrive on and the app you sign into are
   visibly one product. The layout was modelled on the style of the Hisab Kitab
