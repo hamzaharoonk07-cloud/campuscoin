@@ -22,6 +22,8 @@ const NAMES = [
   'speech-balloon', 'hot-beverage', 'megaphone', 'bell', 'party-popper', 'money-with-wings', 'busts-in-silhouette',
   'calendar', 'spiral-calendar', 'card-index-dividers', 'gear', 'world-map', 'shield', 'camera-with-flash', 'locked',
   'key', 'bank', 'robot', 'shopping-cart', 'page-facing-up', 'envelope', 'star',
+  // The greeting card and the welcome message
+  'sun', 'sun-behind-small-cloud', 'sunrise', 'crescent-moon', 'glowing-star', 'cloud', 'owl', 'waving-hand', 'partying-face',
 ];
 
 const out = path.join(__dirname, '..', 'src', 'assets', 'emoji');

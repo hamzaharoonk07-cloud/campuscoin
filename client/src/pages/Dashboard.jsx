@@ -8,6 +8,7 @@ import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import CountUp from '../components/CountUp.jsx';
 import { DonutChart, MonthBars } from '../components/DashCharts.jsx';
 import { artUrl, categoryArt, CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
+import Avatar from '../components/Avatar.jsx';
 
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
@@ -36,11 +37,64 @@ const QUICK = [
  */
 function greetingFor(date = new Date()) {
   const hour = date.getHours();
-  if (hour < 5) return 'Still up';
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  if (hour < 21) return 'Good evening';
-  return 'Good night';
+  if (hour < 5) return { words: 'Still up', part: 'night' };
+  if (hour < 12) return { words: 'Good morning', part: 'morning' };
+  if (hour < 17) return { words: 'Good afternoon', part: 'afternoon' };
+  if (hour < 21) return { words: 'Good evening', part: 'evening' };
+  return { words: 'Good night', part: 'night' };
+}
+
+// The picture for each part of the day: a big object, a small one and a
+// sparkle, placed on the right of the greeting card.
+const DAY_ART = {
+  morning: ['sunrise', 'hot-beverage', 'sparkles'],
+  afternoon: ['sun-behind-small-cloud', 'books', 'cloud'],
+  evening: ['crescent-moon', 'glowing-star', 'sparkles'],
+  night: ['owl', 'crescent-moon', 'glowing-star'],
+};
+
+/**
+ * The greeting at the top of the dashboard: the student's photo, a greeting
+ * for the time of day, today's date and one line from their own numbers, on
+ * a card whose colour and picture follow the day - a pale sky in the
+ * morning, bright blue in the afternoon, deep navy in the evening and black
+ * at night.
+ */
+function GreetingCard({ user, line, balance, currency, onAdd }) {
+  const { words, part } = greetingFor();
+  const [big, small, spark] = DAY_ART[part];
+  const first = user?.name?.split(' ')[0] || 'there';
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  return (
+    <section className={`d9-greet is-${part}`} aria-label="Greeting">
+      <div className="d9-greet-copy">
+        <span className="d9-greet-date">{today}</span>
+        <h2>
+          <Avatar user={user} size={52} />
+          <span className="d9-greet-name">
+            {words}, {first}
+            <img className="d9-greet-wave" src={artUrl('waving-hand')} alt="" width="34" height="34" />
+          </span>
+        </h2>
+        <p>{line}</p>
+        <div className="d9-greet-actions">
+          <span className={`d9-greet-chip${balance < 0 ? ' is-over' : ''}`}>
+            {balance < 0 ? `${money(-balance, currency)} over this month` : `${money(balance, currency)} kept this month`}
+          </span>
+          <button type="button" className="d9-greet-add" onClick={onAdd}>
+            <Icon name="plus" size={15} />
+            Add a transaction
+          </button>
+        </div>
+      </div>
+      <div className="d9-greet-art" aria-hidden="true">
+        <span className="d9-greet-glow" />
+        <img className="is-big" src={artUrl(big)} alt="" />
+        <img className="is-small" src={artUrl(small)} alt="" />
+        <img className="is-spark" src={artUrl(spark)} alt="" />
+      </div>
+    </section>
+  );
 }
 
 /**
@@ -166,9 +220,7 @@ export default function Dashboard() {
   const busiest = useMemo(() => [...activeDays].sort((a, b) => b.total - a.total)[0], [activeDays]);
 
   const actions = <MonthPicker value={month} onChange={setMonth} />;
-  const title = `${greetingFor()}, ${user?.name?.split(' ')[0] || 'there'}`;
-  // Today's date, in the student's own words: "Friday, 25 September".
-  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  const title = 'Dashboard';
 
   if (!data) {
     return (
@@ -191,7 +243,15 @@ export default function Dashboard() {
   const over = budgets.filter((b) => b.state === 'exceeded').length;
 
   return (
-    <Layout title={title} subtitle={`${today} · ${personalLine({ totals, goal, month, currency })}`} actions={actions}>
+    <Layout title={title} actions={actions}>
+      <GreetingCard
+        user={user}
+        line={personalLine({ totals, goal, month, currency })}
+        balance={totals.balance}
+        currency={currency}
+        onAdd={() => setAdding(true)}
+      />
+
       {announcements?.length ? (
         <div className="d9-notice">
           <Icon name="bell" size={16} />

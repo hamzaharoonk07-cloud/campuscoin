@@ -4,6 +4,7 @@ import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon, { BrandMark } from './Icon.jsx';
 import CoinBot from './CoinBot.jsx';
 import Chat from './Chat.jsx';
+import WelcomeBack from './WelcomeBack.jsx';
 import Avatar from './Avatar.jsx';
 import { api } from '../lib/api.js';
 import { useAuth, useTheme } from '../context/AppContext.jsx';
@@ -459,6 +460,7 @@ export default function Layout({ title, subtitle, crumbs, actions, children }) {
       </div>
 
       {!isAdmin && <ChatLauncher />}
+      {!isAdmin && <WelcomeBack />}
 
       {!isAdmin && (
         <nav className="tabbar" aria-label="Sections">

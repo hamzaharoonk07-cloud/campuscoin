@@ -129,6 +129,15 @@ export const useToast = () => useContext(ToastContext);
    Authentication
 --------------------------------------------------------------------------- */
 
+/** Leaves a note for the next page to greet the student; read once, then cleared. */
+function greetNext(note) {
+  try {
+    sessionStorage.setItem('campuscoin.welcome', JSON.stringify(note));
+  } catch {
+    /* private mode: no welcome, nothing else changes */
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(Boolean(getToken()));
@@ -164,12 +173,15 @@ export function AuthProvider({ children }) {
         const data = await api.post(admin ? '/auth/admin/login' : '/auth/login', { email, password });
         setToken(data.token);
         adopt(data.user);
+        // The next page shows a short welcome (components/WelcomeBack.jsx).
+        if (!admin) greetNext({ kind: 'back', since: data.previousLoginAt });
         return data.user;
       },
       async register(payload) {
         const data = await api.post('/auth/register', payload);
         setToken(data.token);
         adopt(data.user);
+        greetNext({ kind: 'new' });
         return data.user;
       },
       async updateProfile(payload) {

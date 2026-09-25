@@ -138,6 +138,8 @@ async function checkSignIn(req, res, { adminOnly = false } = {}) {
     return null;
   }
 
+  // Kept for the reply, so the welcome message can say when they were last here.
+  user.$locals.previousLoginAt = user.lastLoginAt || null;
   user.failedLogins = 0;
   user.lockUntil = undefined;
   user.lastLoginAt = new Date();
@@ -149,7 +151,7 @@ router.post(
   '/login',
   wrap(async (req, res) => {
     const user = await checkSignIn(req, res);
-    if (user) res.json({ token: signToken(user), user: publicUser(user) });
+    if (user) res.json({ token: signToken(user), user: publicUser(user), previousLoginAt: user.$locals.previousLoginAt });
   })
 );
 
