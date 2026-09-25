@@ -29,6 +29,14 @@ export async function sendMail({ to, subject, text, html }) {
     return { sent: false, preview: { to, subject, text } };
   }
 
+  // campuscoin.app is not a real mail domain: it holds the demo accounts and
+  // the throwaway accounts the e2e test creates. Mail to it would only bounce
+  // back to the sending inbox, so it is never sent.
+  if (/@campuscoin\.app$/i.test(String(to))) {
+    console.log(`[mail] not sending "${subject}" to the reserved address ${to}`);
+    return { sent: false, failed: true };
+  }
+
   try {
     await getTransport().sendMail({
       // Gmail only sends as the signed-in account, so that is the default sender.

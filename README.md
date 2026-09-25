@@ -112,9 +112,14 @@ tokenised link. How Campus Coin does each:
 - **Recovery by tokenised link.** "Forgot password" emails a random 64-character
   token that works once, for one hour; only its SHA-256 hash is stored. The
   reset page checks the link before showing the form and says so plainly when
-  it has expired. With no SMTP configured the link is shown on screen instead,
-  so the flow can still be demonstrated. The reply is the same whether or not
-  the email has an account, so the form cannot be used to find accounts.
+  it has expired. The live site sends real email through Gmail (SMTP with an
+  app password, kept in Vercel's encrypted settings, never in the code), and
+  there the link is **only** ever emailed - showing it on screen would let
+  anyone who knows an address reset that account. On a development machine
+  with no email set up, the link is shown on screen instead so the flow can
+  still be demonstrated. The reply is the same whether or not the email has
+  an account, so the form cannot be used to find accounts. Nothing is ever
+  sent to the made-up \`campuscoin.app\` addresses of the demo and test accounts.
 - **Sessions end when they should.** Every sign-in token carries the account's
   session version. Changing or resetting the password raises it, which signs
   out every other device at once; Settings also has **Sign out everywhere**.
@@ -138,7 +143,7 @@ demonstrate every feature with an empty file.
 |---|---|---|
 | `MONGO_URI` | Uses that MongoDB (local or Atlas) | Starts an embedded MongoDB in `server/data/db` |
 | `JWT_SECRET` | Signs session tokens | A development default is used |
-| `SMTP_*`, `MAIL_FROM` | Sends password-reset links and shared reports | The message is returned in the API response instead, so the flow is still demonstrable |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Sends password-reset links, "password changed" alerts and shared reports. For Gmail: `smtp.gmail.com`, port `465`, the address, and a 16-character app password | On a development machine the reset link is shown on screen instead; on a live deployment nothing is sent and no link is shown |
 | `ANTHROPIC_API_KEY` | Monthly summaries are rewritten by Claude | Summaries come from the built-in statistical engine |
 | `CRON_SECRET` | Protects the daily recurring-transaction endpoint | The endpoint refuses all callers; the local server runs the job on a timer anyway |
 
