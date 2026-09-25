@@ -11,6 +11,9 @@ salary and a bank feed. Campus Coin assumes neither. Everything is entered by
 hand or imported from a CSV, and every piece of advice it gives is built from
 the student's own transactions.
 
+**Live site: https://campuscoin-sable.vercel.app**
+(source: https://github.com/hamzaharoonk07-cloud/campuscoin)
+
 ---
 
 ## Installation
