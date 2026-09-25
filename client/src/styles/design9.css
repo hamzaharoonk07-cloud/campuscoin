@@ -2,7 +2,7 @@
    The app's look, modelled on design 9 (a fintech dashboard on Dribbble):
    the app sits in a black frame with a slim rail of round icon buttons, the
    content is one white panel with large rounded corners, buttons are black
-   pills, and one blue carries the figures. Set in Outfit. Loaded last, so
+   pills, and one blue carries the figures. Set in Plus Jakarta Sans. Loaded last, so
    these rules win over the older ones in app.css, frame.css and pictures.css.
    =========================================================================== */
 

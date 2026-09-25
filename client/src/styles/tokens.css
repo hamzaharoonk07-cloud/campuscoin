@@ -2,7 +2,7 @@
    Campus Coin design tokens
    ---------------------------------------------------------------------------
    Modelled on design 9, a fintech dashboard on Dribbble: black (#121214),
-   white and one blue (#5b91ff), set in Outfit. Blue marks money coming in and
+   white and one blue (#5b91ff), set in Plus Jakarta Sans. Blue marks money coming in and
    black money going out; categories take shades of blue and grey.
 
    Colour is assigned by the job it does, never by decoration:
@@ -19,8 +19,8 @@
    =========================================================================== */
 
 :root {
-  --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
   --r-control: 12px;
   --r-panel-lg: 24px;
   --r-panel: 20px;

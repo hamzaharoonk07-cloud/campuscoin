@@ -294,7 +294,7 @@ The interface is written rather than assembled. A few decisions worth naming:
   round icon buttons that slides open on hover to show each page's name, the content is one white
   panel with large rounded corners, buttons are black pills, and one blue
   (`#5b91ff`) carries the figures. Categories take shades of blue and grey.
-  Text is set in Outfit. The dashboard opens on three figures beside a tall
+  Text is set in Plus Jakarta Sans. The dashboard opens on three figures beside a tall
   "my month" card, the cash flow on a black card with In / Out / Kept tabs,
   then the month's spending as a calendar of squares, dark quick-add tiles and
   the latest transactions. Every other tab uses the same cards, pills, inputs
