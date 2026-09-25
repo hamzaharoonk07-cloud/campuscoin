@@ -781,3 +781,10 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 .d9-bva-track.is-over i { background: var(--bad); }
 .d9-bva-note { font-size: 0.78rem; color: var(--faint); }
 .d9-bva-empty { display: grid; gap: 1rem; justify-items: start; }
+
+/* The dashboard's personal line under the greeting stays on phones too,
+   where the other pages' one-line descriptions are hidden to save room. */
+.topbar-about.is-personal { max-width: 62ch; color: var(--muted); }
+@media (max-width: 720px) {
+  .topbar-about.is-personal { display: block; font-size: 0.82rem; line-height: 1.4; margin-top: 0.3rem; }
+}

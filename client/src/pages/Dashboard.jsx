@@ -29,6 +29,45 @@ const QUICK = [
   { label: 'Allowance', art: 'dollar-banknote', type: 'income', description: 'Monthly allowance' },
 ];
 
+/**
+ * The greeting, by the time of day on the student's own device: "Good
+ * morning" before noon, "Good afternoon" until five, "Good evening" until
+ * nine, and something gentler for the small hours.
+ */
+function greetingFor(date = new Date()) {
+  const hour = date.getHours();
+  if (hour < 5) return 'Still up';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  if (hour < 21) return 'Good evening';
+  return 'Good night';
+}
+
+/**
+ * One line about where the student stands, from their own numbers. For the
+ * current month it turns what is left into a daily figure, which is easier to
+ * act on than a total; for past months it just says how the month ended.
+ */
+function personalLine({ totals, goal, month, currency }) {
+  const now = new Date();
+  const current = month === monthKey(now);
+  if (!current) {
+    return totals.balance >= 0
+      ? `You kept ${money(totals.balance, currency)} that month.`
+      : `That month ended ${money(-totals.balance, currency)} over.`;
+  }
+  if (totals.income === 0 && totals.expense === 0) return 'A fresh month - log your allowance to get started.';
+  const daysLeft = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate() + 1;
+  const days = `${daysLeft} day${daysLeft === 1 ? '' : 's'} left this month`;
+  if (totals.balance < 0) return `${days}, and ${money(-totals.balance, currency)} over so far - a quiet week would close it.`;
+  // What can go out each day and still leave the savings goal intact.
+  const spare = totals.balance - Math.max(0, goal.target || 0);
+  if (goal.target > 0 && spare <= 0) {
+    return `${days}. You are ${money(-spare, currency)} short of your ${money(goal.target, currency)} goal, so hold spending where it is.`;
+  }
+  return `${days} - about ${money(Math.floor((goal.target > 0 ? spare : totals.balance) / daysLeft), currency)} a day to spend${goal.target > 0 ? ' and still hit your goal' : ''}.`;
+}
+
 /** Percentage change from last month, or null when there is nothing to compare. */
 const change = (now, before) => (before ? Math.round(((now - before) / Math.abs(before)) * 100) : null);
 
@@ -127,7 +166,9 @@ export default function Dashboard() {
   const busiest = useMemo(() => [...activeDays].sort((a, b) => b.total - a.total)[0], [activeDays]);
 
   const actions = <MonthPicker value={month} onChange={setMonth} />;
-  const title = `Hello, ${user?.name?.split(' ')[0] || 'there'}`;
+  const title = `${greetingFor()}, ${user?.name?.split(' ')[0] || 'there'}`;
+  // Today's date, in the student's own words: "Friday, 25 September".
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 
   if (!data) {
     return (
@@ -142,7 +183,7 @@ export default function Dashboard() {
     );
   }
 
-  const { totals, spending, trend, tips, recent, insight, budgets, announcements } = data;
+  const { totals, spending, trend, tips, recent, insight, budgets, goal, announcements } = data;
   // Last month, for the change chips: the trend ends with the month shown.
   const before = trend.length > 1 ? trend[trend.length - 2] : null;
   const [year, monthIndex] = month.split('-').map(Number);
@@ -150,7 +191,7 @@ export default function Dashboard() {
   const over = budgets.filter((b) => b.state === 'exceeded').length;
 
   return (
-    <Layout title={title} actions={actions}>
+    <Layout title={title} subtitle={`${today} · ${personalLine({ totals, goal, month, currency })}`} actions={actions}>
       {announcements?.length ? (
         <div className="d9-notice">
           <Icon name="bell" size={16} />

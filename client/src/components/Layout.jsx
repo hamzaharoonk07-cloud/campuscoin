@@ -344,7 +344,7 @@ function ChatLauncher() {
   );
 }
 
-export default function Layout({ title, crumbs, actions, children }) {
+export default function Layout({ title, subtitle, crumbs, actions, children }) {
   const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -429,7 +429,7 @@ export default function Layout({ title, crumbs, actions, children }) {
           <div style={{ marginRight: 'auto', minWidth: 0 }}>
             {crumbs ? <div className="crumbs">{crumbs}</div> : null}
             <h1>{title}</h1>
-            {page ? <div className="topbar-about">{page.about}</div> : null}
+            {subtitle || page ? <div className={`topbar-about${subtitle ? ' is-personal' : ''}`}>{subtitle || page.about}</div> : null}
           </div>
           {!isAdmin && <RailSearch />}
           {actions}

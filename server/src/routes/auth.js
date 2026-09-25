@@ -73,6 +73,30 @@ router.post(
     await user.setPassword(password);
     await user.save();
 
+    // A welcome, sent without waiting so a slow mail server never holds up
+    // sign-up. (Nothing is sent to the made-up campuscoin.app test addresses.)
+    const first = String(name).trim().split(' ')[0];
+    sendMail({
+      to: user.email,
+      subject: `Welcome to Campus Coin, ${first}`,
+      text: [
+        `Assalam-o-alaikum ${first},`,
+        '',
+        'Welcome to Campus Coin - your hisab, sorted.',
+        '',
+        'Three things to do first:',
+        '  1. Log this month\'s allowance, so the dashboard knows what came in.',
+        '  2. Add the last few things you bought - chai, a rickshaw, printing. The category fills itself in.',
+        '  3. Set one budget on the category you spend most on. It is the change students actually keep to.',
+        '',
+        `Your dashboard: ${siteUrl()}/dashboard`,
+        '',
+        'Campus Coin never connects to your bank and never asks for card details.',
+        '',
+        '- Campus Coin',
+      ].join('\n'),
+    }).catch(() => {});
+
     res.status(201).json({ token: signToken(user), user: publicUser(user) });
   })
 );
