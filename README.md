@@ -119,7 +119,7 @@ tokenised link. How Campus Coin does each:
   with no email set up, the link is shown on screen instead so the flow can
   still be demonstrated. The reply is the same whether or not the email has
   an account, so the form cannot be used to find accounts. Nothing is ever
-`  sent to the made-up \`campuscoin.app\` addresses of the demo and test accounts.
+  sent to the made-up `campuscoin.app` addresses of the demo and test accounts.
 - **Sessions end when they should.** Every sign-in token carries the account's
   session version. Changing or resetting the password raises it, which signs
   out every other device at once; Settings also has **Sign out everywhere**.
