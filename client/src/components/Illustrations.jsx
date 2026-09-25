@@ -14,6 +14,7 @@
 
 import { categoryArt } from '../lib/art.js';
 import { slotColor } from '../lib/format.js';
+import CoinBot from './CoinBot.jsx';
 
 const art = (name) => `/art/${name}.png`;
 
@@ -25,14 +26,14 @@ const art = (name) => `/art/${name}.png`;
  *   z     - depth: 1 is nearest; nearer objects float further
  *   d     - animation delay in seconds, so objects never move in step
  */
-function Piece({ name, x, y, s, r = 0, z = 2, d = 0, shadow = true }) {
+function Piece({ name, x, y, s, r = 0, z = 2, d = 0, shadow = true, children }) {
   return (
     <span
       className={`scene-piece depth-${z}`}
       style={{ left: `${x}%`, top: `${y}%`, width: `${s}%`, '--r': `${r}deg`, animationDelay: `${d}s` }}
     >
       {shadow ? <i className="scene-shadow" /> : null}
-      <img src={art(name)} alt="" draggable="false" loading="lazy" />
+      {children || <img src={art(name)} alt="" draggable="false" loading="lazy" />}
     </span>
   );
 }
@@ -110,11 +111,13 @@ export function SproutArt({ label = 'A money bag with a seedling and coins' }) {
   );
 }
 
-export function ChatArt({ label = 'A robot with a speech bubble and an idea' }) {
+export function ChatArt({ label = 'Coin, the assistant, with a speech bubble and an idea' }) {
   return (
     <Scene label={label} tone="sky">
       <Piece name="speech_balloon" x={70} y={32} s={34} r={8} z={2} d={-1.4} />
-      <Piece name="robot" x={40} y={58} s={44} r={-4} z={1} />
+      <Piece name="coinbot" x={42} y={56} s={50} r={-4} z={1}>
+        <CoinBot size="100%" talking />
+      </Piece>
       <Piece name="light_bulb" x={80} y={70} s={18} r={14} z={2} d={-2.4} />
       <Piece name="sparkles" x={16} y={24} s={13} z={3} d={-0.8} shadow={false} />
     </Scene>

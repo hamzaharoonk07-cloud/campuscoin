@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Icon from './Icon.jsx';
 import Avatar from './Avatar.jsx';
 import { ArtIcon } from './Illustrations.jsx';
+import CoinBot from './CoinBot.jsx';
 import { api } from '../lib/api.js';
 import { slotColor } from '../lib/format.js';
 import { useAuth } from '../context/AppContext.jsx';
@@ -116,7 +117,7 @@ export default function Chat({ compact = false }) {
           <>
             <div className="chat-msg is-bot">
               <span className="chat-avatar is-bot" aria-hidden="true">
-                <ArtIcon name="robot" size={24} />
+                <CoinBot size={30} bubble={false} />
               </span>
               <div className="chat-bubble">
                 <p>{opening.greeting}</p>
@@ -138,7 +139,7 @@ export default function Chat({ compact = false }) {
         ) : (
           <div className="chat-msg is-bot">
             <span className="chat-avatar is-bot" aria-hidden="true">
-              <ArtIcon name="robot" size={24} />
+              <CoinBot size={30} bubble={false} />
             </span>
             <div className="chat-bubble">
               <span className="chat-typing" aria-label="Loading">
@@ -157,7 +158,7 @@ export default function Chat({ compact = false }) {
               <Avatar user={user} size={30} className="chat-me" />
             ) : (
               <span className="chat-avatar is-bot" aria-hidden="true">
-                <ArtIcon name="robot" size={24} />
+                <CoinBot size={30} bubble={false} />
               </span>
             )}
             <div className="chat-bubble">{message.from === 'me' ? <p>{message.text}</p> : <Answer message={message} />}</div>
@@ -167,7 +168,7 @@ export default function Chat({ compact = false }) {
         {busy ? (
           <div className="chat-msg is-bot">
             <span className="chat-avatar is-bot" aria-hidden="true">
-              <ArtIcon name="robot" size={24} />
+              <CoinBot size={30} bubble={false} />
             </span>
             <div className="chat-bubble">
               <span className="chat-typing" aria-label="Thinking">

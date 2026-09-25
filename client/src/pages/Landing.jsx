@@ -241,7 +241,7 @@ const RIBBON = [
 // that most set Campus Coin apart, so they take the larger cards.
 const FEATURES = [
   { art: 'receipt', title: 'Snap a receipt', body: 'Photo in, amount, shop and date out. Read on your own device, and the photo stays with the entry.', big: true, Scene: ReceiptArt },
-  { art: 'robot', title: 'Ask Coin', body: 'A chat assistant that answers from your own numbers: "how much on food?", "can I afford 2,500?"', big: true, Scene: ChatArt },
+  { art: 'speech_balloon', title: 'Ask Coin', body: 'A chat assistant that answers from your own numbers: "how much on food?", "can I afford 2,500?"', big: true, Scene: ChatArt },
   { art: 'bell', title: 'Budget alerts', body: 'Told once at 80% and once when you go over. Never on every purchase.' },
   { art: 'bar_chart', title: 'Reports and PDF', body: 'By category, day and week, six months side by side, saved as a PDF.' },
   { art: 'light_bulb', title: 'Tips that pay', body: 'Ranked by what each would save you, from your own history.' },

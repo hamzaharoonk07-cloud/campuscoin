@@ -3,6 +3,10 @@ import { flushSync } from 'react-dom';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon, { Wordmark } from './Icon.jsx';
 import { ArtIcon } from './Illustrations.jsx';
+import CoinBot from './CoinBot.jsx';
+
+/** A destination's picture: a 3D object, or Coin for the assistant. */
+const NavArt = ({ name, size }) => (name === 'coinbot' ? <CoinBot size={size + 4} bubble={false} /> : <ArtIcon name={name} size={size} />);
 import { money } from '../lib/format.js';
 import Chat from './Chat.jsx';
 import Backdrop from './Backdrop.jsx';
@@ -23,7 +27,7 @@ const STUDENT_NAV = [
 ];
 
 const SECONDARY_NAV = [
-  { to: '/assistant', label: 'AI assistant', icon: 'chat', art: 'robot', about: 'Ask anything about your own money' },
+  { to: '/assistant', label: 'AI assistant', icon: 'chat', art: 'coinbot', about: 'Ask anything about your own money' },
   { to: '/settings', label: 'Settings', icon: 'user', art: 'gear', about: 'Profile, photo and display' },
   { to: '/sitemap', label: 'Sitemap', icon: 'map', art: 'world_map', about: 'Every page in Campus Coin' },
 ];
@@ -249,7 +253,7 @@ function ChatLauncher() {
         <div className="chat-popover" role="dialog" aria-label="Campus Coin assistant">
           <div className="chat-popover-head">
             <span className="chat-bot-face" aria-hidden="true">
-              <ArtIcon name="robot" size={34} />
+              <CoinBot size={38} bubble={false} />
               <i className="chat-online" />
             </span>
             <div style={{ marginRight: 'auto' }}>
@@ -282,7 +286,7 @@ function ChatLauncher() {
         aria-expanded={open}
         aria-label={open ? 'Close the assistant' : 'Ask the assistant'}
       >
-        {open ? <Icon name="x" size={22} /> : <ArtIcon name="robot" size={40} />}
+        {open ? <Icon name="x" size={22} /> : <CoinBot size={46} />}
       </button>
     </>
   );
@@ -350,7 +354,7 @@ export default function Layout({ title, crumbs, actions, children }) {
         {nav.map((item) => (
           <NavLink key={item.to} to={item.to} end={item.to === '/admin'}>
             <span className="rail-art">
-              <ArtIcon name={item.art} size={22} />
+              <NavArt name={item.art} size={22} />
             </span>
             {item.label}
           </NavLink>
@@ -362,7 +366,7 @@ export default function Layout({ title, crumbs, actions, children }) {
             {SECONDARY_NAV.map((item) => (
               <NavLink key={item.to} to={item.to}>
                 <span className="rail-art">
-                  <ArtIcon name={item.art} size={22} />
+                  <NavArt name={item.art} size={22} />
                 </span>
                 {item.label}
               </NavLink>
@@ -400,7 +404,7 @@ export default function Layout({ title, crumbs, actions, children }) {
         <header className="topbar">
           {page ? (
             <span className="topbar-art" aria-hidden="true">
-              <ArtIcon name={location.pathname === '/dashboard' ? 'waving_hand' : page.art} size={34} />
+              <NavArt name={location.pathname === '/dashboard' ? 'waving_hand' : page.art} size={34} />
             </span>
           ) : null}
           <div style={{ marginRight: 'auto', minWidth: 0 }}>
@@ -424,7 +428,7 @@ export default function Layout({ title, crumbs, actions, children }) {
         <nav className="tabbar" aria-label="Sections">
           {TAB_NAV.map((item) => (
             <NavLink key={item.to} to={item.to} className={location.pathname === item.to ? 'active' : undefined}>
-              <ArtIcon name={item.art} size={24} />
+              <NavArt name={item.art} size={24} />
               {item.label.split(' ')[0]}
             </NavLink>
           ))}

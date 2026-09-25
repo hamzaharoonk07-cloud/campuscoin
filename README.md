@@ -261,8 +261,10 @@ The interface is written rather than assembled. A few decisions worth naming:
   outside at runtime. The layout, animation and composition are our own.
 - **A logo and a mascot.** The mark is a gold coin on an emerald tile, drawn
   in SVG (`client/src/components/Brand.jsx`) so it is sharp from the favicon
-  to the hero. The chat assistant has a face - Coin, a 3D robot - on its
-  button, its messages and its header.
+  to the hero. The chat assistant has a face - Coin, the gold coin from the
+  logo with eyes that blink and a speech bubble whose dots move while it
+  answers (`client/src/components/CoinBot.jsx`) - on its button, its
+  messages, its header and the assistant page.
 - **Every page has a picture.** The sidebar, the phone tab bar and each page
   header show a 3D object for that page, and every category is shown as its
   own 3D object on a tile of its colour (`client/src/lib/art.js`).
