@@ -169,6 +169,84 @@ function DayGrid({ daily, currency }) {
   );
 }
 
+/**
+ * First steps for a new account. Each step ticks itself off from the
+ * student's own data, so the card is a checklist rather than a tour, and it
+ * disappears once they have a few transactions and every step is done.
+ */
+function GettingStarted({ totals, budgets, goal, onAllowance, onExpense }) {
+  const steps = [
+    {
+      art: 'dollar-banknote',
+      title: "Log this month's allowance",
+      body: 'So Campus Coin knows what came in. One tap - just type the amount.',
+      done: totals.income > 0,
+      action: <button type="button" className="d9-pill is-dark" onClick={onAllowance}>Add allowance</button>,
+    },
+    {
+      art: 'shopping-bags',
+      title: 'Add something you bought',
+      body: 'Chai, a rickshaw, printing - type it the way you would say it and the category fills itself in.',
+      done: totals.expense > 0,
+      action: (
+        <span className="d9-steps-actions">
+          <button type="button" className="d9-pill is-dark" onClick={onExpense}>Add spending</button>
+          <Link to="/transactions" className="d9-link">or import a CSV</Link>
+        </span>
+      ),
+    },
+    {
+      art: 'bullseye',
+      title: 'Set one budget',
+      body: 'A cap on the category you spend most on. You hear once at 80% and once if you go over.',
+      done: budgets.length > 0,
+      action: <Link to="/budgets" className="d9-pill is-dark">Set a budget</Link>,
+    },
+    {
+      art: 'money-bag',
+      title: 'Choose a savings goal',
+      body: 'What you would like to keep each month. The tips and the greeting measure against it.',
+      done: goal.target > 0,
+      action: <Link to="/settings" className="d9-pill is-dark">Set a goal</Link>,
+    },
+  ];
+  const done = steps.filter((st) => st.done).length;
+
+  return (
+    <section className="d9-card d9-steps">
+      <div className="d9-head">
+        <h2>Let's set up your month</h2>
+        <span className="d9-steps-count">
+          {done} of {steps.length} done
+        </span>
+      </div>
+      <div className="d9-steps-bar" aria-hidden="true">
+        <i style={{ width: `${(done / steps.length) * 100}%` }} />
+      </div>
+      <ol className="d9-steps-list">
+        {steps.map((st, i) => (
+          <li key={st.title} className={st.done ? 'is-done' : ''}>
+            <span className="d9-steps-art">
+              <img src={artUrl(st.art)} alt="" width="34" height="34" />
+              {st.done ? (
+                <span className="d9-steps-tick">
+                  <Icon name="check" size={12} strokeWidth={3} />
+                </span>
+              ) : null}
+            </span>
+            <span className="d9-steps-copy">
+              <small>Step {i + 1}</small>
+              <strong>{st.title}</strong>
+              <span>{st.body}</span>
+            </span>
+            <span className="d9-steps-do">{st.done ? <span className="d9-steps-donelabel">Done</span> : st.action}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 export default function Dashboard() {
   const { user, currency } = useAuth();
   const toast = useToast();
@@ -241,6 +319,10 @@ export default function Dashboard() {
   const [year, monthIndex] = month.split('-').map(Number);
   const monthName = new Date(Date.UTC(year, monthIndex - 1, 1)).toLocaleString('en', { month: 'long', timeZone: 'UTC' });
   const over = budgets.filter((b) => b.state === 'exceeded').length;
+  // The getting-started card stays until every step is done or the student
+  // has settled in (a handful of transactions).
+  const setupDone = totals.income > 0 && totals.expense > 0 && budgets.length > 0 && goal.target > 0;
+  const setupLeft = !setupDone && recent.length < 6;
 
   return (
     <Layout title={title} actions={actions}>
@@ -260,329 +342,371 @@ export default function Dashboard() {
         </div>
       ) : null}
 
-      <div className="d9-top">
-        {/* --- Three figures ------------------------------------------- */}
-        <Link to="/reports" className="d9-card d9-stat">
-          <span className="d9-stat-head">
-            <Icon name="download" size={18} />
-            Money in
-          </span>
-          <span className="d9-stat-row">
-            <strong className="num">
-              <CountUp value={totals.income} currency={currency} />
-            </strong>
-            <Chip pct={change(totals.income, before?.income)} />
-          </span>
-        </Link>
-        <Link to="/transactions" className="d9-card d9-stat">
-          <span className="d9-stat-head">
-            <Icon name="upload" size={18} />
-            Money out
-          </span>
-          <span className="d9-stat-row">
-            <strong className="num">
-              <CountUp value={totals.expense} currency={currency} />
-            </strong>
-            <Chip pct={change(totals.expense, before?.expense)} />
-          </span>
-        </Link>
-        <Link to="/insights" className="d9-card d9-stat">
-          <span className="d9-stat-head">
-            <Icon name="calendar" size={18} />
-            {totals.balance < 0 ? 'Spent beyond income' : 'Kept'}
-          </span>
-          <span className="d9-stat-row">
-            <strong className="num">{money(totals.balance, currency)}</strong>
-            <small>in {monthName}</small>
-          </span>
-        </Link>
+      {setupLeft ? (
+        <GettingStarted
+          totals={totals}
+          budgets={budgets}
+          goal={goal}
+          onAllowance={() => quickAdd(QUICK.find((q) => q.type === 'income'))}
+          onExpense={() => setAdding(true)}
+        />
+      ) : null}
 
-        {/* --- My month: the tall card on the right --------------------- */}
-        <section className="d9-card d9-month">
-          <div className="d9-head">
-            <h2>My month</h2>
-            <button type="button" className="d9-pill is-dark" onClick={() => setAdding(true)}>
-              <Icon name="plus" size={15} />
-              Add
-            </button>
-          </div>
-          <div className="d9-month-figure">
-            <strong className="num">{money(totals.expense, currency)}</strong>
-            <span>
-              spent
-              {totals.savingsRate !== null ? `, ${totals.savingsRate >= 0 ? totals.savingsRate + '% of income kept' : Math.abs(totals.savingsRate) + '% over income'}` : ''}
+      {/* The figures and charts, once there is something to draw. */}
+      {recent.length ? (
+        <>
+        <div className="d9-top">
+          {/* --- Three figures ------------------------------------------- */}
+          <Link to="/reports" className="d9-card d9-stat">
+            <span className="d9-stat-head">
+              <Icon name="download" size={18} />
+              Money in
             </span>
-          </div>
-          <span className="d9-sub">Where it went · tap a category</span>
-          {spending.length ? (
-            <DonutChart rows={spending} currency={currency} total={totals.expense} caption="Spent" />
-          ) : (
-            <p className="d9-muted">Nothing spent yet this month.</p>
-          )}
-          <p className="d9-muted d9-budget-line">
-            {budgets.length ? `${budgets.length} budgets set · ${over ? `${over} over the cap` : 'all within their cap'}` : 'No budgets set this month.'}
-          </p>
-          <Link to="/budgets" className="d9-pill is-dark is-wide">
-            Manage budgets
+            <span className="d9-stat-row">
+              <strong className="num">
+                <CountUp value={totals.income} currency={currency} />
+              </strong>
+              <Chip pct={change(totals.income, before?.income)} />
+            </span>
           </Link>
-        </section>
-
-        {/* --- Cash flow on black ---------------------------------------- */}
-        <section className="d9-card d9-dark d9-flow-card">
-          <div className="d9-head">
-            <h2>Cash flow</h2>
-            <span className="d9-flow-note">Last 6 months · tap a month</span>
-          </div>
-          <MonthBars data={trend} currency={currency} dark />
-        </section>
-      </div>
-
-      {/* --- The SRS's two named widgets --------------------------------- */}
-      <div className="d9-row d9-row-srs">
-        <section className="d9-card d9-topcat">
-          <div className="d9-head">
-            <h2>This month's top category</h2>
-            <Link to="/reports" className="d9-link">
-              Report
+          <Link to="/transactions" className="d9-card d9-stat">
+            <span className="d9-stat-head">
+              <Icon name="upload" size={18} />
+              Money out
+            </span>
+            <span className="d9-stat-row">
+              <strong className="num">
+                <CountUp value={totals.expense} currency={currency} />
+              </strong>
+              <Chip pct={change(totals.expense, before?.expense)} />
+            </span>
+          </Link>
+          <Link to="/insights" className="d9-card d9-stat">
+            <span className="d9-stat-head">
+              <Icon name="calendar" size={18} />
+              {totals.balance < 0 ? 'Spent beyond income' : 'Kept'}
+            </span>
+            <span className="d9-stat-row">
+              <strong className="num">{money(totals.balance, currency)}</strong>
+              <small>in {monthName}</small>
+            </span>
+          </Link>
+  
+          {/* --- My month: the tall card on the right --------------------- */}
+          <section className="d9-card d9-month">
+            <div className="d9-head">
+              <h2>My month</h2>
+              <button type="button" className="d9-pill is-dark" onClick={() => setAdding(true)}>
+                <Icon name="plus" size={15} />
+                Add
+              </button>
+            </div>
+            <div className="d9-month-figure">
+              <strong className="num">{money(totals.expense, currency)}</strong>
+              <span>
+                spent
+                {totals.savingsRate !== null ? `, ${totals.savingsRate >= 0 ? totals.savingsRate + '% of income kept' : Math.abs(totals.savingsRate) + '% over income'}` : ''}
+              </span>
+            </div>
+            <span className="d9-sub">Where it went · tap a category</span>
+            {spending.length ? (
+              <DonutChart rows={spending} currency={currency} total={totals.expense} caption="Spent" />
+            ) : (
+              <p className="d9-muted">Nothing spent yet this month.</p>
+            )}
+            <p className="d9-muted d9-budget-line">
+              {budgets.length ? `${budgets.length} budgets set · ${over ? `${over} over the cap` : 'all within their cap'}` : 'No budgets set this month.'}
+            </p>
+            <Link to="/budgets" className="d9-pill is-dark is-wide">
+              Manage budgets
             </Link>
-          </div>
-          {spending.length ? (
-            <>
-              <div className="d9-topcat-hero">
-                <span className="d9-topcat-art" style={{ background: `color-mix(in srgb, ${slotColor(spending[0].slot)} 18%, var(--surface))` }}>
-                  <img src={categoryArt(spending[0].icon)} alt="" width="46" height="46" />
-                </span>
-                <span>
-                  <strong>{spending[0].name}</strong>
-                  <span className="num">{money(spending[0].total, currency)}</span>
-                </span>
-              </div>
-              <div className="d9-topcat-bar" aria-label={`${spending[0].share}% of spending`}>
-                <i style={{ width: `${spending[0].share}%`, background: slotColor(spending[0].slot) }} />
-              </div>
-              <p className="d9-muted">
-                {spending[0].share}% of everything you spent
-                {spending[1] ? `, ahead of ${spending[1].name} at ${spending[1].share}%` : ''}.
-              </p>
-            </>
-          ) : (
-            <p className="d9-muted">Nothing spent yet this month.</p>
-          )}
-        </section>
-
-        <section className="d9-card d9-bva">
-          <div className="d9-head">
-            <h2>Budget vs. actual</h2>
-            <Link to="/budgets" className="d9-link">
-              Manage
-            </Link>
-          </div>
-          {budgets.length ? (
-            <ul className="d9-bva-list">
-              {budgets.map((b) => {
-                const tone = b.state === 'exceeded' ? 'is-over' : b.state === 'warning' ? 'is-close' : 'is-ok';
-                return (
-                  <li key={b._id}>
-                    <CategoryIcon icon={b.category.icon} slot={b.category.slot} size={36} />
-                    <span className="d9-bva-main">
-                      <span className="d9-bva-top">
-                        <strong>{b.category.name}</strong>
-                        <span className={`d9-bva-chip ${tone}`}>
-                          {b.state === 'exceeded' ? 'Over' : b.state === 'warning' ? 'Close' : 'On track'}
-                        </span>
-                        <span className="d9-bva-figures num">
-                          {money(b.spent, currency)} <small>of {money(b.limitAmount, currency)}</small>
-                        </span>
-                      </span>
-                      <span className={`d9-bva-track ${tone}`} aria-label={`${b.pct}% of the budget used`}>
-                        <i style={{ width: `${Math.min(100, b.pct)}%` }} />
-                      </span>
-                      <small className="d9-bva-note">
-                        {b.spent > b.limitAmount
-                          ? `${money(b.spent - b.limitAmount, currency)} over the budget`
-                          : `${money(b.limitAmount - b.spent, currency)} left · ${b.pct}% used`}
-                      </small>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <div className="d9-bva-empty">
-              <p className="d9-muted">No budgets this month. One budget on your biggest category is the change most students actually keep to.</p>
-              <Link to="/budgets" className="d9-pill is-dark">
-                Set a budget
+          </section>
+  
+          {/* --- Cash flow on black ---------------------------------------- */}
+          <section className="d9-card d9-dark d9-flow-card">
+            <div className="d9-head">
+              <h2>Cash flow</h2>
+              <span className="d9-flow-note">Last 6 months · tap a month</span>
+            </div>
+            <MonthBars data={trend} currency={currency} dark />
+          </section>
+        </div>
+  
+        {/* --- The SRS's two named widgets --------------------------------- */}
+        <div className="d9-row d9-row-srs">
+          <section className="d9-card d9-topcat">
+            <div className="d9-head">
+              <h2>This month's top category</h2>
+              <Link to="/reports" className="d9-link">
+                Report
               </Link>
             </div>
-          )}
-        </section>
-      </div>
-
-      <div className="d9-row">
-        {/* --- Spending activity ----------------------------------------- */}
-        <section className="d9-card d9-activity">
-          <div className="d9-head">
-            <h2>Spending activity</h2>
-            <span className="d9-pill is-dark is-small">{monthName}</span>
-          </div>
-          <div className="d9-activity-figure">
-            <strong className="num">{activeDays.length}</strong>
-            <span>days with spending</span>
-          </div>
-          {daily.length ? <DayGrid daily={daily} currency={currency} /> : <p className="d9-muted">No days to show yet.</p>}
-          <div className="d9-legend">
-            <span>Less</span>
-            <i className="d9-day is-0" />
-            <i className="d9-day is-1" />
-            <i className="d9-day is-2" />
-            <i className="d9-day is-3" />
-            <span>More</span>
-          </div>
-          {busiest ? (
-            <p className="d9-muted">
-              Busiest day: {formatDate(busiest.date, { day: 'numeric', month: 'short' })}, {money(busiest.total, currency)}
-            </p>
-          ) : null}
-        </section>
-
-        {/* --- Quick add: dark tiles ------------------------------------- */}
-        <section className="d9-card">
-          <div className="d9-head">
-            <h2>Quick add</h2>
-            <span className="d9-muted">One tap</span>
-          </div>
-          <div className="d9-quick">
-            {QUICK.map((item) => (
-              <button key={item.label} type="button" onClick={() => quickAdd(item)}>
-                <span className="d9-quick-icon">
-                  <img src={artUrl(item.art)} alt="" width="22" height="22" />
-                </span>
-                <strong>{item.label}</strong>
-                <small>{item.type === 'income' ? 'Money in' : 'Money out'}</small>
-              </button>
-            ))}
-          </div>
-          <button type="button" className="d9-pill is-dark is-wide" onClick={() => setAdding(true)}>
-            <Icon name="camera" size={15} />
-            Scan a receipt
-          </button>
-        </section>
-
-        {/* --- Latest transactions --------------------------------------- */}
-        <section className="d9-card">
-          <div className="d9-head">
-            <h2>Transactions</h2>
-            <Link to="/transactions" className="d9-link">
-              View all
-            </Link>
-          </div>
-          {recent.length === 0 ? (
-            <div className="empty">
-              <WalletArt />
-              <h3>Nothing logged yet</h3>
-              <p>Start with the thing you bought most recently.</p>
+            {spending.length ? (
+              <>
+                <div className="d9-topcat-hero">
+                  <span className="d9-topcat-art" style={{ background: `color-mix(in srgb, ${slotColor(spending[0].slot)} 18%, var(--surface))` }}>
+                    <img src={categoryArt(spending[0].icon)} alt="" width="46" height="46" />
+                  </span>
+                  <span>
+                    <strong>{spending[0].name}</strong>
+                    <span className="num">{money(spending[0].total, currency)}</span>
+                  </span>
+                </div>
+                <div className="d9-topcat-bar" aria-label={`${spending[0].share}% of spending`}>
+                  <i style={{ width: `${spending[0].share}%`, background: slotColor(spending[0].slot) }} />
+                </div>
+                <p className="d9-muted">
+                  {spending[0].share}% of everything you spent
+                  {spending[1] ? `, ahead of ${spending[1].name} at ${spending[1].share}%` : ''}.
+                </p>
+              </>
+            ) : (
+              <p className="d9-muted">Nothing spent yet this month.</p>
+            )}
+          </section>
+  
+          <section className="d9-card d9-bva">
+            <div className="d9-head">
+              <h2>Budget vs. actual</h2>
+              <Link to="/budgets" className="d9-link">
+                Manage
+              </Link>
             </div>
-          ) : (
-            <ul className="d9-tx">
-              {recent.map((row) => {
-                const flagged = row.flags?.includes('duplicate') || row.flags?.includes('large');
-                return (
+            {budgets.length ? (
+              <ul className="d9-bva-list">
+                {budgets.map((b) => {
+                  const tone = b.state === 'exceeded' ? 'is-over' : b.state === 'warning' ? 'is-close' : 'is-ok';
+                  return (
+                    <li key={b._id}>
+                      <CategoryIcon icon={b.category.icon} slot={b.category.slot} size={36} />
+                      <span className="d9-bva-main">
+                        <span className="d9-bva-top">
+                          <strong>{b.category.name}</strong>
+                          <span className={`d9-bva-chip ${tone}`}>
+                            {b.state === 'exceeded' ? 'Over' : b.state === 'warning' ? 'Close' : 'On track'}
+                          </span>
+                          <span className="d9-bva-figures num">
+                            {money(b.spent, currency)} <small>of {money(b.limitAmount, currency)}</small>
+                          </span>
+                        </span>
+                        <span className={`d9-bva-track ${tone}`} aria-label={`${b.pct}% of the budget used`}>
+                          <i style={{ width: `${Math.min(100, b.pct)}%` }} />
+                        </span>
+                        <small className="d9-bva-note">
+                          {b.spent > b.limitAmount
+                            ? `${money(b.spent - b.limitAmount, currency)} over the budget`
+                            : `${money(b.limitAmount - b.spent, currency)} left · ${b.pct}% used`}
+                        </small>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="d9-bva-empty">
+                <p className="d9-muted">No budgets this month. One budget on your biggest category is the change most students actually keep to.</p>
+                <Link to="/budgets" className="d9-pill is-dark">
+                  Set a budget
+                </Link>
+              </div>
+            )}
+          </section>
+        </div>
+  
+        <div className="d9-row">
+          {/* --- Spending activity ----------------------------------------- */}
+          <section className="d9-card d9-activity">
+            <div className="d9-head">
+              <h2>Spending activity</h2>
+              <span className="d9-pill is-dark is-small">{monthName}</span>
+            </div>
+            <div className="d9-activity-figure">
+              <strong className="num">{activeDays.length}</strong>
+              <span>days with spending</span>
+            </div>
+            {daily.length ? <DayGrid daily={daily} currency={currency} /> : <p className="d9-muted">No days to show yet.</p>}
+            <div className="d9-legend">
+              <span>Less</span>
+              <i className="d9-day is-0" />
+              <i className="d9-day is-1" />
+              <i className="d9-day is-2" />
+              <i className="d9-day is-3" />
+              <span>More</span>
+            </div>
+            {busiest ? (
+              <p className="d9-muted">
+                Busiest day: {formatDate(busiest.date, { day: 'numeric', month: 'short' })}, {money(busiest.total, currency)}
+              </p>
+            ) : null}
+          </section>
+  
+          {/* --- Quick add: dark tiles ------------------------------------- */}
+          <section className="d9-card">
+            <div className="d9-head">
+              <h2>Quick add</h2>
+              <span className="d9-muted">One tap</span>
+            </div>
+            <div className="d9-quick">
+              {QUICK.map((item) => (
+                <button key={item.label} type="button" onClick={() => quickAdd(item)}>
+                  <span className="d9-quick-icon">
+                    <img src={artUrl(item.art)} alt="" width="22" height="22" />
+                  </span>
+                  <strong>{item.label}</strong>
+                  <small>{item.type === 'income' ? 'Money in' : 'Money out'}</small>
+                </button>
+              ))}
+            </div>
+            <button type="button" className="d9-pill is-dark is-wide" onClick={() => setAdding(true)}>
+              <Icon name="camera" size={15} />
+              Scan a receipt
+            </button>
+          </section>
+  
+          {/* --- Latest transactions --------------------------------------- */}
+          <section className="d9-card">
+            <div className="d9-head">
+              <h2>Transactions</h2>
+              <Link to="/transactions" className="d9-link">
+                View all
+              </Link>
+            </div>
+            {recent.length === 0 ? (
+              <div className="empty">
+                <WalletArt />
+                <h3>Nothing logged yet</h3>
+                <p>Start with the thing you bought most recently.</p>
+              </div>
+            ) : (
+              <ul className="d9-tx">
+                {recent.map((row) => {
+                  const flagged = row.flags?.includes('duplicate') || row.flags?.includes('large');
+                  return (
+                    <li key={row._id}>
+                      <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} text={row.description} />
+                      <span className="d9-tx-name">
+                        <strong>{row.description || row.category?.name}</strong>
+                        <small>
+                          {row.category?.name}
+                          {flagged ? <em> · {row.flags.includes('duplicate') ? 'duplicate?' : 'unusual'}</em> : null}
+                        </small>
+                      </span>
+                      <span className="d9-tx-amount">
+                        <strong className={`num${row.type === 'income' ? ' is-in' : ''}`}>
+                          {row.type === 'income' ? '+' : '−'}
+                          {money(row.amount, currency).replace('−', '')}
+                        </strong>
+                        <small>{formatDate(row.date, { day: 'numeric', month: 'short' })}</small>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        </div>
+  
+        <div className="d9-row">
+          <section className="d9-card">
+            <div className="d9-head">
+              <h2>Coming up</h2>
+              <span className="d9-muted">Repeating</span>
+            </div>
+            {upcoming.length ? (
+              <ul className="d9-tx">
+                {upcoming.map((row) => (
                   <li key={row._id}>
                     <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} text={row.description} />
                     <span className="d9-tx-name">
                       <strong>{row.description || row.category?.name}</strong>
-                      <small>
-                        {row.category?.name}
-                        {flagged ? <em> · {row.flags.includes('duplicate') ? 'duplicate?' : 'unusual'}</em> : null}
-                      </small>
+                      <small>{row.recurring.frequency}</small>
                     </span>
                     <span className="d9-tx-amount">
                       <strong className={`num${row.type === 'income' ? ' is-in' : ''}`}>
                         {row.type === 'income' ? '+' : '−'}
-                        {money(row.amount, currency).replace('−', '')}
+                        {money(row.amount, currency)}
                       </strong>
-                      <small>{formatDate(row.date, { day: 'numeric', month: 'short' })}</small>
+                      <small>{formatDate(row.recurring.nextRun, { day: 'numeric', month: 'short' })}</small>
                     </span>
                   </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
-      </div>
-
-      <div className="d9-row">
-        <section className="d9-card">
-          <div className="d9-head">
-            <h2>Coming up</h2>
-            <span className="d9-muted">Repeating</span>
-          </div>
-          {upcoming.length ? (
-            <ul className="d9-tx">
-              {upcoming.map((row) => (
-                <li key={row._id}>
-                  <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} text={row.description} />
-                  <span className="d9-tx-name">
-                    <strong>{row.description || row.category?.name}</strong>
-                    <small>{row.recurring.frequency}</small>
-                  </span>
-                  <span className="d9-tx-amount">
-                    <strong className={`num${row.type === 'income' ? ' is-in' : ''}`}>
-                      {row.type === 'income' ? '+' : '−'}
-                      {money(row.amount, currency)}
-                    </strong>
-                    <small>{formatDate(row.recurring.nextRun, { day: 'numeric', month: 'short' })}</small>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="d9-muted">Nothing repeats yet. Tick "This repeats" when you add an allowance or a subscription.</p>
-          )}
-        </section>
-
-        <section className="d9-card d9-blue">
-          <div className="d9-head">
-            <h2>Coin's insight</h2>
-            <button type="button" className="d9-round" onClick={() => openChat()} aria-label="Ask Coin">
-              <Icon name="chat" size={17} />
-            </button>
-          </div>
-          <p className="d9-insight">
-            {insight?.summaryText ||
-              (tips[0] ? tips[0].body : 'Log a couple of weeks of spending and Coin will sum up your month here.')}
-          </p>
-          <Link to="/insights" className="d9-pill is-light">
-            Read the full insight
-          </Link>
-        </section>
-
-        <section className="d9-card">
-          <div className="d9-head">
-            <h2>Worth doing</h2>
-            <Link to="/tips" className="d9-link">
-              All tips
+                ))}
+              </ul>
+            ) : (
+              <p className="d9-muted">Nothing repeats yet. Tick "This repeats" when you add an allowance or a subscription.</p>
+            )}
+          </section>
+  
+          <section className="d9-card d9-blue">
+            <div className="d9-head">
+              <h2>Coin's insight</h2>
+              <button type="button" className="d9-round" onClick={() => openChat()} aria-label="Ask Coin">
+                <Icon name="chat" size={17} />
+              </button>
+            </div>
+            <p className="d9-insight">
+              {insight?.summaryText ||
+                (tips[0] ? tips[0].body : 'Log a couple of weeks of spending and Coin will sum up your month here.')}
+            </p>
+            <Link to="/insights" className="d9-pill is-light">
+              Read the full insight
             </Link>
-          </div>
-          {tips.length ? (
-            <ul className="d9-tips">
-              {tips.slice(0, 3).map((tip) => (
-                <li key={tip._id}>
-                  <span className="d9-round is-small">
-                    <Icon name="bulb" size={15} />
+          </section>
+  
+          <section className="d9-card">
+            <div className="d9-head">
+              <h2>Worth doing</h2>
+              <Link to="/tips" className="d9-link">
+                All tips
+              </Link>
+            </div>
+            {tips.length ? (
+              <ul className="d9-tips">
+                {tips.slice(0, 3).map((tip) => (
+                  <li key={tip._id}>
+                    <span className="d9-round is-small">
+                      <Icon name="bulb" size={15} />
+                    </span>
+                    <span>
+                      <strong>{tip.title}</strong>
+                      {tip.impact > 0 ? <small>Could save {money(tip.impact, currency)} a month</small> : null}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="d9-muted">Tips appear once there is a couple of weeks of history to compare against.</p>
+            )}
+          </section>
+        </div>
+        </>
+      ) : (
+        <div className="d9-row d9-row-fresh">
+          <section className="d9-card">
+            <div className="d9-head">
+              <h2>Quick add</h2>
+              <span className="d9-muted">One tap</span>
+            </div>
+            <div className="d9-quick">
+              {QUICK.map((item) => (
+                <button key={item.label} type="button" onClick={() => quickAdd(item)}>
+                  <span className="d9-quick-icon">
+                    <img src={artUrl(item.art)} alt="" width="22" height="22" />
                   </span>
-                  <span>
-                    <strong>{tip.title}</strong>
-                    {tip.impact > 0 ? <small>Could save {money(tip.impact, currency)} a month</small> : null}
-                  </span>
-                </li>
+                  <strong>{item.label}</strong>
+                  <small>{item.type === 'income' ? 'Money in' : 'Money out'}</small>
+                </button>
               ))}
-            </ul>
-          ) : (
-            <p className="d9-muted">Tips appear once there is a couple of weeks of history to compare against.</p>
-          )}
-        </section>
-      </div>
+            </div>
+          </section>
+          <section className="d9-card d9-fresh-note">
+            <WalletArt />
+            <h3>Your charts appear here</h3>
+            <p className="d9-muted">
+              After your first few entries, this is where your cash flow, where the money went and your budgets show up.
+            </p>
+          </section>
+        </div>
+      )}
 
       {adding ? (
         <Modal

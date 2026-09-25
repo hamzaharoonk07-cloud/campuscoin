@@ -1080,3 +1080,60 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
   .welcome-back,
   .welcome-back-wave { animation: none; }
 }
+
+/* --- Getting started (new accounts) ----------------------------------------- */
+
+.d9-steps-count { font-size: 0.85rem; color: var(--faint); }
+.d9-steps-bar { height: 8px; border-radius: 99px; background: var(--raised); overflow: hidden; margin: -0.3rem 0 1.1rem; }
+.d9-steps-bar i { display: block; height: 100%; border-radius: inherit; background: var(--blue); transition: width 0.6s var(--ease-out); }
+.d9-steps-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }
+.d9-steps-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  animation: d9-greet-in 0.5s var(--ease-out) backwards;
+}
+.d9-steps-list li:nth-child(2) { animation-delay: 0.06s; }
+.d9-steps-list li:nth-child(3) { animation-delay: 0.12s; }
+.d9-steps-list li:nth-child(4) { animation-delay: 0.18s; }
+.d9-steps-list li.is-done { background: var(--raised); border-color: transparent; }
+.d9-steps-list li.is-done .d9-steps-copy > span { display: none; }
+.d9-steps-art { position: relative; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: var(--blue-soft); }
+.d9-steps-tick {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 0 0 3px var(--surface);
+}
+.d9-steps-copy { display: grid; gap: 0.2rem; flex: 1; }
+.d9-steps-copy small { font-size: 0.72rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.06em; }
+.d9-steps-copy strong { font-weight: 500; font-size: 1rem; }
+.d9-steps-copy > span { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
+.d9-steps-list li.is-done .d9-steps-copy strong { text-decoration: line-through; text-decoration-color: var(--faint); color: var(--muted); }
+.d9-steps-do { display: flex; }
+.d9-steps-actions { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; }
+.d9-steps-donelabel { font-size: 0.85rem; font-weight: 500; color: var(--blue-deep); }
+@media (max-width: 1100px) { .d9-steps-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .d9-steps-list { grid-template-columns: minmax(0, 1fr); }
+  .d9-steps-list li { flex-direction: row; align-items: flex-start; flex-wrap: wrap; }
+  .d9-steps-copy { min-width: 0; flex: 1 1 60%; }
+  .d9-steps-do { width: 100%; padding-left: calc(52px + 0.8rem); }
+}
+
+.d9-row-fresh { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 760px) { .d9-row-fresh { grid-template-columns: minmax(0, 1fr); } }
+.d9-fresh-note { align-items: center; justify-content: center; text-align: center; gap: 0.4rem; }
+.d9-fresh-note h3 { font-size: 1.15rem; font-weight: 500; margin: 0.4rem 0 0; }
+.d9-fresh-note p { max-width: 36ch; }

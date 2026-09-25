@@ -412,7 +412,8 @@ export function MonthBars({ data, currency, dark = false }) {
   const [picked, setPicked] = useState(null);
   if (!data?.length) return <p className="muted small">No months to compare yet.</p>;
 
-  const { max, ticks } = niceScale(Math.max(...data.flatMap((d) => [d.income, d.expense]), 1));
+  // At least Rs 1,000 of scale, so tiny first amounts do not give labels like "Rs1, Rs1, Rs0".
+  const { max, ticks } = niceScale(Math.max(...data.flatMap((d) => [d.income, d.expense]), 1000));
   const at = picked ?? data.length - 1;
   const shown = data[at];
   const kept = shown.income - shown.expense;
