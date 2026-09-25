@@ -2,32 +2,49 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout, { MonthPicker, openChat } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
+import CoinBot from '../components/CoinBot.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
-import { AreaChart, DonutChart, RingGauge } from '../components/DashCharts.jsx';
+import { CashflowBars, DonutChart } from '../components/DashCharts.jsx';
 import { api } from '../lib/api.js';
 import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import { useCountUp } from '../lib/useCountUp.js';
 import CountUp from '../components/CountUp.jsx';
-import { ArtIcon, CategoryIcon, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
+import { CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /* ---------------------------------------------------------------------------
    The dashboard.
 
-   Three headline figures across the top, the category breakdown and the trend
-   below them, and the most recent transactions underneath - the shape people
-   already know how to read from a finance dashboard, so nothing has to be
-   learned before the numbers can be.
+   Laid out like a finance dashboard people already know how to read: the
+   balance and the month's three figures across the top, the cash flow and the
+   assistant beside it, then the recent transactions, where the money went and
+   quick add. Everything below that is advice.
 --------------------------------------------------------------------------- */
 
 // The things students log most often, one tap away. The description is what
 // the categoriser reads, so each lands in the right category by itself.
 const QUICK = [
-  { label: 'Chai', art: 'hot_beverage', type: 'expense', description: 'Chai at the canteen' },
-  { label: 'Rickshaw', art: 'bus', type: 'expense', description: 'Rickshaw to campus' },
-  { label: 'Printing', art: 'books', type: 'expense', description: 'Printing notes' },
-  { label: 'Allowance', art: 'dollar_banknote', type: 'income', description: 'Monthly allowance' },
+  { label: 'Chai', icon: 'utensils', type: 'expense', description: 'Chai at the canteen' },
+  { label: 'Rickshaw', icon: 'bus', type: 'expense', description: 'Rickshaw to campus' },
+  { label: 'Printing', icon: 'book', type: 'expense', description: 'Printing notes' },
+  { label: 'Allowance', icon: 'wallet', type: 'income', description: 'Monthly allowance' },
 ];
+
+// Starting points for the assistant card.
+const ASK = ['How much on food?', 'Am I over budget?', 'Where can I save?'];
+
+/** The change from last month as a small chip: "+12%" or "−8%". */
+function Delta({ now, before, goodWhenUp = true }) {
+  if (!before) return <span className="delta is-flat">New</span>;
+  const pct = Math.round(((now - before) / Math.abs(before)) * 100);
+  if (pct === 0) return <span className="delta is-flat">0%</span>;
+  const good = pct > 0 === goodWhenUp;
+  return (
+    <span className={`delta ${good ? 'is-good' : 'is-bad'}`} title="Compared with last month">
+      {pct > 0 ? '↑' : '↓'} {Math.abs(pct)}%
+    </span>
+  );
+}
 
 export default function Dashboard() {
   const { user, currency } = useAuth();
@@ -39,6 +56,7 @@ export default function Dashboard() {
   // A quick-add button opens the form already filled in.
   const [preset, setPreset] = useState(null);
   const [upcoming, setUpcoming] = useState([]);
+  const [question, setQuestion] = useState('');
 
   // Called before the loading branch below returns, because a hook cannot sit
   // after an early return.
@@ -74,7 +92,14 @@ export default function Dashboard() {
     setAdding(true);
   };
 
-  // How much of the month's total budget has been used, for the health ring.
+  const ask = (event) => {
+    event.preventDefault();
+    if (!question.trim()) return;
+    openChat(question.trim());
+    setQuestion('');
+  };
+
+  // How much of the month's total budget has been used, for the score card.
   const budgetHealth = useMemo(() => {
     const budgets = data?.budgets || [];
     const limit = budgets.reduce((acc, b) => acc + b.limitAmount, 0);
@@ -100,20 +125,18 @@ export default function Dashboard() {
   };
 
   const firstName = user?.name?.split(' ')[0] || 'there';
-  const [year, monthIndex] = month.split('-').map(Number);
-  const monthName = new Date(Date.UTC(year, monthIndex - 1, 1)).toLocaleString('en', { month: 'long', timeZone: 'UTC' });
 
   if (!data) {
     return (
       <Layout title="Dashboard">
-        <div className="dash-row">
-          <div className="skeleton" style={{ height: 184 }} />
-          <div className="skeleton" style={{ height: 184 }} />
-          <div className="skeleton" style={{ height: 184 }} />
+        <div className="fx-row fx-top">
+          <div className="skeleton" style={{ height: 210 }} />
+          <div className="skeleton" style={{ height: 210 }} />
+          <div className="skeleton" style={{ height: 210 }} />
         </div>
-        <div className="grid grid-2">
-          <div className="skeleton" style={{ height: 300 }} />
-          <div className="skeleton" style={{ height: 300 }} />
+        <div className="fx-row fx-mid">
+          <div className="skeleton" style={{ height: 340 }} />
+          <div className="skeleton" style={{ height: 340 }} />
         </div>
       </Layout>
     );
@@ -121,207 +144,182 @@ export default function Dashboard() {
 
   const { totals, spending, budgets, trend, tips, recent, goal, insight, announcements } = data;
   const overspent = totals.expense > totals.income;
+  // Last month, for the change chips: the trend ends with the month shown.
+  const before = trend.length > 1 ? trend[trend.length - 2] : null;
+  const scoreWord =
+    budgetHealth.limit === 0 ? 'No budgets' : budgetHealth.tone === 'exceeded' ? 'Over' : budgetHealth.tone === 'warning' ? 'Tight' : 'Healthy';
 
   return (
     <Layout
-      title={`Good to see you, ${firstName}`}
-      actions={
-        <>
-          <MonthPicker value={month} onChange={setMonth} />
-          <button type="button" className="btn btn-primary" onClick={() => setAdding(true)}>
-            <Icon name="plus" />
-            Add
-          </button>
-        </>
-      }
+      title={`Welcome back, ${firstName}`}
+      actions={<MonthPicker value={month} onChange={setMonth} />}
     >
       {announcements?.length ? (
-        <div className="panel" style={{ borderLeft: '3px solid var(--accent)' }}>
-          <div className="panel-body row" style={{ padding: '0.85rem 1.25rem' }}>
-            <Icon name="bell" />
-            <div>
-              <strong>{announcements[0].title}</strong>
-              <div className="small muted">{announcements[0].body}</div>
-            </div>
-          </div>
+        <div className="fx-notice">
+          <Icon name="bell" size={16} />
+          <strong>{announcements[0].title}</strong>
+          <span>{announcements[0].body}</span>
         </div>
       ) : null}
 
-      {/* --- The hero: the month in one sentence and four tiles ----------- */}
-      <section className="dash-hero">
-        <div className="dash-hero-text">
-          <span className="eyebrow has-rule">{monthName} · your hisab</span>
-          <h2>
-            {overspent ? 'You spent' : 'You kept'}{' '}
-            <span className="num">{money(Math.abs(kept), currency)}</span>
-            {overspent ? ' more than came in.' : ' this month.'}
-            <em>{overspent ? 'Time for a closer look.' : 'One clear picture.'}</em>
-          </h2>
-          <p>
+      {/* --- Row 1: balance, the month, budget score ----------------------- */}
+      <div className="fx-row fx-top">
+        <section className="fx-balance">
+          <div className="fx-balance-head">
+            <span>{overspent ? 'Spent beyond income' : 'Kept this month'}</span>
+            <Link to="/reports" className="fx-circle" aria-label="Open reports">
+              <Icon name="right" size={16} />
+            </Link>
+          </div>
+          <div className="fx-balance-figure num">{money(Math.abs(kept), currency)}</div>
+          <p className="fx-balance-note">
             {totals.savingsRate === null
-              ? 'Nothing has come in yet this month. Log your allowance and the picture fills in.'
-              : `${totals.transactionCount} transactions so far. ${
-                  overspent
-                    ? `Spending is ${Math.abs(totals.savingsRate)}% ahead of what came in.`
-                    : `That is ${totals.savingsRate}% of everything that came in.`
-                }`}
+              ? 'Nothing has come in yet. Log your allowance to begin.'
+              : overspent
+                ? `Spending is ${Math.abs(totals.savingsRate)}% ahead of what came in.`
+                : `${totals.savingsRate}% of everything that came in, across ${totals.transactionCount} transactions.`}
           </p>
-          <div className="dash-hero-actions">
-            <button type="button" className="btn btn-sky" onClick={() => setAdding(true)}>
-              <Icon name="plus" />
-              Add a transaction
+          <div className="fx-balance-actions">
+            <button type="button" className="fx-pill is-light" onClick={() => setAdding(true)}>
+              <Icon name="plus" size={16} />
+              Add
             </button>
-            <button type="button" className="dash-hero-link" onClick={openChat}>
-              Ask Coin
-              <Icon name="right" size={15} />
+            <button type="button" className="fx-pill is-dark" onClick={() => setAdding(true)}>
+              <Icon name="camera" size={16} />
+              Scan receipt
             </button>
           </div>
-        </div>
+        </section>
 
-        <div className="money-tiles">
-          <Link to="/reports" className="money-tile is-in">
-            <span className="money-tile-value num">
-              <CountUp value={totals.income} currency={currency} />
-            </span>
-            <span className="money-tile-label">Money in</span>
-          </Link>
-          <Link to="/transactions" className="money-tile is-out">
-            <span className="money-tile-value num">
-              <CountUp value={totals.expense} currency={currency} />
-            </span>
-            <span className="money-tile-label">Money out</span>
-          </Link>
-          <Link to="/budgets" className="money-tile is-budget">
-            <span className="money-tile-value num">
-              {budgetHealth.limit > 0 ? `${Math.round(budgetHealth.pct)}%` : '—'}
-            </span>
-            <span className="money-tile-label">
-              {budgetHealth.limit > 0 ? 'Of budgets used' : 'No budgets yet'}
-            </span>
-          </Link>
-          <Link to="/tips" className="money-tile is-goal">
-            <span className="money-tile-value num">
-              {goal.target > 0 ? money(goal.target, currency) : tips.length}
-            </span>
-            <span className="money-tile-label">{goal.target > 0 ? 'Savings goal' : 'Saving tips'}</span>
-          </Link>
-        </div>
-      </section>
-
-      {/* --- Quick add, top category, coming up ------------------------- */}
-      <div className="dash-row dash-row-3">
-        <section className="panel">
-          <div className="panel-head">
-            <h2>Quick add</h2>
-            <span className="panel-note">One tap, then the amount</span>
+        <section className="panel fx-card">
+          <div className="fx-card-head">
+            <h2>This month</h2>
+            <Link to="/transactions" className="fx-link">
+              View all
+            </Link>
           </div>
-          <div className="panel-body quick-grid">
-            {QUICK.map((item) => (
-              <button key={item.label} type="button" className="quick-btn" onClick={() => quickAdd(item)}>
-                <ArtIcon name={item.art} size={40} />
-                <span>{item.label}</span>
-                <small>{item.type === 'income' ? 'money in' : 'money out'}</small>
+          <div className="fx-mini-grid">
+            <div className="fx-mini">
+              <span className="fx-mini-icon is-in">
+                <Icon name="download" size={16} />
+              </span>
+              <span className="fx-mini-label">Income</span>
+              <strong className="num">
+                <CountUp value={totals.income} currency={currency} />
+              </strong>
+              <Delta now={totals.income} before={before?.income} />
+            </div>
+            <div className="fx-mini">
+              <span className="fx-mini-icon is-out">
+                <Icon name="upload" size={16} />
+              </span>
+              <span className="fx-mini-label">Expense</span>
+              <strong className="num">
+                <CountUp value={totals.expense} currency={currency} />
+              </strong>
+              <Delta now={totals.expense} before={before?.expense} goodWhenUp={false} />
+            </div>
+            <div className="fx-mini">
+              <span className="fx-mini-icon is-kept">
+                <Icon name="coin" size={16} />
+              </span>
+              <span className="fx-mini-label">{goal.target > 0 ? 'Goal' : 'Kept'}</span>
+              <strong className="num">
+                {goal.target > 0 ? `${Math.max(0, Math.round(goal.pct ?? 0))}%` : <CountUp value={totals.balance} currency={currency} />}
+              </strong>
+              {goal.target > 0 ? (
+                <span className="delta is-flat">of {money(goal.target, currency)}</span>
+              ) : (
+                <Delta now={totals.balance} before={before?.balance} />
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="panel fx-card fx-score">
+          <div className="fx-card-head">
+            <h2>Budget score</h2>
+            <Link to="/budgets" className="fx-link">
+              Manage
+            </Link>
+          </div>
+          <div className="fx-score-body">
+            <span className={`fx-score-word is-${budgetHealth.tone}`}>{scoreWord}</span>
+            <div className="fx-score-figure num">
+              {budgetHealth.limit > 0 ? (
+                <>
+                  {Math.round(budgetHealth.pct)}
+                  <small>% used</small>
+                </>
+              ) : (
+                '—'
+              )}
+            </div>
+            <div className={`fx-score-bar is-${budgetHealth.tone}`} aria-hidden="true">
+              <i style={{ width: `${Math.min(100, budgetHealth.pct)}%` }} />
+            </div>
+            <p className="fx-score-note">
+              {budgetHealth.limit === 0
+                ? 'Set one cap on your biggest category to start a score.'
+                : budgetHealth.over > 0
+                  ? `${budgetHealth.over} budget${budgetHealth.over > 1 ? 's are' : ' is'} over the limit.`
+                  : `${money(Math.max(0, budgetHealth.limit - budgetHealth.spent), currency)} left across ${budgets.length} budget${budgets.length > 1 ? 's' : ''}.`}
+            </p>
+          </div>
+        </section>
+      </div>
+
+      {/* --- Row 2: cash flow and the assistant ---------------------------- */}
+      <div className="fx-row fx-mid">
+        <section className="panel fx-card">
+          <div className="fx-card-head">
+            <h2>Cashflow</h2>
+            <span className="fx-legend">
+              <i className="is-in" /> Money in
+              <i className="is-out" /> Money out
+            </span>
+            <span className="fx-tag">Last 6 months</span>
+          </div>
+          <CashflowBars data={trend} currency={currency} />
+        </section>
+
+        <section className="panel fx-card fx-assist">
+          <div className="fx-assist-orb" aria-hidden="true">
+            <CoinBot size={64} bubble={false} />
+          </div>
+          <h2>What can I help with?</h2>
+          <p>Coin answers from your own transactions.</p>
+          <div className="fx-assist-chips">
+            {ASK.map((text) => (
+              <button key={text} type="button" onClick={() => openChat(text)}>
+                {text}
               </button>
             ))}
           </div>
-        </section>
-
-        <section className="panel top-cat">
-          <div className="panel-head">
-            <h2>Top category</h2>
-            <span className="panel-note">This month</span>
-          </div>
-          <div className="panel-body">
-            {spending.length ? (
-              <>
-                <div className="top-cat-hero">
-                  <CategoryIcon icon={spending[0].icon} slot={spending[0].slot} size={72} />
-                  <div>
-                    <strong>{spending[0].name}</strong>
-                    <span className="num">{money(spending[0].total, currency)}</span>
-                  </div>
-                </div>
-                <div className="top-cat-bar" aria-label={`${spending[0].share}% of spending`}>
-                  <i style={{ width: `${spending[0].share}%`, background: slotColor(spending[0].slot) }} />
-                </div>
-                <p className="small muted" style={{ margin: '0.6rem 0 0' }}>
-                  {spending[0].share}% of everything you spent
-                  {spending[1] ? `, ahead of ${spending[1].name} at ${spending[1].share}%` : ''}.
-                </p>
-              </>
-            ) : (
-              <p className="muted small">Nothing spent yet this month.</p>
-            )}
-          </div>
-        </section>
-
-        <section className="panel">
-          <div className="panel-head">
-            <h2>Coming up</h2>
-            <Link className="btn btn-ghost btn-sm" to="/transactions">
-              All
-            </Link>
-          </div>
-          <div className="panel-body">
-            {upcoming.length ? (
-              <ul className="upcoming">
-                {upcoming.map((row) => (
-                  <li key={row._id}>
-                    <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} />
-                    <span className="upcoming-main">
-                      <strong>{row.description || row.category?.name}</strong>
-                      <span>
-                        {formatDate(row.recurring.nextRun, { day: 'numeric', month: 'short' })} · {row.recurring.frequency}
-                      </span>
-                    </span>
-                    <span className={`num upcoming-amount${row.type === 'income' ? ' is-in' : ''}`}>
-                      {row.type === 'income' ? '+' : '−'}
-                      {money(row.amount, currency)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="muted small">Nothing repeats yet. Tick "This repeats" when you add an allowance or a subscription.</p>
-            )}
-          </div>
+          <form className="fx-assist-input" onSubmit={ask}>
+            <input
+              type="text"
+              placeholder="Ask anything about your money..."
+              aria-label="Ask Coin a question"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+            />
+            <button type="submit" aria-label="Send">
+              <Icon name="send" size={16} />
+            </button>
+          </form>
         </section>
       </div>
 
-      {/* --- Breakdown and trend ---------------------------------------- */}
-      <div className="dash-row dash-row-2">
-        <section className="panel">
-          <div className="panel-head">
-            <h2>Spending analysis</h2>
-            <Link className="btn btn-ghost btn-sm" to="/reports">
-              Full report
+      {/* --- Row 3: recent, where it went, quick add ----------------------- */}
+      <div className="fx-row fx-low">
+        <section className="panel fx-card">
+          <div className="fx-card-head">
+            <h2>Recent transactions</h2>
+            <Link to="/transactions" className="fx-link">
+              View all
             </Link>
           </div>
-          <div className="panel-body">
-            <DonutChart rows={spending} currency={currency} total={totals.expense} />
-          </div>
-        </section>
-
-        <section className="panel">
-          <div className="panel-head">
-            <h2>Cash flow trend</h2>
-            <span className="panel-note">Last six months</span>
-          </div>
-          <div className="panel-body">
-            <AreaChart data={trend} currency={currency} />
-          </div>
-        </section>
-      </div>
-
-      {/* --- Recent transactions ---------------------------------------- */}
-      <section className="panel">
-        <div className="panel-head">
-          <h2>Recent transactions</h2>
-          <Link className="btn btn-ghost btn-sm" to="/transactions">
-            View all
-          </Link>
-        </div>
-        <div className="panel-body">
           {recent.length === 0 ? (
             <div className="empty">
               <WalletArt />
@@ -333,188 +331,170 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="table-wrap">
-              <table className="tx-table">
+              <table className="tx-table fx-table">
                 <thead>
                   <tr>
-                    <th>Description</th>
+                    <th>Name</th>
                     <th className="tx-hide">Date</th>
-                    <th>Category</th>
                     <th style={{ textAlign: 'right' }}>Amount</th>
+                    <th className="tx-hide">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {recent.map((row) => (
-                    <tr key={row._id}>
-                      <td>
-                        <div className="tx-name">
-                          <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} />
-                          <span>{row.description || row.category?.name}</span>
-                          {row.flags?.includes('duplicate') ? <span className="pill is-warn">duplicate?</span> : null}
-                          {row.flags?.includes('large') ? <span className="pill is-warn">unusual</span> : null}
-                        </div>
-                      </td>
-                      <td className="tx-date tx-hide">{formatDate(row.date, { day: 'numeric', month: 'short' })}</td>
-                      <td>
-                        <span
-                          className="tx-cat"
-                          style={{
-                            background: `color-mix(in srgb, ${slotColor(row.category?.slot)} 16%, transparent)`,
-                            color: slotColor(row.category?.slot),
-                          }}
-                        >
-                          {row.category?.name}
-                        </span>
-                      </td>
-                      <td className={`tx-amount${row.type === 'income' ? ' is-in' : ''}`}>
-                        {row.type === 'income' ? '+' : '−'}
-                        {money(row.amount, currency).replace('−', '')}
-                      </td>
-                    </tr>
-                  ))}
+                  {recent.map((row) => {
+                    const flagged = row.flags?.includes('duplicate') || row.flags?.includes('large');
+                    return (
+                      <tr key={row._id}>
+                        <td>
+                          <div className="tx-name">
+                            <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} />
+                            <span className="fx-tx-copy">
+                              <strong>{row.description || row.category?.name}</strong>
+                              <span>{row.category?.name}</span>
+                            </span>
+                          </div>
+                        </td>
+                        <td className="tx-date tx-hide">{formatDate(row.date, { day: 'numeric', month: 'short' })}</td>
+                        <td className={`tx-amount${row.type === 'income' ? ' is-in' : ''}`}>
+                          {row.type === 'income' ? '+' : '−'}
+                          {money(row.amount, currency).replace('−', '')}
+                        </td>
+                        <td className="tx-hide">
+                          <span className={`fx-status ${flagged ? 'is-warn' : row.type === 'income' ? 'is-in' : 'is-out'}`}>
+                            {flagged ? (row.flags.includes('duplicate') ? 'Duplicate?' : 'Unusual') : row.type === 'income' ? 'Money in' : 'Money out'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           )}
-        </div>
-      </section>
+        </section>
 
-      {/* --- Advice ------------------------------------------------------ */}
-      <div className="dash-row dash-row-2">
-        <section className="panel">
-          <div className="panel-head">
+        <section className="panel fx-card">
+          <div className="fx-card-head">
+            <h2>Spending</h2>
+            <Link to="/reports" className="fx-link">
+              Report
+            </Link>
+          </div>
+          <DonutChart rows={spending} currency={currency} total={totals.expense} />
+        </section>
+
+        <section className="panel fx-card">
+          <div className="fx-card-head">
+            <h2>Quick add</h2>
+            <span className="fx-tag">One tap</span>
+          </div>
+          <div className="fx-quick">
+            {QUICK.map((item) => (
+              <button key={item.label} type="button" onClick={() => quickAdd(item)}>
+                <span className={`fx-quick-icon${item.type === 'income' ? ' is-in' : ''}`}>
+                  <Icon name={item.icon} size={18} />
+                </span>
+                <span className="fx-quick-copy">
+                  <strong>{item.label}</strong>
+                  <span>{item.type === 'income' ? 'Money in' : 'Money out'}</span>
+                </span>
+                <Icon name="plus" size={16} />
+              </button>
+            ))}
+          </div>
+          <button type="button" className="fx-wide-btn" onClick={() => setAdding(true)}>
+            <Icon name="plus" size={16} />
+            New transaction
+          </button>
+        </section>
+      </div>
+
+      {/* --- Row 4: advice -------------------------------------------------- */}
+      <div className="fx-row fx-advice">
+        <section className="panel fx-card">
+          <div className="fx-card-head">
             <h2>Worth doing</h2>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={refreshTips}>
+            <button type="button" className="fx-link" onClick={refreshTips}>
               <Icon name="repeat" size={14} />
               Refresh
             </button>
           </div>
-          <div className="panel-body">
-            {tips.length === 0 ? (
-              <p className="muted small">
-                Tips appear once there is a couple of weeks of history to compare against.
-              </p>
-            ) : (
-              <>
-                {tips.map((tip) => (
-                  <div className="tip" key={tip._id}>
-                    <span className="tip-impact num">{tip.impact > 0 ? money(tip.impact, currency) : 'Start'}</span>
-                    <div>
-                      <h4>{tip.title}</h4>
-                      <p>{tip.body}</p>
-                    </div>
+          {tips.length === 0 ? (
+            <p className="muted small">Tips appear once there is a couple of weeks of history to compare against.</p>
+          ) : (
+            <>
+              {tips.map((tip) => (
+                <div className="tip" key={tip._id}>
+                  <span className="tip-impact num">{tip.impact > 0 ? money(tip.impact, currency) : 'Start'}</span>
+                  <div>
+                    <h4>{tip.title}</h4>
+                    <p>{tip.body}</p>
                   </div>
-                ))}
-                <Link className="btn btn-sm" to="/tips" style={{ marginTop: '0.85rem' }}>
-                  All saving tips
-                </Link>
-              </>
-            )}
-          </div>
+                </div>
+              ))}
+              <Link className="fx-link" to="/tips" style={{ marginTop: '0.85rem', display: 'inline-flex' }}>
+                All saving tips
+              </Link>
+            </>
+          )}
         </section>
 
-        <div className="stack">
-          <section className="panel receipt-promo">
-            <div className="panel-body art-panel">
-              <ReceiptArt />
-              <div className="stack" style={{ gap: '0.5rem' }}>
-                <span className="eyebrow">New</span>
-                <h3>Snap a receipt</h3>
-                <p className="small muted" style={{ margin: 0 }}>
-                  Take a photo and Campus Coin reads the amount, the shop and the date for you, right on this device.
-                </p>
-                <button type="button" className="btn btn-primary btn-sm" style={{ justifySelf: 'start' }} onClick={() => setAdding(true)}>
-                  <Icon name="camera" size={14} />
-                  Scan a receipt
-                </button>
+        <section className="panel fx-card">
+          <div className="fx-card-head">
+            <h2>Coming up</h2>
+            <Link className="fx-link" to="/transactions">
+              All
+            </Link>
+          </div>
+          {upcoming.length ? (
+            <ul className="upcoming">
+              {upcoming.map((row) => (
+                <li key={row._id}>
+                  <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} />
+                  <span className="upcoming-main">
+                    <strong>{row.description || row.category?.name}</strong>
+                    <span>
+                      {formatDate(row.recurring.nextRun, { day: 'numeric', month: 'short' })} · {row.recurring.frequency}
+                    </span>
+                  </span>
+                  <span className={`num upcoming-amount${row.type === 'income' ? ' is-in' : ''}`}>
+                    {row.type === 'income' ? '+' : '−'}
+                    {money(row.amount, currency)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted small">Nothing repeats yet. Tick "This repeats" when you add an allowance or a subscription.</p>
+          )}
+
+          {spending.length ? (
+            <div className="fx-topcat">
+              <span className="fx-mini-label">Top category</span>
+              <div className="fx-topcat-row">
+                <CategoryIcon icon={spending[0].icon} slot={spending[0].slot} size={32} />
+                <strong>{spending[0].name}</strong>
+                <span className="num">{spending[0].share}%</span>
+              </div>
+              <div className="top-cat-bar">
+                <i style={{ width: `${spending[0].share}%`, background: slotColor(spending[0].slot) }} />
               </div>
             </div>
-          </section>
-
-          <section className="panel kpi">
-            <div className="kpi-head">
-              <span>Budget health</span>
-              <Link className="btn btn-ghost btn-sm" to="/budgets">
-                Manage
-              </Link>
-            </div>
-
-            {budgets.length === 0 ? (
-              <div className="kpi-sub" style={{ marginTop: '0.6rem' }}>
-                No caps set this month. One budget on your biggest category is the change most students actually
-                keep to.
-                <div style={{ marginTop: '0.85rem' }}>
-                  <Link className="btn btn-sm" to="/budgets">
-                    Set a budget
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div className="kpi-split" style={{ marginTop: '0.5rem' }}>
-                <div className="kpi-budgets">
-                  {budgets.slice(0, 3).map((budget) => (
-                    <div className="kpi-budget-row" key={budget._id}>
-                      <div className="kpi-budget-head">
-                        <span>{budget.category.name}</span>
-                        <span className="num">{budget.pct}%</span>
-                      </div>
-                      <div className="kpi-budget-track">
-                        <div
-                          className="kpi-budget-fill"
-                          style={{
-                            width: `${Math.min(100, budget.pct)}%`,
-                            background:
-                              budget.state === 'exceeded'
-                                ? 'var(--bad)'
-                                : budget.state === 'warning'
-                                  ? 'var(--warn)'
-                                  : slotColor(budget.category.slot),
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <RingGauge pct={budgetHealth.pct} label="of your budgets used" tone={budgetHealth.tone} />
-              </div>
-            )}
-          </section>
-
-          {insight ? (
-            <section className="panel">
-              <div className="panel-head">
-                <h2>This month, in a sentence</h2>
-              </div>
-              <div className="panel-body stack">
-                <p className="insight-quote">{insight.summaryText}</p>
-                <Link className="btn btn-sm" to="/insights">
-                  Read the full insight
-                </Link>
-              </div>
-            </section>
           ) : null}
+        </section>
 
-          {goal.target > 0 ? (
-            <section className="panel kpi" style={{ minHeight: 0 }}>
-              <div className="kpi-head">
-                <span>Savings goal</span>
-                <Icon name="target" size={16} />
-              </div>
-              <div className="kpi-split" style={{ marginTop: '0.4rem' }}>
-                <div>
-                  <div className="kpi-figure" style={{ fontSize: 'var(--step-2)' }}>
-                    <CountUp value={goal.kept} currency={currency} />
-                  </div>
-                  <div className="kpi-sub">of {money(goal.target, currency)} this month</div>
-                </div>
-                <RingGauge
-                  pct={goal.pct ?? 0}
-                  label="of your savings goal"
-                  tone={goal.kept < 0 ? 'exceeded' : 'ok'}
-                />
-              </div>
-            </section>
-          ) : null}
-        </div>
+        {insight ? (
+          <section className="panel fx-card fx-insight">
+            <span className="fx-tag">
+              <Icon name="spark" size={13} />
+              Insight
+            </span>
+            <p className="insight-quote">{insight.summaryText}</p>
+            <Link className="fx-link" to="/insights">
+              Read the full insight
+            </Link>
+          </section>
+        ) : null}
       </div>
 
       {adding ? (

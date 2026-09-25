@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
@@ -14,7 +14,9 @@ const EMPTY_FILTERS = { q: '', type: '', category: '', from: '', to: '', flagged
 export default function Transactions() {
   const { currency } = useAuth();
   const toast = useToast();
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [params] = useSearchParams();
+  // The top bar's search box arrives as ?q=.
+  const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS, q: params.get('q') || '' }));
   const [page, setPage] = useState(1);
   const [result, setResult] = useState(null);
   const [categories, setCategories] = useState([]);

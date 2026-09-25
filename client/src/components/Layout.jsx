@@ -66,19 +66,41 @@ function MonthCard() {
   const month = new Date().toLocaleString('en', { month: 'long' });
 
   return (
-    <Link to="/dashboard" className="rail-month">
-      <span className="rail-month-copy">
-        <span className="rail-month-label">{month} so far</span>
-        <strong className={`num${over ? ' is-bad' : ''}`}>
-          {over ? `${money(-totals.balance, currency)} over` : `${money(totals.balance, currency)} kept`}
-        </strong>
+    <div className="rail-save">
+      <span className="rail-save-coin" aria-hidden="true">
+        <CoinBot size={44} bubble={false} />
+      </span>
+      <strong>{month} so far</strong>
+      <span className={`rail-save-figure num${over ? ' is-bad' : ''}`}>
+        {over ? `${money(-totals.balance, currency)} over` : `${money(totals.balance, currency)} kept`}
       </span>
       {goal.target > 0 ? (
-        <span className="rail-month-bar" title={`${Math.round(pct)}% of your savings goal`}>
+        <span className="rail-save-bar" title={`${Math.round(pct)}% of your savings goal`}>
           <i style={{ width: `${pct}%` }} />
         </span>
-      ) : null}
-    </Link>
+      ) : (
+        <span className="rail-save-note">Set a savings goal to track it here.</span>
+      )}
+      <Link to="/budgets" className="rail-save-btn">
+        {goal.target > 0 ? 'See my budgets' : 'Set a goal'}
+      </Link>
+    </div>
+  );
+}
+
+/** Searches every transaction from the top bar. */
+function TopSearch() {
+  const navigate = useNavigate();
+  const [q, setQ] = useState('');
+  const submit = (event) => {
+    event.preventDefault();
+    navigate(q.trim() ? `/transactions?q=${encodeURIComponent(q.trim())}` : '/transactions');
+  };
+  return (
+    <form className="top-search" role="search" onSubmit={submit}>
+      <Icon name="search" size={16} />
+      <input type="search" placeholder="Search transactions" aria-label="Search transactions" value={q} onChange={(e) => setQ(e.target.value)} />
+    </form>
   );
 }
 
@@ -270,6 +292,8 @@ function ThemeButton() {
  */
 function ChatLauncher() {
   const [open, setOpen] = useState(false);
+  // A question handed over from elsewhere on the page, asked as the chat opens.
+  const [question, setQuestion] = useState(null);
   const location = useLocation();
   // A short "need help?" bubble, once per browser session, then never again.
   const [hint, setHint] = useState(false);
@@ -293,8 +317,9 @@ function ChatLauncher() {
   useEffect(() => setOpen(false), [location.pathname]);
 
   useEffect(() => {
-    const show = () => {
+    const show = (event) => {
       setHint(false);
+      setQuestion(event.detail?.question || null);
       setOpen(true);
     };
     window.addEventListener('campuscoin:open-chat', show);
@@ -325,7 +350,7 @@ function ChatLauncher() {
               <Icon name="x" size={16} />
             </button>
           </div>
-          <Chat compact />
+          <Chat compact question={question} onAsked={() => setQuestion(null)} />
         </div>
       )}
       {hint && !open ? (
@@ -406,7 +431,16 @@ export default function Layout({ title, crumbs, actions, children }) {
           <Wordmark />
         </Link>
 
-        {!isAdmin ? <div className="rail-group">Money</div> : <div className="rail-group">Control panel</div>}
+        <Link to={isAdmin ? '/admin' : '/settings'} className="rail-account" title="Your account">
+          <Avatar user={user} size={38} />
+          <span className="rail-account-copy">
+            <strong>{user?.name}</strong>
+            <span>{isAdmin ? 'Admin account' : user?.academicYear ? `Student · ${user.academicYear}` : 'Student account'}</span>
+          </span>
+          <Icon name="right" size={15} />
+        </Link>
+
+        <div className="rail-group">{isAdmin ? 'Control panel' : 'Main menu'}</div>
         {nav.map((item) => (
           <NavLink key={item.to} to={item.to} end={item.to === '/admin'}>
             <Icon name={item.icon} />
@@ -416,7 +450,7 @@ export default function Layout({ title, crumbs, actions, children }) {
 
         {!isAdmin && (
           <>
-            <div className="rail-group">More</div>
+            <div className="rail-group">Preference</div>
             {SECONDARY_NAV.map((item) => (
               <NavLink key={item.to} to={item.to}>
                 <Icon name={item.icon} />
@@ -426,30 +460,14 @@ export default function Layout({ title, crumbs, actions, children }) {
           </>
         )}
 
+        <button type="button" className="rail-item" onClick={signOut}>
+          <Icon name="logout" />
+          Sign out
+        </button>
+
         <div className="rail-spacer" />
 
         {!isAdmin ? <MonthCard /> : null}
-
-        <div className="rail-footer">
-          <div className="row" style={{ padding: '0.35rem 0.7rem 0.6rem' }}>
-            <Link to={isAdmin ? '/admin' : '/settings'} className="rail-avatar" title="Change your photo">
-              <Avatar user={user} size={34} />
-            </Link>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600, fontSize: 'var(--step--1)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {user?.name}
-              </div>
-              <div className="rail-role">
-                <span className={`rail-badge${isAdmin ? ' is-admin' : ''}`}>{isAdmin ? 'Admin' : 'Student'}</span>
-                {!isAdmin && user?.academicYear ? <span className="muted">{user.academicYear}</span> : null}
-              </div>
-            </div>
-          </div>
-          <button type="button" className="rail-item" onClick={signOut}>
-            <Icon name="logout" />
-            Sign out
-          </button>
-        </div>
       </nav>
 
       <div className="main">
@@ -460,6 +478,7 @@ export default function Layout({ title, crumbs, actions, children }) {
             {page ? <div className="topbar-about">{page.about}</div> : null}
           </div>
           {actions}
+          {!isAdmin && <TopSearch />}
           {!isAdmin && <Bell />}
           <ThemeButton />
           <AccountMenu onSignOut={signOut} />
@@ -515,5 +534,6 @@ export function MonthPicker({ value, onChange, label = 'Month' }) {
   );
 }
 
-/** Opens the chat bubble from anywhere on a page. */
-export const openChat = () => window.dispatchEvent(new Event('campuscoin:open-chat'));
+/** Opens the chat bubble from anywhere on a page, optionally asking a question. */
+export const openChat = (question) =>
+  window.dispatchEvent(new CustomEvent('campuscoin:open-chat', { detail: { question: typeof question === 'string' ? question : null } }));

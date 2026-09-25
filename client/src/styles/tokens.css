@@ -1,8 +1,8 @@
 /* ===========================================================================
    Campus Coin design tokens
    ---------------------------------------------------------------------------
-   Calm and clear: neutral grey and white pages, one deep emerald for anything
-   you can act on, and near-black ink for the few moments that deserve weight, and soft pastel tiles
+   Modelled on the Fynix finance dashboard: soft grey pages and white cards,
+   deep forest green for anything you can act on, and lime for the highlights, and soft pastel tiles
    for the four kinds of money a student deals with. Inter Tight sets the
    headings - tight and even at large sizes - and Inter does the reading.
 
@@ -20,45 +20,49 @@
    =========================================================================== */
 
 :root {
+  --on-lime: #0f2a1e;
+  --lime-soft: #eef9e2;
+  --lime-deep: #7fcc45;
+  --lime: #a3e86f;
   color-scheme: light;
 
-  --bg: #f6f7f9;
+  --bg: #f3f4f6;
   --surface: #ffffff;
-  --raised: #f2f4f7;
-  --sunken: #e8ebef;
-  --line: #e5e7eb;
-  --line-strong: #d1d5db;
+  --raised: #f6f7f8;
+  --sunken: #eceef1;
+  --line: #e7e9ed;
+  --line-strong: #d5d9df;
   --input-bg: #ffffff;
 
   --edge: inset 0 0 0 0 transparent;
   --edge-strong: inset 0 0 0 0 transparent;
 
-  --text: #111827;
-  --muted: #4b5563;
-  --faint: #6b7280;
+  --text: #101828;
+  --muted: #475467;
+  --faint: #667085;
 
   /* Emerald 700: white text on it measures 5.5:1. */
-  --accent: #047857;
-  --accent-deep: #065f46;
-  --accent-soft: rgba(4, 120, 87, 0.08);
-  --accent-line: rgba(4, 120, 87, 0.24);
-  --accent-text: #047857;
+  --accent: #0f3d2e;
+  --accent-deep: #0a2c21;
+  --accent-soft: rgba(15, 61, 46, 0.07);
+  --accent-line: rgba(15, 61, 46, 0.2);
+  --accent-text: #14532d;
   --on-accent: #ffffff;
-  --accent-glow: 0 8px 20px -12px rgba(4, 120, 87, 0.5);
+  --accent-glow: 0 8px 18px -10px rgba(15, 61, 46, 0.45);
 
-  --navy: #111827;
-  --navy-raised: #1f2937;
-  --sky: #6ee7b7;
+  --navy: #0f3d2e;
+  --navy-raised: #16503c;
+  --sky: #a3e86f;
   --on-navy: #ffffff;
-  --on-navy-muted: #b6bcc6;
+  --on-navy-muted: #b9cfc5;
 
-  --tile-out: #fef2f2;
-  --tile-in: #ecfdf5;
-  --tile-budget: #fffbeb;
-  --tile-goal: #eff6ff;
+  --tile-out: #fdf0ef;
+  --tile-in: #eef9e2;
+  --tile-budget: #fdf7e7;
+  --tile-goal: #eef4fb;
 
-  --series-in: #2a78d6;
-  --series-out: #eb6834;
+  --series-in: #0f3d2e;
+  --series-out: #86d14f;
 
   --cat-1: #2a78d6;
   --cat-2: #eb6834;
@@ -72,13 +76,13 @@
   --good-soft: rgba(21, 128, 61, 0.1);
   --warn: #a9690a;
   --warn-soft: rgba(169, 105, 10, 0.1);
-  --bad: #c23b3a;
-  --bad-soft: rgba(194, 59, 58, 0.09);
+  --bad: #d92d20;
+  --bad-soft: rgba(217, 45, 32, 0.08);
 
   /* Soft and low: the cards are separated by space more than by shadow. */
-  --shadow-1: 0 1px 2px rgba(17, 24, 39, 0.05);
-  --shadow-2: 0 1px 3px rgba(17, 24, 39, 0.06), 0 8px 20px -10px rgba(17, 24, 39, 0.12);
-  --shadow-3: 0 2px 6px rgba(17, 24, 39, 0.06), 0 20px 40px -16px rgba(17, 24, 39, 0.2);
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-2: 0 1px 3px rgba(16, 24, 40, 0.06), 0 6px 16px -8px rgba(16, 24, 40, 0.1);
+  --shadow-3: 0 4px 8px -2px rgba(16, 24, 40, 0.06), 0 16px 32px -12px rgba(16, 24, 40, 0.18);
 
   --wash-1: transparent;
   --wash-2: transparent;
@@ -89,13 +93,13 @@
   /* Radius encodes hierarchy: data rows stay square, cards are generously
      rounded, and everything you can press is a pill. */
   --r-row: 4px;
-  --r-panel: 20px;
-  --r-panel-lg: 24px;
-  --r-control: 12px;
+  --r-panel: 16px;
+  --r-panel-lg: 20px;
+  --r-control: 10px;
   --r-pill: 999px;
 
-  --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Scaled by the accessibility control in Settings. */
   --font-scale: 1;
@@ -117,40 +121,44 @@
 }
 
 :root[data-theme='dark'] {
+  --on-lime: #0f2a1e;
+  --lime-soft: rgba(163, 232, 111, 0.12);
+  --lime-deep: #8bd455;
+  --lime: #a3e86f;
   color-scheme: dark;
 
-  --bg: #0d0f12;
-  --surface: #15181d;
-  --raised: #1c2026;
-  --sunken: #0a0c0f;
-  --line: #262b33;
-  --line-strong: #343b45;
-  --input-bg: #111418;
+  --bg: #0c0e10;
+  --surface: #15181b;
+  --raised: #1b1f23;
+  --sunken: #090b0c;
+  --line: #252a2f;
+  --line-strong: #333a41;
+  --input-bg: #111417;
 
-  --text: #e8eaed;
-  --muted: #a1a8b3;
-  --faint: #737b87;
+  --text: #eceef0;
+  --muted: #a3abb4;
+  --faint: #747d87;
 
   /* Neutral charcoal, not green-black; on it the deep emerald would disappear,
      so a lighter one takes over. */
-  --accent: #34d399;
-  --accent-deep: #10b981;
-  --accent-soft: rgba(52, 211, 153, 0.12);
-  --accent-line: rgba(52, 211, 153, 0.3);
-  --accent-text: #6ee7b7;
-  --on-accent: #052e22;
-  --accent-glow: 0 8px 20px -12px rgba(52, 211, 153, 0.4);
+  --accent: #a3e86f;
+  --accent-deep: #8bd455;
+  --accent-soft: rgba(163, 232, 111, 0.1);
+  --accent-line: rgba(163, 232, 111, 0.28);
+  --accent-text: #b9f08f;
+  --on-accent: #0f2a1e;
+  --accent-glow: 0 8px 18px -10px rgba(163, 232, 111, 0.35);
 
-  --navy: #1a1e24;
-  --navy-raised: #232830;
+  --navy: #17211c;
+  --navy-raised: #1f2c25;
 
-  --tile-out: #2a1d20;
-  --tile-in: #16271f;
-  --tile-budget: #2a2416;
-  --tile-goal: #18222f;
+  --tile-out: #2b1c1c;
+  --tile-in: #1a2a1d;
+  --tile-budget: #2a2517;
+  --tile-goal: #18222e;
 
-  --series-in: #3987e5;
-  --series-out: #d95926;
+  --series-in: #3d9a6a;
+  --series-out: #a3e86f;
 
   --cat-1: #3987e5;
   --cat-2: #d95926;

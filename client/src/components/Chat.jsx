@@ -63,7 +63,7 @@ function Answer({ message }) {
  * The chat itself. `compact` is the floating panel; the full page passes
  * nothing. Both read and write the same history.
  */
-export default function Chat({ compact = false }) {
+export default function Chat({ compact = false, question = null, onAsked }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState(loadHistory);
   const [opening, setOpening] = useState(null);
@@ -106,6 +106,17 @@ export default function Chat({ compact = false }) {
       input.current?.focus();
     }
   };
+
+  // A question handed in from outside (the dashboard's assistant card). The
+  // ref stops React's development double-run from asking it twice.
+  const asked = useRef(null);
+  useEffect(() => {
+    if (!question || asked.current === question) return;
+    asked.current = question;
+    ask(question);
+    onAsked?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ask only when a new question arrives
+  }, [question]);
 
   const clear = () => setMessages([]);
   const chips = opening?.chips || [];
