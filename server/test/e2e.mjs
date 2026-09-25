@@ -78,16 +78,34 @@ await check('Auth', 'Weak passwords are refused', async () => {
     expect(r.status === 400, `"${password}" was accepted (${r.status})`);
   }
 });
-await check('Auth', 'Change password ends other sessions', async () => {
+// The password the test account has now; the checks below change it.
+let pw = 'Kharcha@123';
+// The live site never shows a password link on screen; a development machine does.
+const live = !/localhost|127\.0\.0\.1/.test(BASE);
+
+await check('Auth', 'Password cannot change without an emailed link', async () => {
+  const direct = await call('POST', '/auth/change-password', { currentPassword: pw, newPassword: 'Kharcha@456' });
+  expect(direct.status === 410, `the old in-place change still works (${direct.status})`);
+  const still = await call('POST', '/auth/login', { email, password: pw }, { auth: null });
+  expect(still.status === 200, 'the password changed without a link');
+});
+await check('Auth', 'Change password by link ends other sessions', async () => {
   const old = token;
-  const r = await call('POST', '/auth/change-password', { currentPassword: 'Kharcha@123', newPassword: 'Kharcha@456' });
-  expect(r.status === 200 && r.data.token, `status ${r.status} ${JSON.stringify(r.data)}`);
-  token = r.data.token;
+  const r = await call('POST', '/auth/password-link', {});
+  if (live) {
+    // The test account's made-up address is never emailed, and no link leaks.
+    expect(!r.data.devResetLink, 'the live site returned a password link on screen');
+    return 'link only by email (live site)';
+  }
+  expect(r.status === 200 && r.data.devResetLink, `status ${r.status} ${JSON.stringify(r.data)}`);
+  const linkToken = new URL(r.data.devResetLink).searchParams.get('token');
+  const reset = await call('POST', '/auth/reset-password', { token: linkToken, password: 'Kharcha@456' }, { auth: null });
+  expect(reset.status === 200 && reset.data.token, `reset ${reset.status}`);
+  pw = 'Kharcha@456';
+  token = reset.data.token;
   const stale = await call('GET', '/auth/me', undefined, { auth: old });
   expect(stale.status === 401, `the old session still works (${stale.status})`);
-  const fresh = await call('GET', '/auth/me');
-  expect(fresh.status === 200, 'the new session does not work');
-  const again = await call('POST', '/auth/login', { email, password: 'Kharcha@456' }, { auth: null });
+  const again = await call('POST', '/auth/login', { email, password: pw }, { auth: null });
   expect(again.status === 200, 'new password does not work');
 });
 await check('Auth', 'Sign out everywhere', async () => {
@@ -101,29 +119,23 @@ await check('Auth', 'Sign out everywhere', async () => {
 await check('Auth', 'The shared demo password cannot be changed', async () => {
   const demo = await call('POST', '/auth/login', { email: 'student@campuscoin.app', password: 'Student@12345' }, { auth: null });
   expect(demo.status === 200, `demo login ${demo.status}`);
-  const r = await call('POST', '/auth/change-password', { currentPassword: 'Student@12345', newPassword: 'Kharcha@999' }, { auth: demo.data.token });
+  const r = await call('POST', '/auth/password-link', {}, { auth: demo.data.token });
   expect(r.status === 403, `status ${r.status}`);
 });
 await check('Auth', 'Password recovery by tokenised link', async () => {
   const r = await call('POST', '/auth/forgot-password', { email }, { auth: null });
   expect(r.status === 200, `status ${r.status}`);
   const link = r.data.devResetLink;
-  // On the live site the link is only ever emailed; showing it would let
-  // anyone reset any account. So there, check that it did not leak and stop.
-  const live = !/localhost|127\.0\.0\.1/.test(BASE);
   if (live) {
     expect(!link, 'the live site returned a reset link on screen');
-    // Leave the account on the password the later checks expect.
-    const moved = await call('POST', '/auth/change-password', { currentPassword: 'Kharcha@456', newPassword: 'Kharcha@789' });
-    expect(moved.status === 200, `could not move to the next password (${moved.status})`);
-    token = moved.data.token;
     return 'link emailed, not shown (live site)';
   }
   expect(link, 'no reset link returned (email is not set up locally, so it should be)');
   const resetToken = new URL(link).searchParams.get('token');
   const reset = await call('POST', '/auth/reset-password', { token: resetToken, password: 'Kharcha@789' }, { auth: null });
   expect(reset.status === 200, `reset status ${reset.status} ${JSON.stringify(reset.data)}`);
-  const login = await call('POST', '/auth/login', { email, password: 'Kharcha@789' }, { auth: null });
+  pw = 'Kharcha@789';
+  const login = await call('POST', '/auth/login', { email, password: pw }, { auth: null });
   expect(login.status === 200, 'cannot log in with reset password'); token = login.data.token;
   const reuse = await call('POST', '/auth/reset-password', { token: resetToken, password: 'Kharcha@000' }, { auth: null });
   expect(reuse.status >= 400, 'reset link worked twice');
@@ -396,12 +408,12 @@ await check('Admin', 'View and search users', async () => {
 await check('Admin', 'Disable a user blocks login, enable restores it', async () => {
   const d = await call('PATCH', `/admin/users/${ctx.adminUserId}`, { disabled: true }, { auth: adminToken });
   expect(d.status === 200, `disable ${d.status}`);
-  const blocked = await call('POST', '/auth/login', { email, password: 'Kharcha@789' }, { auth: null });
+  const blocked = await call('POST', '/auth/login', { email, password: pw }, { auth: null });
   expect(blocked.status >= 400, `disabled user could log in (${blocked.status})`);
   const stillWorks = await call('GET', '/transactions');
   expect(stillWorks.status === 401 || stillWorks.status === 403, `disabled user's existing session still works (${stillWorks.status})`);
   await call('PATCH', `/admin/users/${ctx.adminUserId}`, { disabled: false }, { auth: adminToken });
-  const back = await call('POST', '/auth/login', { email, password: 'Kharcha@789' }, { auth: null });
+  const back = await call('POST', '/auth/login', { email, password: pw }, { auth: null });
   expect(back.status === 200, 'enable did not restore login'); token = back.data.token;
 });
 await check('Admin', 'Reset a user password', async () => {

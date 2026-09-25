@@ -120,6 +120,15 @@ tokenised link. How Campus Coin does each:
   still be demonstrated. The reply is the same whether or not the email has
   an account, so the form cannot be used to find accounts. Nothing is ever
   sent to the made-up `campuscoin.app` addresses of the demo and test accounts.
+- **A password only changes through an emailed link.** There is no form that
+  sets a new password directly: "Change password" in Settings emails a one-time,
+  one-hour link to the account's own address, and the new password is chosen
+  from that link - so a stolen, still-signed-in session is not enough to take
+  over an account. The old in-place endpoint answers 410 Gone.
+- **Branded emails.** Welcome, password-link, "password changed" and monthly
+  summary emails share one HTML layout (\`server/src/services/emailTemplate.js\`):
+  a PNG banner (Gmail does not show SVG), a 600px table with inline styles, one
+  button, and a plain-text version alongside.
 - **Sessions end when they should.** Every sign-in token carries the account's
   session version. Changing or resetting the password raises it, which signs
   out every other device at once; Settings also has **Sign out everywhere**.

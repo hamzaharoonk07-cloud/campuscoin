@@ -317,6 +317,10 @@ export default function Landing() {
             <a href="#faq">Help</a>
             <Link to="/login">Sign in</Link>
           </div>
+          {/* On a phone the links above are hidden, so Sign in gets its own button. */}
+          <Link to="/login" className="lp-nav-signin">
+            Sign in
+          </Link>
           <Link to="/register" className="lp-btn lp-btn-solid lp-nav-cta">
             Get started
             <Icon name="arrow-ne" size={16} />

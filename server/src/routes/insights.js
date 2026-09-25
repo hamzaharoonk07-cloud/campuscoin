@@ -4,7 +4,10 @@ import { protect, wrap } from '../middleware/auth.js';
 import { generateInsight, monthDetails } from '../services/insights.js';
 import { llmEnabled } from '../services/llm.js';
 import { sendMail } from '../services/mailer.js';
-import { parseMonth, monthKey } from '../utils/dates.js';
+import { parseMonth } from '../utils/dates.js';
+import { formatMoney } from '../utils/money.js';
+import { siteUrl } from '../utils/site.js';
+import { emailLayout } from '../services/emailTemplate.js';
 
 const router = express.Router();
 router.use(protect);
@@ -64,17 +67,25 @@ router.post(
 
     if (!/^\S+@\S+\.\S+$/.test(to)) return res.status(400).json({ message: 'Enter a valid email address' });
 
-    const body = [
-      `Campus Coin - ${monthKey(month)}`,
-      '',
-      insight.summaryText,
-      '',
-      `Suggestion: ${insight.tipText}`,
-      '',
-      `Income ${insight.stats?.income ?? 0} | Spent ${insight.stats?.expense ?? 0} | Kept ${insight.stats?.balance ?? 0}`,
-    ].join('\n');
+    const currency = req.user.currency || 'PKR';
+    const fmt = (n) => formatMoney(n ?? 0, currency);
+    const label = month.toLocaleString('en', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    const mail = emailLayout({
+      heading: `Your ${label} in Campus Coin`,
+      preheader: `Kept ${fmt(insight.stats?.balance)} in ${label}.`,
+      paragraphs: [insight.summaryText],
+      stats: [
+        { label: 'Came in', value: fmt(insight.stats?.income) },
+        { label: 'Spent', value: fmt(insight.stats?.expense) },
+        { label: (insight.stats?.balance ?? 0) < 0 ? 'Over by' : 'Kept', value: fmt(Math.abs(insight.stats?.balance ?? 0)), tone: (insight.stats?.balance ?? 0) < 0 ? 'bad' : '' },
+      ],
+      tip: insight.tipText || '',
+      button: { label: 'See the full insight', url: `${siteUrl()}/insights` },
+      note: 'A prompt to look closer, not financial advice.',
+    });
+    const body = mail.text;
 
-    const result = await sendMail({ to, subject: `Your Campus Coin summary for ${monthKey(month)}`, text: body });
+    const result = await sendMail({ to, subject: `Your Campus Coin summary for ${label}`, ...mail });
     res.json({
       sent: result.sent,
       message: result.sent

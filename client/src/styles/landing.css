@@ -1316,12 +1316,7 @@
     animation: lp-parallax-down linear both;
     animation-timeline: view();
   }
-  .lp-tab-panel,
-  .lp-cta .lp-center {
-    animation: lp-zoom-in linear both;
-    animation-timeline: view();
-    animation-range: entry 0% cover 35%;
-  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1436,3 +1431,47 @@
 /* The app's light theme paints the page black (the frame around the app), so
    the landing page sets its own white page in light mode. */
 :root:not([data-theme='dark']) .lp { --bg: #ffffff; }
+
+/* --- Phones ---------------------------------------------------------------- */
+
+/* Sign in beside Get started in the top bar, only where the links are hidden. */
+.lp-nav-signin { display: none; }
+@media (max-width: 900px) {
+  .lp-nav-signin {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 1rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
+    border-radius: 99px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .lp-nav.is-top .lp-nav-signin { color: #fff; background: rgba(255, 255, 255, 0.1); }
+  .lp-nav.is-scrolled .lp-nav-signin { background: var(--raised); }
+}
+@media (max-width: 520px) {
+  .lp-nav-inner { gap: 0.4rem; }
+  .lp-nav .lp-brand .wordmark { display: none; }
+  .lp-nav-cta,
+  .lp-nav-signin { height: 42px; padding: 0 1rem; font-size: 0.9rem; }
+  /* The hero buttons take the full width, so Get started is easy to tap. */
+  .lp-hero .lp-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.6rem; }
+  .lp-hero .lp-actions .lp-btn,
+  .lp-hero .lp-actions .lp-text-link { justify-content: center; width: 100%; }
+  .lp-hero .lp-actions .lp-btn-solid { height: 54px; font-size: 1rem; }
+  .lp-cta .lp-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.6rem; width: 100%; }
+  .lp-cta .lp-actions .lp-btn { justify-content: center; width: 100%; height: 52px; }
+}
+
+/* The split headings stack cleanly instead of running into their text. */
+@media (max-width: 720px) {
+  .lp-head-split { display: grid; gap: 1rem; align-items: start; }
+  .lp-head-split .lp-aside { animation: none !important; }
+}
+
+/* The page ends on white, not the app's black frame. */
+body:has(.lp) { background: var(--surface); }

@@ -4,11 +4,9 @@ import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import Avatar from '../components/Avatar.jsx';
 import AssistantMemory from '../components/AssistantMemory.jsx';
-import { IconField } from './Login.jsx';
-import PasswordStrength from '../components/PasswordStrength.jsx';
 import { squarePhoto } from '../lib/images.js';
 import { api, setToken } from '../lib/api.js';
-import { passwordOk } from '../lib/password.js';
+import { artUrl } from '../components/Illustrations.jsx';
 import { CURRENCY_SYMBOLS, formatDate } from '../lib/format.js';
 import { useAuth, useTheme, useToast } from '../context/AppContext.jsx';
 
@@ -21,7 +19,7 @@ const SCALES = [
 ];
 
 export default function Settings() {
-  const { user, setUser, updateProfile } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { theme, setTheme, fontScale, setFontScale } = useTheme();
   const toast = useToast();
 
@@ -33,8 +31,8 @@ export default function Settings() {
     savingsGoal: user.savingsGoal || 0,
     currency: user.currency,
   });
-  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirm: '' });
-  const [pwBusy, setPwBusy] = useState(false);
+  // The password link: null, 'sending', or the server's reply once sent.
+  const [pwLink, setPwLink] = useState(null);
   const [busy, setBusy] = useState(false);
 
   const set = (key) => (event) => setProfile({ ...profile, [key]: event.target.value });
@@ -95,32 +93,16 @@ export default function Settings() {
     }
   };
 
-  // A new password ends every other session; the server hands this device a
-  // fresh token so it stays signed in.
-  const changePassword = async (event) => {
-    event.preventDefault();
-    if (!passwordOk(passwords.newPassword, user)) {
-      toast.error('Not changed yet', 'Your new password does not meet the rules under it.');
-      return;
-    }
-    if (passwords.newPassword !== passwords.confirm) {
-      toast.error('Not changed yet', 'The two new passwords do not match.');
-      return;
-    }
-    setPwBusy(true);
+  // A password never changes here directly: this emails a one-time link to
+  // the account's own inbox, and the new password is chosen from that link.
+  const emailPasswordLink = async () => {
+    setPwLink('sending');
     try {
-      const data = await api.post('/auth/change-password', {
-        currentPassword: passwords.currentPassword,
-        newPassword: passwords.newPassword,
-      });
-      setToken(data.token);
-      setUser(data.user);
-      setPasswords({ currentPassword: '', newPassword: '', confirm: '' });
-      toast.success('Password changed', 'Every other device has been signed out.');
+      const reply = await api.post('/auth/password-link', {});
+      setPwLink(reply);
     } catch (err) {
-      toast.error('Could not change your password', err.message);
-    } finally {
-      setPwBusy(false);
+      setPwLink(null);
+      toast.error('Could not send the link', err.message);
     }
   };
 
@@ -136,15 +118,44 @@ export default function Settings() {
 
   return (
     <Layout
-      title="Settings"
+      title="Account settings"
       crumbs={
         <>
           <Link to="/dashboard">Dashboard</Link> / <span>Settings</span>
         </>
       }
     >
+      {/* The account at a glance, with a way to each section below. */}
+      <section className="acct-card">
+        <Avatar user={user} size={64} />
+        <span className="acct-who">
+          <strong>{user.name}</strong>
+          <span>{user.email}</span>
+          <small>
+            {user.isDemo ? 'Shared demo account' : 'Student account'}
+            {user.academicYear ? ` · ${user.academicYear}` : ''}
+            {user.institution ? ` · ${user.institution}` : ''}
+            {user.createdAt ? ` · member since ${formatDate(user.createdAt, { month: 'long', year: 'numeric' })}` : ''}
+          </small>
+        </span>
+        <nav className="acct-jump" aria-label="Settings sections">
+          <a href="#profile">
+            <Icon name="user" size={15} /> Profile
+          </a>
+          <a href="#display">
+            <Icon name="sun" size={15} /> Display
+          </a>
+          <a href="#password">
+            <Icon name="key" size={15} /> Password
+          </a>
+          <a href="#coin">
+            <Icon name="chat" size={15} /> Coin
+          </a>
+        </nav>
+      </section>
+
       <div className="grid grid-2">
-        <section className="panel">
+        <section className="panel" id="profile">
           <div className="panel-head">
             <h2>Your profile</h2>
           </div>
@@ -262,7 +273,7 @@ export default function Settings() {
         </section>
 
         <div className="stack">
-          <section className="panel">
+          <section className="panel" id="display">
             <div className="panel-head">
               <h2>Reading and display</h2>
             </div>
@@ -327,7 +338,7 @@ export default function Settings() {
             <div className="panel-body">
               {user.mustChangePassword ? (
                 <div className="form-error" style={{ marginBottom: '1rem' }}>
-                  You signed in with a temporary password from an administrator. Choose your own below.
+                  You signed in with a temporary password from an administrator. Email yourself a link below and choose your own.
                 </div>
               ) : null}
               {user.isDemo ? (
@@ -337,48 +348,43 @@ export default function Settings() {
                   changing a password.
                 </p>
               ) : null}
-              <form className="stack" onSubmit={changePassword}>
-                <IconField
-                  id="current"
-                  label="Current password"
-                  icon="key"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  value={passwords.currentPassword}
-                  onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
-                  disabled={user.isDemo}
-                />
-                <IconField
-                  id="new"
-                  label="New password"
-                  icon="key"
-                  type="password"
-                  required
-                  autoComplete="new-password"
-                  value={passwords.newPassword}
-                  onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-                  disabled={user.isDemo}
-                />
-                <IconField
-                  id="confirm-new"
-                  label="Confirm new password"
-                  icon="key"
-                  type="password"
-                  required
-                  autoComplete="new-password"
-                  value={passwords.confirm}
-                  onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                  disabled={user.isDemo}
-                />
-                {passwords.newPassword ? (
-                  <PasswordStrength password={passwords.newPassword} confirm={passwords.confirm} email={user.email} name={user.name} />
-                ) : null}
-                <button type="submit" className="btn btn-primary" disabled={user.isDemo || pwBusy}>
-                  <Icon name="key" size={15} />
-                  {pwBusy ? 'Changing' : 'Change password'}
-                </button>
-              </form>
+              <div className="pw-link">
+                <span className="pw-link-art" aria-hidden="true">
+                  <img src={artUrl('envelope')} alt="" width="34" height="34" />
+                </span>
+                <span className="pw-link-copy">
+                  <strong>Change your password</strong>
+                  <small>
+                    For your safety, a password only changes through a link sent to {user.email}. Open it within the
+                    hour to choose a new one.
+                  </small>
+                </span>
+              </div>
+              {pwLink && pwLink !== 'sending' ? (
+                <div className="pw-link-sent" role="status">
+                  <Icon name="check" size={16} strokeWidth={2.4} />
+                  <span>
+                    {pwLink.message}
+                    {pwLink.devResetLink ? (
+                      <>
+                        {' '}
+                        <Link to={pwLink.devResetLink.replace(/^.*?\/\/[^/]+/, '')}>Open the link</Link>
+                      </>
+                    ) : (
+                      ' Check your inbox (and the spam folder).'
+                    )}
+                  </span>
+                </div>
+              ) : null}
+              <button
+                type="button"
+                className="btn btn-primary pw-link-btn"
+                onClick={emailPasswordLink}
+                disabled={user.isDemo || pwLink === 'sending'}
+              >
+                <Icon name="mail" size={15} />
+                {pwLink === 'sending' ? 'Sending' : pwLink ? 'Send another link' : 'Email me a link'}
+              </button>
 
               <div className="security-row">
                 <span>
@@ -397,7 +403,9 @@ export default function Settings() {
             </div>
           </section>
 
-          <AssistantMemory />
+          <div id="coin">
+            <AssistantMemory />
+          </div>
         </div>
       </div>
     </Layout>

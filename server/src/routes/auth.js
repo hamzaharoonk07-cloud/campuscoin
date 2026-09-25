@@ -5,6 +5,8 @@ import { protect, signToken, wrap } from '../middleware/auth.js';
 import { sendMail, mailConfigured, screenResetLinkAllowed } from '../services/mailer.js';
 import { cleanImage } from '../utils/images.js';
 import { passwordProblem, isDemo, MAX_FAILED, LOCK_MINUTES } from '../utils/passwords.js';
+import { siteUrl } from '../utils/site.js';
+import { emailLayout } from '../services/emailTemplate.js';
 
 const router = express.Router();
 
@@ -30,19 +32,57 @@ const publicUser = (user) => ({
 
 const PALETTE = ['#121214', '#5b91ff', '#60a5fa', '#f472b6', '#a78bfa', '#fb923c'];
 
-// Where links in emails point: the configured site, else this deployment's
-// production address on Vercel, else the local development client.
-const siteUrl = () =>
-  process.env.CLIENT_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:5173');
-
 /** Tells the account holder their password changed, in case it was not them. */
 const notifyPasswordChanged = (user) =>
   sendMail({
     to: user.email,
     subject: 'Your Campus Coin password was changed',
-    text: `Hi ${user.name},\n\nThe password on your Campus Coin account was just changed, and every other device was signed out.\n\nIf this was not you, reset your password straight away at ${siteUrl()}/forgot-password.`,
+    ...emailLayout({
+      heading: 'Your password was changed',
+      preheader: 'Every other device has been signed out.',
+      paragraphs: [
+        `Hi ${user.name.split(' ')[0]}, the password on your Campus Coin account was just changed, and every other device was signed out.`,
+        'If this was you, there is nothing more to do.',
+      ],
+      button: { label: 'This was not me - reset it', url: `${siteUrl()}/forgot-password` },
+      note: `Changed ${new Date().toUTCString()}.`,
+    }),
   }).catch(() => {});
+
+/**
+ * Creates a one-hour, one-time password link for an account and emails it.
+ * Only the SHA-256 hash of the token is stored, so a leaked database cannot
+ * be used to set anyone's password. Used by "Forgot password" and by
+ * "Change password" in Settings - a password only ever changes through a
+ * link sent to the account's own inbox.
+ * Returns { sent, link }.
+ */
+async function sendPasswordLink(user, { change = false } = {}) {
+  const token = crypto.randomBytes(32).toString('hex');
+  user.resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  user.resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // one hour
+  await user.save();
+
+  const link = `${siteUrl()}/reset-password?token=${token}`;
+  const first = user.name.split(' ')[0];
+  const result = await sendMail({
+    to: user.email,
+    subject: change ? 'Change your Campus Coin password' : 'Reset your Campus Coin password',
+    ...emailLayout({
+      heading: change ? 'Change your password' : 'Reset your password',
+      preheader: 'This link works once, for one hour.',
+      paragraphs: [
+        change
+          ? `Hi ${first}, you asked to change the password on your Campus Coin account. Use the button below to choose a new one.`
+          : `Hi ${first}, someone asked to reset the password on your Campus Coin account. If it was you, choose a new one below.`,
+        'Your transactions, budgets and settings stay exactly as they are.',
+      ],
+      button: { label: 'Choose a new password', url: link },
+      note: 'The link works once and expires in one hour. If you did not ask for this, ignore this email - your password will not change.',
+    }),
+  });
+  return { ...result, link };
+}
 
 router.post(
   '/register',
@@ -79,22 +119,18 @@ router.post(
     sendMail({
       to: user.email,
       subject: `Welcome to Campus Coin, ${first}`,
-      text: [
-        `Assalam-o-alaikum ${first},`,
-        '',
-        'Welcome to Campus Coin - your hisab, sorted.',
-        '',
-        'Three things to do first:',
-        '  1. Log this month\'s allowance, so the dashboard knows what came in.',
-        '  2. Add the last few things you bought - chai, a rickshaw, printing. The category fills itself in.',
-        '  3. Set one budget on the category you spend most on. It is the change students actually keep to.',
-        '',
-        `Your dashboard: ${siteUrl()}/dashboard`,
-        '',
-        'Campus Coin never connects to your bank and never asks for card details.',
-        '',
-        '- Campus Coin',
-      ].join('\n'),
+      ...emailLayout({
+        heading: `Welcome to Campus Coin, ${first}!`,
+        preheader: 'Three things to do first.',
+        paragraphs: [`Assalam-o-alaikum ${first}, your account is ready. Here is how to get your first useful picture of the month:`],
+        steps: [
+          "Log this month's allowance, so the dashboard knows what came in.",
+          'Add the last few things you bought - chai, a rickshaw, printing. The category fills itself in.',
+          'Set one budget on the category you spend most on. It is the change students actually keep to.',
+        ],
+        button: { label: 'Open your dashboard', url: `${siteUrl()}/dashboard` },
+        note: 'Campus Coin never connects to your bank and never asks for card details.',
+      }),
     }).catch(() => {});
 
     res.status(201).json({ token: signToken(user), user: publicUser(user) });
@@ -191,35 +227,32 @@ router.patch(
 );
 
 /**
- * Change password while signed in. Every other session ends; this device gets
- * a fresh token back so it stays signed in.
+ * Change password while signed in. The password is never changed here
+ * directly: this emails a one-time link to the account's own address, so
+ * only someone who can read that inbox can set a new password - a stolen
+ * session alone is not enough.
  */
 router.post(
-  '/change-password',
+  '/password-link',
   protect,
   wrap(async (req, res) => {
-    const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user._id).select('+passwordHash');
-
-    if (isDemo(user)) {
+    if (isDemo(req.user)) {
       return res.status(403).json({ message: 'The demo account keeps its published password so everyone can use it. Register your own account to try this.' });
     }
-    if (!(await user.checkPassword(String(currentPassword || '')))) {
-      return res.status(401).json({ message: 'Your current password is not correct' });
+    const user = await User.findById(req.user._id).select('+resetTokenHash +resetTokenExpires');
+    const sent = await sendPasswordLink(user, { change: true });
+    const inbox = user.email.replace(/^(.).*(@.*)$/, '$1•••$2');
+    if (sent.sent) return res.json({ sent: true, message: `A link to change your password is on its way to ${inbox}.` });
+    if (!sent.failed && screenResetLinkAllowed()) {
+      return res.json({ sent: false, devResetLink: sent.link, message: 'Email is not set up on this machine, so the link is shown here instead.' });
     }
-    if (String(newPassword) === String(currentPassword)) {
-      return res.status(400).json({ message: 'Choose a password different from your current one' });
-    }
-    const problem = passwordProblem(newPassword, user);
-    if (problem) return res.status(400).json({ message: problem });
-
-    await user.setPassword(newPassword);
-    user.mustChangePassword = false;
-    await user.save();
-    notifyPasswordChanged(user);
-
-    res.json({ message: 'Your password has been changed and every other device signed out', token: signToken(user), user: publicUser(user) });
+    res.status(502).json({ message: 'The email could not be sent. Please try again in a minute.' });
   })
+);
+
+/** The old in-place change is closed: a password only changes through a link. */
+router.post('/change-password', protect, (req, res) =>
+  res.status(410).json({ message: 'Passwords now change through a link sent to your email. Use "Email me a link" in Settings.' })
 );
 
 /** Signs out every other device by raising the session version. */
@@ -253,17 +286,8 @@ router.post(
       return res.json({ ...reply, note: 'The demo accounts keep their published passwords, so no link is sent for them.' });
     }
 
-    const token = crypto.randomBytes(32).toString('hex');
-    user.resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    user.resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // one hour
-    await user.save();
-
-    const link = `${siteUrl()}/reset-password?token=${token}`;
-    const sent = await sendMail({
-      to: user.email,
-      subject: 'Reset your Campus Coin password',
-      text: `Open this link within the hour to choose a new password:\n\n${link}\n\nIt works once. If you did not ask for this, you can ignore it - your password stays as it is.`,
-    });
+    const sent = await sendPasswordLink(user);
+    const link = sent.link;
 
     if (sent.sent) return res.json(reply);
     // On a development machine with no email set up, the link comes back in
