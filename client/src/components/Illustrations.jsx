@@ -12,7 +12,7 @@
    for screen readers and the objects themselves are hidden from them.
 --------------------------------------------------------------------------- */
 
-import { categoryArt } from '../lib/art.js';
+import Icon from './Icon.jsx';
 import { slotColor } from '../lib/format.js';
 import CoinBot from './CoinBot.jsx';
 
@@ -153,8 +153,8 @@ export function ArtIcon({ name, size = 44, className = '' }) {
 }
 
 /**
- * A category as a picture: its 3D object on a tile tinted with the category's
- * own colour, so colour and shape both say which category it is.
+ * A category as an icon: its line icon in the category's colour, on a soft
+ * tint of the same colour, so colour and shape both say which category it is.
  */
 export function CategoryIcon({ icon, slot, size = 38 }) {
   const colour = slotColor(slot);
@@ -162,14 +162,9 @@ export function CategoryIcon({ icon, slot, size = 38 }) {
     <span
       className="cat-art"
       aria-hidden="true"
-      style={{
-        width: size,
-        height: size,
-        background: `color-mix(in srgb, ${colour} 15%, var(--surface))`,
-        boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${colour} 30%, transparent)`,
-      }}
+      style={{ width: size, height: size, color: colour, background: `color-mix(in srgb, ${colour} 13%, var(--surface))` }}
     >
-      <ArtIcon name={categoryArt(icon)} size={Math.round(size * 0.68)} />
+      <Icon name={icon} size={Math.round(size * 0.46)} />
     </span>
   );
 }

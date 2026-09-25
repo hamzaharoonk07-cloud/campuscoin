@@ -166,53 +166,11 @@
 /* The chat bubble sends out a slow ring every few seconds - enough to be
    found, not enough to nag - and stops once the panel is open. */
 .chat-fab { animation: pop 0.5s var(--ease-out) 0.8s backwards; }
-.chat-fab::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 2px solid var(--accent);
-  opacity: 0;
-  animation: beacon 3.2s var(--ease-out) 1.5s infinite;
-  pointer-events: none;
-}
-.chat-fab[aria-expanded='true']::after { animation: none; }
-@keyframes beacon {
-  0% { opacity: 0.6; transform: scale(1); }
-  45%, 100% { opacity: 0; transform: scale(1.6); }
-}
 .chat-fab svg { transition: transform 0.3s var(--ease-out); }
 .chat-fab[aria-expanded='true'] svg { transform: rotate(90deg); }
 
-/* --- The backdrop --------------------------------------------------------- */
-
-.backdrop {
-  position: fixed;
-  inset: 0 0 0 var(--rail);
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.wash {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(40px);
-  animation: drift 26s ease-in-out infinite alternate;
-}
-.wash-1 { width: 44rem; height: 34rem; right: -10rem; top: -12rem; background: var(--wash-1); }
-.wash-2 { width: 40rem; height: 32rem; left: -8rem; bottom: -14rem; background: var(--wash-2); animation-duration: 32s; animation-delay: -8s; }
-.wash-3 { width: 26rem; height: 22rem; left: 45%; top: 35%; background: var(--wash-3); animation-duration: 22s; animation-delay: -14s; }
-
-@keyframes drift {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(4rem, 3rem) scale(1.08); }
-  100% { transform: translate(-3rem, 5rem) scale(0.95); }
-}
-
 @media (max-width: 900px) {
-  .backdrop { inset: 0; }
-}
+  }
 
 /* --- Dashboard hero and the sign-in panel -------------------------------- */
 
@@ -234,13 +192,6 @@
 .money-tile:nth-child(2) { animation-delay: 0.4s; }
 .money-tile:nth-child(3) { animation-delay: 0.5s; }
 .money-tile:nth-child(4) { animation-delay: 0.6s; }
-
-/* The glow in the hero's corner drifts slowly, so the navy never looks flat. */
-.dash-hero::before,
-.auth-aside::before { animation: glow-drift 16s ease-in-out infinite alternate; }
-@keyframes glow-drift {
-  to { transform: translate(-6rem, 5rem) scale(1.1); }
-}
 
 .auth-aside > * { animation: rise 0.7s var(--ease-out) backwards; }
 .auth-aside > :nth-child(2) { animation-delay: 0.1s; }
@@ -313,20 +264,6 @@
 }
 
 /* --- Tilt, with a soft glare that follows the pointer --------------------- */
-
-:is(.money-tile, .panel.kpi).is-tilting { transition: transform 0.12s linear, box-shadow 0.25s var(--ease-out); }
-:is(.money-tile, .panel.kpi) { position: relative; }
-:is(.money-tile, .panel.kpi)::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255, 255, 255, 0.35), transparent 55%);
-  opacity: 0;
-  transition: opacity 0.3s var(--ease);
-  pointer-events: none;
-}
-:is(.money-tile, .panel.kpi).is-tilting::after { opacity: 1; }
 
 /* --- Theme switch: the new colours spread out from the button ------------- */
 

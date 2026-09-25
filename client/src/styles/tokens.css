@@ -1,15 +1,14 @@
 /* ===========================================================================
    Campus Coin design tokens
    ---------------------------------------------------------------------------
-   Calm and clear: near-white pages with a green cast, a deep emerald for
-   anything you can act on, midnight green for the few moments that deserve
-   weight, and soft pastel tiles
+   Calm and clear: neutral grey and white pages, one deep emerald for anything
+   you can act on, and near-black ink for the few moments that deserve weight, and soft pastel tiles
    for the four kinds of money a student deals with. Inter Tight sets the
    headings - tight and even at large sizes - and Inter does the reading.
 
    Colour is assigned by the job it does, never by decoration:
      accent    - the brand and anything you can act on.
-     navy/sky  - midnight green for the hero band, and its mint highlight.
+     navy/sky  - near-black ink for the hero band, and its mint highlight.
      tile-*    - pastel backgrounds for money tiles: out (rose), in (mint),
                  budget (cream), goal (blue). Text on them stays dark, so each
                  tile is readable without relying on its colour.
@@ -23,40 +22,40 @@
 :root {
   color-scheme: light;
 
-  --bg: #f5f8f6;
+  --bg: #f6f7f9;
   --surface: #ffffff;
-  --raised: #f0f5f2;
-  --sunken: #e4ece7;
-  --line: #e1e9e4;
-  --line-strong: #c7d5cd;
+  --raised: #f2f4f7;
+  --sunken: #e8ebef;
+  --line: #e5e7eb;
+  --line-strong: #d1d5db;
   --input-bg: #ffffff;
 
   --edge: inset 0 0 0 0 transparent;
   --edge-strong: inset 0 0 0 0 transparent;
 
-  --text: #0f1f19;
-  --muted: #4e6259;
-  --faint: #788a82;
+  --text: #111827;
+  --muted: #4b5563;
+  --faint: #6b7280;
 
   /* Emerald 700: white text on it measures 5.5:1. */
   --accent: #047857;
   --accent-deep: #065f46;
-  --accent-soft: rgba(4, 120, 87, 0.09);
-  --accent-line: rgba(4, 120, 87, 0.26);
+  --accent-soft: rgba(4, 120, 87, 0.08);
+  --accent-line: rgba(4, 120, 87, 0.24);
   --accent-text: #047857;
   --on-accent: #ffffff;
-  --accent-glow: 0 10px 24px -12px rgba(4, 120, 87, 0.55);
+  --accent-glow: 0 8px 20px -12px rgba(4, 120, 87, 0.5);
 
-  --navy: #0b2e23;
-  --navy-raised: #134231;
+  --navy: #111827;
+  --navy-raised: #1f2937;
   --sky: #6ee7b7;
   --on-navy: #ffffff;
-  --on-navy-muted: #b5cfc4;
+  --on-navy-muted: #b6bcc6;
 
-  --tile-out: #fde4e2;
-  --tile-in: #d8f5e5;
-  --tile-budget: #fbf0d2;
-  --tile-goal: #dcf0fb;
+  --tile-out: #fef2f2;
+  --tile-in: #ecfdf5;
+  --tile-budget: #fffbeb;
+  --tile-goal: #eff6ff;
 
   --series-in: #2a78d6;
   --series-out: #eb6834;
@@ -77,13 +76,13 @@
   --bad-soft: rgba(194, 59, 58, 0.09);
 
   /* Soft and low: the cards are separated by space more than by shadow. */
-  --shadow-1: 0 1px 2px rgba(15, 31, 25, 0.05);
-  --shadow-2: 0 2px 6px rgba(15, 31, 25, 0.05), 0 12px 28px -12px rgba(15, 31, 25, 0.13);
-  --shadow-3: 0 4px 10px rgba(15, 31, 25, 0.06), 0 24px 48px -16px rgba(15, 31, 25, 0.22);
+  --shadow-1: 0 1px 2px rgba(17, 24, 39, 0.05);
+  --shadow-2: 0 1px 3px rgba(17, 24, 39, 0.06), 0 8px 20px -10px rgba(17, 24, 39, 0.12);
+  --shadow-3: 0 2px 6px rgba(17, 24, 39, 0.06), 0 20px 40px -16px rgba(17, 24, 39, 0.2);
 
-  --wash-1: rgba(110, 231, 183, 0.22);
-  --wash-2: rgba(4, 120, 87, 0.06);
-  --wash-3: rgba(190, 242, 100, 0.1);
+  --wash-1: transparent;
+  --wash-2: transparent;
+  --wash-3: transparent;
 
   --grain-opacity: 0;
 
@@ -120,34 +119,35 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --bg: #06120e;
-  --surface: #0c1d17;
-  --raised: #122920;
-  --sunken: #040c09;
-  --line: #1a3429;
-  --line-strong: #284f3e;
-  --input-bg: #09180f;
+  --bg: #0d0f12;
+  --surface: #15181d;
+  --raised: #1c2026;
+  --sunken: #0a0c0f;
+  --line: #262b33;
+  --line-strong: #343b45;
+  --input-bg: #111418;
 
-  --text: #e6f3ec;
-  --muted: #9ab7a9;
-  --faint: #6a887a;
+  --text: #e8eaed;
+  --muted: #a1a8b3;
+  --faint: #737b87;
 
-  /* On the dark surfaces the deep emerald would disappear, so a lighter one takes over. */
+  /* Neutral charcoal, not green-black; on it the deep emerald would disappear,
+     so a lighter one takes over. */
   --accent: #34d399;
   --accent-deep: #10b981;
   --accent-soft: rgba(52, 211, 153, 0.12);
   --accent-line: rgba(52, 211, 153, 0.3);
   --accent-text: #6ee7b7;
   --on-accent: #052e22;
-  --accent-glow: 0 10px 24px -12px rgba(52, 211, 153, 0.45);
+  --accent-glow: 0 8px 20px -12px rgba(52, 211, 153, 0.4);
 
-  --navy: #0e3a2b;
-  --navy-raised: #174a38;
+  --navy: #1a1e24;
+  --navy-raised: #232830;
 
-  --tile-out: #3a2425;
-  --tile-in: #153828;
-  --tile-budget: #383018;
-  --tile-goal: #15314a;
+  --tile-out: #2a1d20;
+  --tile-in: #16271f;
+  --tile-budget: #2a2416;
+  --tile-goal: #18222f;
 
   --series-in: #3987e5;
   --series-out: #d95926;
@@ -161,7 +161,7 @@
   --cat-7: #9085e9;
 
   --good: #4ade80;
-  --good-soft: rgba(74, 222, 128, 0.13);
+  --good-soft: rgba(74, 222, 128, 0.12);
   --warn: #e0a83c;
   --warn-soft: rgba(224, 168, 60, 0.13);
   --bad: #f07a78;
@@ -171,7 +171,7 @@
   --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.25), 0 12px 28px -12px rgba(0, 0, 0, 0.5);
   --shadow-3: 0 4px 10px rgba(0, 0, 0, 0.3), 0 24px 48px -16px rgba(0, 0, 0, 0.6);
 
-  --wash-1: rgba(110, 231, 183, 0.07);
-  --wash-2: rgba(52, 211, 153, 0.05);
-  --wash-3: rgba(190, 242, 100, 0.04);
+  --wash-1: transparent;
+  --wash-2: transparent;
+  --wash-3: transparent;
 }

@@ -2,14 +2,9 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { flushSync } from 'react-dom';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon, { Wordmark } from './Icon.jsx';
-import { ArtIcon } from './Illustrations.jsx';
 import CoinBot from './CoinBot.jsx';
-
-/** A destination's picture: a 3D object, or Coin for the assistant. */
-const NavArt = ({ name, size }) => (name === 'coinbot' ? <CoinBot size={size + 4} bubble={false} /> : <ArtIcon name={name} size={size} />);
 import { money } from '../lib/format.js';
 import Chat from './Chat.jsx';
-import Backdrop from './Backdrop.jsx';
 import Avatar from './Avatar.jsx';
 import { api } from '../lib/api.js';
 import { useAuth, useTheme } from '../context/AppContext.jsx';
@@ -72,7 +67,6 @@ function MonthCard() {
 
   return (
     <Link to="/dashboard" className="rail-month">
-      <ArtIcon name={over ? 'money_with_wings' : 'seedling'} size={38} />
       <span className="rail-month-copy">
         <span className="rail-month-label">{month} so far</span>
         <strong className={`num${over ? ' is-bad' : ''}`}>
@@ -406,8 +400,6 @@ export default function Layout({ title, crumbs, actions, children }) {
       {/* A thin bar that sweeps across the top as each page opens. */}
       <span className="route-progress" aria-hidden="true" />
 
-      <Backdrop />
-
       <nav className="rail" aria-label="Main" ref={rail}>
         <span className="rail-indicator" ref={indicator} aria-hidden="true" />
         <Link to={isAdmin ? '/admin' : '/dashboard'} className="brand">
@@ -417,9 +409,7 @@ export default function Layout({ title, crumbs, actions, children }) {
         {!isAdmin ? <div className="rail-group">Money</div> : <div className="rail-group">Control panel</div>}
         {nav.map((item) => (
           <NavLink key={item.to} to={item.to} end={item.to === '/admin'}>
-            <span className="rail-art">
-              <NavArt name={item.art} size={22} />
-            </span>
+            <Icon name={item.icon} />
             {item.label}
           </NavLink>
         ))}
@@ -429,9 +419,7 @@ export default function Layout({ title, crumbs, actions, children }) {
             <div className="rail-group">More</div>
             {SECONDARY_NAV.map((item) => (
               <NavLink key={item.to} to={item.to}>
-                <span className="rail-art">
-                  <NavArt name={item.art} size={22} />
-                </span>
+                <Icon name={item.icon} />
                 {item.label}
               </NavLink>
             ))}
@@ -466,11 +454,6 @@ export default function Layout({ title, crumbs, actions, children }) {
 
       <div className="main">
         <header className="topbar">
-          {page ? (
-            <span className="topbar-art" aria-hidden="true">
-              <NavArt name={location.pathname === '/dashboard' ? 'waving_hand' : page.art} size={34} />
-            </span>
-          ) : null}
           <div style={{ marginRight: 'auto', minWidth: 0 }}>
             {crumbs ? <div className="crumbs">{crumbs}</div> : null}
             <h1>{title}</h1>
@@ -493,7 +476,7 @@ export default function Layout({ title, crumbs, actions, children }) {
         <nav className="tabbar" aria-label="Sections">
           {TAB_NAV.map((item) => (
             <NavLink key={item.to} to={item.to} className={location.pathname === item.to ? 'active' : undefined}>
-              <NavArt name={item.art} size={24} />
+              <Icon name={item.icon} size={20} />
               {item.label.split(' ')[0]}
             </NavLink>
           ))}

@@ -269,9 +269,9 @@ The interface is written rather than assembled. A few decisions worth naming:
   logo with eyes that blink and a speech bubble whose dots move while it
   answers (`client/src/components/CoinBot.jsx`) - on its button, its
   messages and its header, and in Settings beside what it has learned.
-- **Every page has a picture.** The sidebar, the phone tab bar and each page
-  header show a 3D object for that page, and every category is shown as its
-  own 3D object on a tile of its colour (`client/src/lib/art.js`).
+- **Pictures only where they help.** Navigation and lists use clean line
+  icons; categories are their icon in their own colour. The 3D scenes are kept
+  for empty states, quick add, the receipt card and the landing page.
 - **The dashboard widgets the SRS names:** quick-add buttons (chai, rickshaw,
   printing, allowance) that open the form already filled in, "Top category
   this month", budget against actual, and the repeating payments coming up next.

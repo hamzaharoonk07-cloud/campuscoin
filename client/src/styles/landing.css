@@ -345,12 +345,12 @@
 }
 .lp-navy-card.is-pale {
   margin-top: 3rem;
-  background: #d1fae5;
-  color: #0b2e23;
+  background: #f3f4f6;
+  color: #111827;
 }
 .lp-navy-card h3 { margin: 1.4rem 0 1rem; font-size: 1.45rem; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; }
 .lp-navy-card p { margin: 0 0 1.5rem; font-size: 0.92rem; }
-.lp-navy-card.is-pale p { color: #3f5a4f; }
+.lp-navy-card.is-pale p { color: #4b5563; }
 .lp-card-num {
   font-size: 0.68rem;
   font-weight: 700;
@@ -682,7 +682,6 @@
   inset: 0;
   background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
   transform: translateX(-120%);
-  animation: lp-sheen 5s ease-in-out 2.5s infinite;
   pointer-events: none;
 }
 @keyframes lp-sheen {
@@ -697,7 +696,6 @@
 .lp-strip li:nth-child(2) { animation-delay: 1.08s; }
 .lp-strip li:nth-child(3) { animation-delay: 1.16s; }
 .lp-strip li:nth-child(4) { animation-delay: 1.24s; }
-.lp-strip i { animation: lp-pulse 2.4s ease-in-out infinite; }
 .lp-strip li:nth-child(2) i { animation-delay: 0.6s; }
 .lp-strip li:nth-child(3) i { animation-delay: 1.2s; }
 .lp-strip li:nth-child(4) i { animation-delay: 1.8s; }
@@ -749,7 +747,6 @@
   bottom: -30rem;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(110, 231, 183, 0.16), transparent 65%);
-  animation: lp-drift 18s ease-in-out infinite alternate;
   pointer-events: none;
 }
 .lp-navy > * { position: relative; }
@@ -758,7 +755,6 @@
 }
 .lp-navy-card { transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), opacity 0.8s var(--ease-out); }
 .lp-navy-card:hover { transform: translateY(-6px); box-shadow: 0 24px 40px -20px rgba(0, 0, 0, 0.5); }
-.lp-navy-card.is-pale.is-in { animation: lp-bob 7s ease-in-out 1s infinite; }
 
 /* --- Typing demo and pastel tiles ---------------------------------------- */
 
@@ -818,7 +814,6 @@
 .lp-faq summary { transition: color 0.2s var(--ease); }
 .lp-faq summary:hover { color: var(--accent-text); }
 
-.lp-cta-mark { animation: lp-bob 5s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   .lp-line > * { animation: none; }
@@ -847,7 +842,6 @@
   position: absolute;
   border-radius: 50%;
   filter: blur(60px);
-  animation: lp-mesh 18s ease-in-out infinite alternate;
 }
 .lp-mesh-a {
   width: 42rem;
@@ -856,16 +850,6 @@
   top: -6rem;
   background: color-mix(in srgb, var(--sky) 55%, transparent);
   opacity: 0.55;
-}
-.lp-mesh-b {
-  width: 30rem;
-  height: 26rem;
-  right: 26%;
-  bottom: -14rem;
-  background: color-mix(in srgb, var(--tile-in) 90%, transparent);
-  opacity: 0.7;
-  animation-duration: 22s;
-  animation-delay: -6s;
 }
 @keyframes lp-mesh {
   to { transform: translate(-5rem, 4rem) scale(1.12); }
@@ -985,7 +969,7 @@
   top: 50%;
   border-radius: 50%;
   border: 1px dashed color-mix(in srgb, var(--accent) 22%, transparent);
-  animation: lp-spin 40s linear infinite, lp-fade-in 1.2s var(--ease-out) 0.2s backwards;
+  animation: lp-fade-in 1.2s var(--ease-out) 0.2s backwards;
 }
 .lp-orbit-a { width: 560px; height: 560px; margin: -280px 0 0 -280px; }
 .lp-orbit-b { width: 380px; height: 380px; margin: -190px 0 0 -190px; animation-duration: 26s, 1.2s; animation-direction: reverse, normal; }
@@ -1087,7 +1071,6 @@
   from { opacity: 0; scale: 0.85; translate: 0 16px; }
 }
 /* Once in, each card bobs on its own rhythm. */
-.lp-card > * { animation: lp-card-bob 6s ease-in-out infinite; }
 @keyframes lp-card-bob {
   50% { translate: 0 -6px; }
 }
@@ -1209,69 +1192,26 @@
    =========================================================================== */
 
 .lp-hero {
-  --hero-top: #04140f;
+  --hero-top: #0b0d10;
   background:
-    radial-gradient(120% 90% at 85% 10%, #0f6b4c 0%, transparent 55%),
-    linear-gradient(160deg, var(--hero-top) 0%, #0b2e23 45%, #0e4a36 100%);
+    radial-gradient(80% 70% at 85% 10%, rgba(16, 185, 129, 0.18) 0%, transparent 60%),
+    linear-gradient(160deg, var(--hero-top) 0%, #111827 60%, #151b24 100%);
   color: #fff;
   border-bottom: 0;
 }
 
-.lp-mesh-a { background: #34d399; opacity: 0.35; }
-.lp-mesh-b { background: #a3e635; opacity: 0.22; right: 30%; }
-.lp-mesh-c {
-  width: 26rem;
-  height: 22rem;
-  left: -8rem;
-  top: 10%;
-  background: #38bdf8;
-  opacity: 0.22;
-  animation-duration: 26s;
-  animation-delay: -10s;
-}
-
+.lp-mesh-a { background: #10b981; opacity: 0.12; animation: none; }
 .lp-grid {
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
 }
 
-/* Small lights scattered across the dark, twinkling slowly out of step. */
-.lp-stars,
-.lp-stars::after {
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(1.5px 1.5px at 12% 22%, #fff, transparent),
-    radial-gradient(1px 1px at 28% 68%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 46% 14%, #d1fae5, transparent),
-    radial-gradient(1px 1px at 58% 82%, #fff, transparent),
-    radial-gradient(2px 2px at 72% 30%, #d1fae5, transparent),
-    radial-gradient(1px 1px at 86% 58%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 94% 16%, #fff, transparent),
-    radial-gradient(1px 1px at 38% 40%, #fff, transparent);
-  animation: lp-twinkle 5s ease-in-out infinite alternate;
-}
-.lp-stars::after {
-  content: '';
-  transform: translate(7%, 11%);
-  animation-delay: -2.5s;
-}
-@keyframes lp-twinkle {
-  from { opacity: 0.25; }
-  to { opacity: 0.9; }
-}
-
 /* --- Text on the dark ------------------------------------------------------ */
 
 .lp-hero h1 { color: #fff; }
-.lp-hero h1 em {
-  background: linear-gradient(95deg, #6ee7b7 0%, #bef264 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.lp-underline path { stroke: #bef264; opacity: 0.8; }
+.lp-hero h1 em { color: #6ee7b7; }
+.lp-underline path { stroke: #34d399; opacity: 0.7; }
 .lp-hero .lp-lead { color: #b5cfc4; }
 
 .lp-badge {
@@ -1304,12 +1244,12 @@
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 .lp-fact-icon { color: #6ee7b7; }
-.lp-fact-icon.is-mint { color: #bef264; }
+.lp-fact-icon.is-mint { color: #6ee7b7; }
 .lp-fact-icon.is-cream { color: #f5d38a; }
 
 .lp-orbit { border-color: rgba(255, 255, 255, 0.16); }
 .lp-orbit-coin { box-shadow: 0 0 18px 2px rgba(110, 231, 183, 0.6); }
-.lp-orbit-coin.is-small { background: #bef264; box-shadow: 0 0 14px 2px rgba(190, 242, 100, 0.6); }
+.lp-orbit-coin.is-small { background: #6ee7b7; box-shadow: 0 0 14px 2px rgba(110, 231, 183, 0.6); }
 
 /* The desktop frame gets a thin light rim so it separates from the navy. */
 .lp-frame {
@@ -1324,7 +1264,7 @@
 /* --- Navigation while it sits over the hero ------------------------------- */
 
 .lp-nav.is-top {
-  background: var(--hero-top, #04140f);
+  background: var(--hero-top, #0b0d10);
   border-bottom-color: rgba(255, 255, 255, 0.08);
   backdrop-filter: none;
 }
@@ -1475,7 +1415,6 @@
 .lp-bento-card p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
 .lp-bento-art .art-icon { transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .lp-bento-card:hover .lp-bento-art .art-icon { transform: rotate(-10deg) scale(1.12); }
-.lp-bento-card.is-big .lp-bento-art .art-icon { animation: lp-bob 6s ease-in-out infinite; }
 
 @media (max-width: 980px) {
   .lp-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }

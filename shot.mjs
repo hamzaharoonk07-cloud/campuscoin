@@ -70,7 +70,7 @@ for (const [name, path, tok, theme, width, height, script] of PAGES) {
   await cdp(ws, 'Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width < 500 });
   // Seed auth + theme before the app boots, so it never flashes the login page.
   await cdp(ws, 'Page.addScriptToEvaluateOnNewDocument', {
-    source: `try{${tok ? `localStorage.setItem('campuscoin.token','${tok}');` : `localStorage.removeItem('campuscoin.token');`}localStorage.setItem('campuscoin.theme','${theme}');}catch(e){}`,
+    source: `try{${tok ? `localStorage.setItem('campuscoin.token','${tok}');` : `localStorage.removeItem('campuscoin.token');`}localStorage.setItem('campuscoin.theme','${theme}');sessionStorage.setItem('campuscoin.chatHint','1');}catch(e){}`,
   });
   await cdp(ws, 'Page.navigate', { url: BASE + path });
   await sleep(3200);

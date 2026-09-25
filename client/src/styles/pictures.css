@@ -36,7 +36,7 @@
   margin-bottom: 1.5rem;
   padding: 1rem;
   border-radius: var(--r-panel);
-  background: linear-gradient(135deg, var(--tile-in), var(--tile-goal));
+  background: var(--raised);
   border: 1px dashed transparent;
   transition: border-color 0.2s var(--ease), transform 0.2s var(--ease-out);
 }
@@ -78,9 +78,7 @@
   padding: 0.9rem 1rem;
   border-radius: var(--r-panel);
   border: 1.5px dashed var(--accent-line);
-  background:
-    repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--accent) 4%, transparent) 10px 20px),
-    var(--accent-soft);
+  background: var(--accent-soft);
   transition: border-color 0.2s var(--ease), transform 0.2s var(--ease-out), background-color 0.2s var(--ease);
 }
 .receipt-drop.is-dragging { border-color: var(--accent); transform: scale(1.015); }
@@ -93,13 +91,6 @@
   background: var(--surface);
   color: var(--accent-text);
   box-shadow: var(--shadow-1);
-  animation: receipt-wiggle 4s ease-in-out infinite;
-}
-@keyframes receipt-wiggle {
-  0%, 80%, 100% { transform: rotate(0); }
-  85% { transform: rotate(-8deg); }
-  90% { transform: rotate(6deg); }
-  95% { transform: rotate(-3deg); }
 }
 .receipt-drop-copy { display: grid; gap: 0.15rem; min-width: 0; }
 .receipt-drop-copy strong { font-size: var(--step--1); }
@@ -241,24 +232,16 @@
   border-radius: 50%;
   filter: blur(18px);
   z-index: -2;
-  animation: scene-breathe 6s ease-in-out infinite;
 }
 .tone-mint .scene-glow { background: radial-gradient(circle, color-mix(in srgb, var(--sky) 70%, transparent), transparent 70%); }
 .tone-gold .scene-glow { background: radial-gradient(circle, rgba(251, 191, 36, 0.45), transparent 70%); }
 .tone-sky .scene-glow { background: radial-gradient(circle, rgba(56, 189, 248, 0.4), transparent 70%); }
-@keyframes scene-breathe {
-  50% { transform: scale(1.08); opacity: 0.8; }
-}
 .scene-ring {
   position: absolute;
   inset: 4% 16% 6%;
   border-radius: 50%;
   border: 1.5px dashed color-mix(in srgb, var(--accent) 28%, transparent);
   z-index: -1;
-  animation: scene-spin 40s linear infinite;
-}
-@keyframes scene-spin {
-  to { transform: rotate(360deg); }
 }
 .scene-floor {
   position: absolute;
@@ -277,7 +260,6 @@
   position: absolute;
   translate: -50% -50%;
   aspect-ratio: 1;
-  animation: scene-float 6s ease-in-out infinite;
 }
 .scene-piece img {
   display: block;
@@ -296,21 +278,12 @@
   height: 12%;
   border-radius: 50%;
   background: radial-gradient(closest-side, rgba(15, 31, 25, 0.25), transparent);
-  animation: scene-shadow 6s ease-in-out infinite;
-  animation-delay: inherit;
 }
 /* Nearer objects sit in front and move further; distant ones are softer. */
 .scene-piece.depth-1 { z-index: 3; --lift: -10px; }
 .scene-piece.depth-2 { z-index: 2; --lift: -7px; }
-.scene-piece.depth-3 { z-index: 1; --lift: -5px; animation-duration: 7s; }
+.scene-piece.depth-3 { z-index: 1; --lift: -5px; }
 .scene-piece.depth-3 img { filter: drop-shadow(0 6px 10px rgba(15, 31, 25, 0.16)) saturate(0.92); }
-@keyframes scene-float {
-  50% { translate: -50% calc(-50% + var(--lift, -8px)); }
-}
-@keyframes scene-shadow {
-  50% { transform: scaleX(0.8); opacity: 0.6; }
-}
-
 /* Pointing at a scene nudges every object, a little more for the nearest. */
 .scene:hover .scene-piece img { transform: rotate(calc(var(--r, 0deg) * 0.4)) scale(1.06); }
 .scene:hover .depth-1 img { transform: rotate(0deg) scale(1.1); }
@@ -343,31 +316,16 @@
   .band:has(.band-art) { grid-template-columns: minmax(0, 1fr); }
 }
 
-.receipt-promo { background: linear-gradient(135deg, var(--tile-in), var(--surface) 70%); }
 
 /* Landing: a picture above each of the three steps. */
 .lp-step-art {
   margin: -0.5rem 0 1rem;
   padding: 0.75rem;
   border-radius: 20px;
-  background: linear-gradient(160deg, var(--tile-in), var(--raised));
+  background: var(--raised);
 }
 .lp-step-art .scene { max-width: 250px; }
 
-/* 3D objects on the dashboard's money tiles and the landing's pastel tiles. */
-.money-tile { position: relative; overflow: hidden; }
-.money-tile-art {
-  position: absolute;
-  right: 0.7rem;
-  top: 0.6rem;
-  width: 46px;
-  height: 46px;
-  transition: transform 0.35s var(--ease-out);
-  animation: tile-art-in 0.7s var(--ease-out) 0.5s backwards;
-}
-.money-tile:hover .money-tile-art { transform: scale(1.18) rotate(-8deg); }
-@keyframes tile-art-in {
-  from { opacity: 0; transform: scale(0.4) rotate(-30deg); }
-}
+/* 3D objects on the landing page tiles. */
 .lp-pastels span { display: flex; align-items: center; gap: 0.65rem; }
 .lp-navy-card .art-icon { margin-top: 0.25rem; }

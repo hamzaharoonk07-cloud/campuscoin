@@ -328,10 +328,7 @@ export default function Landing() {
         {/* Scenery: a soft colour mesh, a faint grid and two slow orbits. */}
         <div className="lp-hero-bg" aria-hidden="true">
           <span className="lp-mesh lp-mesh-a" />
-          <span className="lp-mesh lp-mesh-b" />
-          <span className="lp-mesh lp-mesh-c" />
           <span className="lp-grid" />
-          <span className="lp-stars" />
         </div>
 
         <div className="lp-wrap lp-hero-grid">
