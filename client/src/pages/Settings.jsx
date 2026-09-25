@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
+import Avatar from '../components/Avatar.jsx';
+import { squarePhoto } from '../lib/images.js';
 import { api } from '../lib/api.js';
 import { CURRENCY_SYMBOLS } from '../lib/format.js';
 import { useAuth, useTheme, useToast } from '../context/AppContext.jsx';
@@ -31,6 +33,35 @@ export default function Settings() {
   const [busy, setBusy] = useState(false);
 
   const set = (key) => (event) => setProfile({ ...profile, [key]: event.target.value });
+
+  // Profile photo: cropped square and shrunk to about 20 KB in the browser
+  // (lib/images.js), then saved straight away - no separate save button.
+  const photoInput = useRef(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [dragging, setDragging] = useState(false);
+
+  const applyPhoto = async (file) => {
+    if (!file) return;
+    setPhotoBusy(true);
+    try {
+      await updateProfile({ avatar: await squarePhoto(file) });
+      toast.success('Photo updated', 'It now shows in the sidebar and the chat.');
+    } catch (err) {
+      toast.error('Could not use that picture', err.message);
+    } finally {
+      setPhotoBusy(false);
+      if (photoInput.current) photoInput.current.value = '';
+    }
+  };
+
+  const removePhoto = async () => {
+    try {
+      await updateProfile({ avatar: null });
+      toast.success('Photo removed');
+    } catch (err) {
+      toast.error('Could not remove it', err.message);
+    }
+  };
 
   const saveProfile = async (event) => {
     event.preventDefault();
@@ -85,6 +116,56 @@ export default function Settings() {
             <h2>Your profile</h2>
           </div>
           <div className="panel-body">
+            <div
+              className={`photo-picker${dragging ? ' is-dragging' : ''}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                applyPhoto(e.dataTransfer.files[0]);
+              }}
+            >
+              <button
+                type="button"
+                className="photo-face"
+                onClick={() => photoInput.current?.click()}
+                aria-label="Choose a profile photo"
+                disabled={photoBusy}
+              >
+                <Avatar user={user} size={92} />
+                <span className="photo-badge">{photoBusy ? <span className="spinner" /> : <Icon name="upload" size={15} />}</span>
+              </button>
+              <div className="photo-copy">
+                <strong>Profile photo</strong>
+                <p className="small muted">
+                  Click the picture or drop one on it. It is cropped to a square and shrunk before it is uploaded.
+                </p>
+                <div className="row">
+                  <button type="button" className="btn btn-sm" onClick={() => photoInput.current?.click()} disabled={photoBusy}>
+                    <Icon name="upload" size={14} />
+                    {user.avatar ? 'Change photo' : 'Upload photo'}
+                  </button>
+                  {user.avatar ? (
+                    <button type="button" className="btn btn-sm btn-ghost" onClick={removePhoto} disabled={photoBusy}>
+                      Remove
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+              <input
+                ref={photoInput}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                tabIndex={-1}
+                onChange={(e) => applyPhoto(e.target.files[0])}
+              />
+            </div>
+
             <form className="stack" onSubmit={saveProfile}>
               <div className="field">
                 <label htmlFor="name">Name</label>

@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema(
     savingsGoal: { type: Number, default: 0, min: 0 },
     currency: { type: String, enum: ['PKR', 'USD', 'EUR', 'GBP', 'INR', 'AED'], default: 'PKR' },
     avatarColor: { type: String, default: '#047857' },
+    // An optional profile photo as a small data URL (see utils/images.js).
+    // The coloured initial is shown whenever this is empty.
+    avatar: { type: String, default: '' },
 
     // Accessibility preferences (SRS "Accessibility and UI Enhancements")
     preferences: {

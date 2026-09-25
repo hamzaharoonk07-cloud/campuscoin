@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Layout from '../../components/Layout.jsx';
 import Icon from '../../components/Icon.jsx';
 import { Modal } from '../../components/TransactionForm.jsx';
+import Avatar from '../../components/Avatar.jsx';
 import { api } from '../../lib/api.js';
 import { formatDate } from '../../lib/format.js';
 import { useToast } from '../../context/AppContext.jsx';
@@ -89,7 +90,10 @@ export default function AdminStudents() {
               {users.map((user) => (
                 <tr key={user._id}>
                   <td>
-                    <strong>{user.name}</strong>
+                    <span className="person">
+                      <Avatar user={user} size={32} />
+                      <strong>{user.name}</strong>
+                    </span>
                     <div className="small muted">{user.email}</div>
                   </td>
                   <td>

@@ -4,6 +4,7 @@ import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon, { BrandMark } from './Icon.jsx';
 import Chat from './Chat.jsx';
 import Backdrop from './Backdrop.jsx';
+import Avatar from './Avatar.jsx';
 import { api } from '../lib/api.js';
 import { useAuth, useTheme } from '../context/AppContext.jsx';
 
@@ -286,24 +287,9 @@ export default function Layout({ title, crumbs, actions, children }) {
 
         <div className="rail-footer">
           <div className="row" style={{ padding: '0.35rem 0.7rem 0.6rem' }}>
-            <span
-              aria-hidden="true"
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 999,
-                background: user?.avatarColor || 'var(--accent)',
-                // White on every avatar colour, in both themes.
-                color: '#fff',
-                display: 'grid',
-                placeItems: 'center',
-                fontWeight: 700,
-                fontSize: 13,
-                flex: 'none',
-              }}
-            >
-              {user?.name?.[0]?.toUpperCase() || '?'}
-            </span>
+            <Link to={isAdmin ? '/admin' : '/settings'} className="rail-avatar" title="Change your photo">
+              <Avatar user={user} size={34} />
+            </Link>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontWeight: 600, fontSize: 'var(--step--1)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {user?.name}

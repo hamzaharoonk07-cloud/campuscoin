@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from './Icon.jsx';
+import Avatar from './Avatar.jsx';
 import { api } from '../lib/api.js';
 import { slotColor } from '../lib/format.js';
 import { useAuth } from '../context/AppContext.jsx';
@@ -106,7 +107,6 @@ export default function Chat({ compact = false }) {
 
   const clear = () => setMessages([]);
   const chips = opening?.chips || [];
-  const initial = user?.name?.[0]?.toUpperCase() || '?';
 
   return (
     <div className={`chat${compact ? ' is-compact' : ''}`}>
@@ -152,9 +152,13 @@ export default function Chat({ compact = false }) {
         {messages.map((message, i) => (
           // eslint-disable-next-line react/no-array-index-key -- messages are append-only
           <div key={i} className={`chat-msg ${message.from === 'me' ? 'is-me' : 'is-bot'}`}>
-            <span className="chat-avatar" aria-hidden="true" style={message.from === 'me' ? { background: user?.avatarColor } : undefined}>
-              {message.from === 'me' ? initial : <Icon name="spark" size={16} />}
-            </span>
+            {message.from === 'me' ? (
+              <Avatar user={user} size={30} className="chat-me" />
+            ) : (
+              <span className="chat-avatar" aria-hidden="true">
+                <Icon name="spark" size={16} />
+              </span>
+            )}
             <div className="chat-bubble">{message.from === 'me' ? <p>{message.text}</p> : <Answer message={message} />}</div>
           </div>
         ))}

@@ -218,6 +218,11 @@ export default function Transactions() {
                             </span>
                           ) : null}
                           {row.source === 'csv' ? <span className="pill">imported</span> : null}
+                          {row.hasReceipt ? (
+                            <span className="pill is-accent">
+                              <Icon name="receipt" size={11} /> receipt
+                            </span>
+                          ) : null}
                           {row.flags?.includes('duplicate') ? <span className="pill is-warn">possible duplicate</span> : null}
                           {row.flags?.includes('large') ? <span className="pill is-warn">unusually large</span> : null}
                         </span>

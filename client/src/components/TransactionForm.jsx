@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Icon from './Icon.jsx';
+import ReceiptScanner from './ReceiptScanner.jsx';
 import { api } from '../lib/api.js';
 import { slotColor, todayInput } from '../lib/format.js';
-import { useToast } from '../context/AppContext.jsx';
+import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /**
  * The one form used for adding and editing. It carries the categorisation
@@ -13,6 +14,7 @@ import { useToast } from '../context/AppContext.jsx';
  */
 export default function TransactionForm({ categories, existing, onSaved, onCancel }) {
   const toast = useToast();
+  const { currency } = useAuth();
   const [form, setForm] = useState(() => ({
     type: existing?.type || 'expense',
     amount: existing?.amount ?? '',
@@ -29,6 +31,12 @@ export default function TransactionForm({ categories, existing, onSaved, onCance
   // Remembers which category the assistant proposed, so the server can be told
   // whether the student kept it.
   const proposed = useRef(null);
+  // The receipt photo. undefined = leave a saved one as it is, a data URL =
+  // attach this one, null = remove it.
+  const [receipt, setReceipt] = useState(undefined);
+  // After a scan the category is filled in from the suggestion automatically;
+  // typed descriptions still wait for the student to tap it.
+  const autoCategory = useRef(false);
 
   const options = useMemo(() => categories.filter((c) => c.type === form.type), [categories, form.type]);
 
@@ -47,11 +55,29 @@ export default function TransactionForm({ categories, existing, onSaved, onCance
         .then(({ suggestion: hint }) => {
           setSuggestion(hint);
           if (hint) proposed.current = hint.categoryId;
+          if (hint && autoCategory.current) {
+            autoCategory.current = false;
+            setForm((current) => (current.categoryId ? current : { ...current, categoryId: hint.categoryId }));
+          }
         })
         .catch(() => setSuggestion(null));
     }, 350);
     return () => clearTimeout(timer);
   }, [form.description, form.type, existing]);
+
+  // What the scanner found goes into the form; anything it did not find is left
+  // as the student had it.
+  const fromReceipt = (found) => {
+    autoCategory.current = true;
+    setForm((current) => ({
+      ...current,
+      type: 'expense',
+      categoryId: current.type === 'expense' ? current.categoryId : '',
+      amount: found.amount ?? current.amount,
+      description: found.merchant || current.description,
+      date: found.date || current.date,
+    }));
+  };
 
   const applySuggestion = () => {
     if (suggestion) setForm((current) => ({ ...current, categoryId: suggestion.categoryId }));
@@ -75,6 +101,7 @@ export default function TransactionForm({ categories, existing, onSaved, onCance
       categoryId: form.categoryId,
       recurring: { enabled: form.recurringEnabled, frequency: form.recurringFrequency },
     };
+    if (receipt !== undefined) payload.receipt = receipt;
 
     try {
       if (existing) {
@@ -116,6 +143,17 @@ export default function TransactionForm({ categories, existing, onSaved, onCance
           Money in
         </button>
       </div>
+
+      {form.type === 'expense' || existing?.hasReceipt ? (
+        <ReceiptScanner
+          photo={receipt}
+          onPhoto={setReceipt}
+          onRead={fromReceipt}
+          currency={currency}
+          savedId={existing?._id}
+          hasSaved={Boolean(existing?.hasReceipt) && receipt === undefined}
+        />
+      ) : null}
 
       <div className="field-row">
         <div className="field">

@@ -3,6 +3,7 @@ import express from 'express';
 import User from '../models/User.js';
 import { protect, signToken, wrap } from '../middleware/auth.js';
 import { sendMail, mailConfigured } from '../services/mailer.js';
+import { cleanImage } from '../utils/images.js';
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ const publicUser = (user) => ({
   savingsGoal: user.savingsGoal,
   currency: user.currency,
   avatarColor: user.avatarColor,
+  avatar: user.avatar,
   preferences: user.preferences,
   createdAt: user.createdAt,
 });
@@ -112,6 +114,10 @@ router.patch(
     }
     if (req.body.preferences) {
       req.user.preferences = { ...req.user.preferences.toObject(), ...req.body.preferences };
+    }
+    // null or '' removes the photo; anything else must be a small image.
+    if (req.body.avatar !== undefined) {
+      req.user.avatar = cleanImage(req.body.avatar, { maxKb: 150, label: 'Profile photo' });
     }
     await req.user.save();
     res.json({ user: publicUser(req.user) });

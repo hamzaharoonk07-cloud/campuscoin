@@ -91,6 +91,8 @@ router.get(
         _id: user._id,
         name: user.name,
         email: user.email,
+        avatar: user.avatar,
+        avatarColor: user.avatarColor,
         academicYear: user.academicYear,
         institution: user.institution,
         currency: user.currency,

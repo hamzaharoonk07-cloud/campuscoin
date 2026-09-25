@@ -1,0 +1,224 @@
+/* ===========================================================================
+   Pictures - profile photos, receipt photos and the illustrations
+   =========================================================================== */
+
+/* --- Avatars -------------------------------------------------------------- */
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--accent-line);
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.rail-avatar { display: inline-flex; border-radius: 50%; padding: 0 !important; width: auto !important; }
+.rail-avatar:hover { background: none !important; }
+.rail-avatar .avatar { transition: transform 0.25s var(--ease-out); }
+.rail-avatar:hover .avatar { transform: scale(1.08); }
+
+.person { display: inline-flex; align-items: center; gap: 0.65rem; }
+.person + .small { padding-left: calc(32px + 0.65rem); }
+
+.chat-msg.is-me .chat-me { box-shadow: none; }
+
+/* --- Profile photo picker ------------------------------------------------- */
+
+.photo-picker {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: var(--r-panel);
+  background: linear-gradient(135deg, var(--tile-in), var(--tile-goal));
+  border: 1px dashed transparent;
+  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease-out);
+}
+.photo-picker.is-dragging { border-color: var(--accent); transform: scale(1.01); }
+.photo-face {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.photo-face .avatar { box-shadow: 0 0 0 4px var(--surface), 0 12px 24px -10px rgba(0, 0, 0, 0.35); transition: transform 0.3s var(--ease-out); }
+.photo-face:hover .avatar { transform: scale(1.04) rotate(-2deg); }
+.photo-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0 0 3px var(--surface);
+}
+.photo-copy { display: grid; gap: 0.35rem; min-width: 0; }
+.photo-copy p { margin: 0; }
+.photo-copy .row { margin-top: 0.35rem; }
+
+/* --- Receipt scanner ------------------------------------------------------ */
+
+.receipt-drop {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--r-panel);
+  border: 1.5px dashed var(--accent-line);
+  background:
+    repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--accent) 4%, transparent) 10px 20px),
+    var(--accent-soft);
+  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease-out), background-color 0.2s var(--ease);
+}
+.receipt-drop.is-dragging { border-color: var(--accent); transform: scale(1.015); }
+.receipt-drop-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--accent-text);
+  box-shadow: var(--shadow-1);
+  animation: receipt-wiggle 4s ease-in-out infinite;
+}
+@keyframes receipt-wiggle {
+  0%, 80%, 100% { transform: rotate(0); }
+  85% { transform: rotate(-8deg); }
+  90% { transform: rotate(6deg); }
+  95% { transform: rotate(-3deg); }
+}
+.receipt-drop-copy { display: grid; gap: 0.15rem; min-width: 0; }
+.receipt-drop-copy strong { font-size: var(--step--1); }
+.receipt-drop-copy span { font-size: var(--step--2); color: var(--muted); }
+.receipt-drop-actions { display: flex; gap: 0.35rem; }
+.receipt-error { color: var(--bad) !important; font-weight: 600; }
+
+.receipt-card {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.85rem;
+  border-radius: var(--r-panel);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  animation: pop-card 0.35s var(--ease-out);
+}
+@keyframes pop-card {
+  from { opacity: 0; transform: scale(0.97); }
+}
+.receipt-thumb {
+  position: relative;
+  padding: 0;
+  border: 0;
+  height: 128px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  cursor: zoom-in;
+  box-shadow: var(--shadow-2);
+}
+.receipt-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.receipt-thumb.is-reading img { filter: saturate(0.6) brightness(1.05); }
+
+/* A green line sweeps down the photo while it is being read. */
+.receipt-scanline {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  height: 34px;
+  top: -34px;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent) 35%, transparent) 70%, var(--accent) 72%, transparent 74%);
+  animation: scanline 1.6s ease-in-out infinite;
+}
+@keyframes scanline {
+  to { top: 100%; }
+}
+
+.receipt-body { display: grid; align-content: center; gap: 0.5rem; min-width: 0; }
+.receipt-body strong { font-size: var(--step--1); }
+.receipt-progress {
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: var(--sunken);
+  overflow: hidden;
+}
+.receipt-progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--sky, var(--accent)));
+  transform-origin: left;
+  transition: transform 0.3s var(--ease-out);
+}
+.receipt-found { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.receipt-found span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--r-pill);
+  font-size: var(--step--2);
+  font-weight: 600;
+  animation: pill-in 0.35s var(--ease-out) backwards;
+}
+.receipt-found span:nth-child(2) { animation-delay: 0.08s; }
+.receipt-found span:nth-child(3) { animation-delay: 0.16s; }
+.receipt-found .is-ok { background: var(--good-soft); color: var(--good); }
+.receipt-found .is-miss { background: var(--warn-soft); color: var(--warn); }
+
+.receipt-saved {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--r-panel);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+.receipt-saved .btn { margin-left: auto; }
+
+.receipt-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  background: rgba(4, 12, 9, 0.8);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  cursor: zoom-out;
+  animation: fade-in 0.2s var(--ease);
+}
+.receipt-lightbox img {
+  max-width: min(520px, 92vw);
+  max-height: 80vh;
+  border-radius: 12px;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+  animation: modal-in 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@media (max-width: 560px) {
+  .receipt-drop { grid-template-columns: auto minmax(0, 1fr); }
+  .receipt-drop-actions { grid-column: 1 / -1; }
+  .photo-picker { flex-direction: column; text-align: center; }
+  .photo-copy .row { justify-content: center; }
+}

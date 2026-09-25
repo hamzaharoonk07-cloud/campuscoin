@@ -8,6 +8,8 @@ import { checkBudgets, notifyAnomaly } from '../services/alerts.js';
 import { parseTransactionCsv, toCsv } from '../services/csv.js';
 import { nextOccurrence, parseMonth, startOfMonth, endOfMonth } from '../utils/dates.js';
 
+import { cleanImage } from '../utils/images.js';
+
 const router = express.Router();
 router.use(protect);
 
@@ -92,7 +94,7 @@ router.get(
 router.post(
   '/',
   wrap(async (req, res) => {
-    const { categoryId, type, amount, description, note, date, recurring, aiSuggestedCategory } = req.body;
+    const { categoryId, type, amount, description, note, date, recurring, aiSuggestedCategory, receipt } = req.body;
 
     const category = await resolveCategory(req.user, categoryId);
     if (!category) return res.status(400).json({ message: 'Choose a category from your list' });
@@ -117,6 +119,11 @@ router.post(
       source: 'manual',
     });
 
+    if (receipt) {
+      transaction.receipt = cleanImage(receipt, { maxKb: 450, label: 'Receipt photo' });
+      transaction.hasReceipt = true;
+    }
+
     if (recurring?.enabled) {
       transaction.recurring = {
         enabled: true,
@@ -140,8 +147,11 @@ router.post(
     ]);
 
     await transaction.populate('category', 'name slot icon type');
+    // The image was just sent by the client; there is no need to send it back.
+    const saved = transaction.toObject();
+    delete saved.receipt;
     res.status(201).json({
-      transaction,
+      transaction: saved,
       alerts,
       warnings: transaction.flags.map((flag) => describeFlag(flag, transaction)).filter(Boolean),
     });
@@ -171,6 +181,10 @@ router.patch(
       if (req.body[field] !== undefined) transaction[field] = req.body[field];
     }
     if (req.body.date) transaction.date = new Date(req.body.date);
+    if (req.body.receipt !== undefined) {
+      transaction.receipt = cleanImage(req.body.receipt, { maxKb: 450, label: 'Receipt photo' });
+      transaction.hasReceipt = Boolean(transaction.receipt);
+    }
 
     if (req.body.recurring) {
       transaction.recurring = {
@@ -189,6 +203,17 @@ router.patch(
 
     await transaction.populate('category', 'name slot icon type');
     res.json({ transaction });
+  })
+);
+
+/** The receipt photo for one transaction, fetched only when it is opened. */
+router.get(
+  '/:id/receipt',
+  wrap(async (req, res) => {
+    const transaction = await Transaction.findOne({ _id: req.params.id, user: req.user._id }).select('+receipt hasReceipt');
+    if (!transaction) return res.status(404).json({ message: 'That transaction was not found' });
+    if (!transaction.hasReceipt) return res.status(404).json({ message: 'No receipt is attached to this transaction' });
+    res.json({ receipt: transaction.receipt });
   })
 );
 
