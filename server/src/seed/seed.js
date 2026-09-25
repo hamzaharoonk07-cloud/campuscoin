@@ -227,7 +227,7 @@ export async function seedIfEmpty() {
     monthlyAllowance: 20000,
     savingsGoal: 5000,
     currency: 'PKR',
-    avatarColor: '#2f64f0',
+    avatarColor: '#3d5243',
   });
 
   const second = await createUser({

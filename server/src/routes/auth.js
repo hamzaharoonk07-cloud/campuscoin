@@ -24,7 +24,7 @@ const publicUser = (user) => ({
   createdAt: user.createdAt,
 });
 
-const PALETTE = ['#2f64f0', '#16a34a', '#60a5fa', '#f472b6', '#a78bfa', '#fb923c'];
+const PALETTE = ['#3d5243', '#16a34a', '#60a5fa', '#f472b6', '#a78bfa', '#fb923c'];
 
 router.post(
   '/register',

@@ -246,18 +246,18 @@ The interface is written rather than assembled. A few decisions worth naming:
   surface rather than one being an inversion of the other. The choice is saved
   to the device *and* the account, so it follows the student to another machine.
   Settings also offers "match my device", which follows the operating system live.
-- **Black, white and one blue.** The app follows the style of the *Finstack*
-  dashboard by Zero Studio (Dribbble): a black sidebar floating beside a light
-  page, white cards with thin borders, and one royal blue (`#2f64f0`) for
-  anything you can act on. Green and red are kept for money coming in and
-  going out. Text is set in Inter. The sidebar has the logo, a search box that
-  finds any transaction, the menu with the current page as a lifted dark
-  panel, and the account at the foot. The dashboard opens on three balance
-  cards (kept, money in, money out - each with the change from last month and
-  an eye to hide the figures), then the cash flow beside the budgets, the
-  recent transactions beside where the money went, and quick add, what is
-  coming up and the best tips underneath. The styles live in
-  `client/src/styles/finstack.css`; the code and all the copy are our own.
+- **Warm, calm and black.** The app follows the style of the *Lefstyle*
+  finance dashboard by Odama (Dribbble): a warm off-white page with the menu
+  sitting straight on it, one large white panel for the content, black for
+  anything you can act on, and muted sage, cream and lilac for the figures.
+  Text is set in Inter. The sidebar has a quick search (press "/"), the menu
+  with the current page as a white pill, a black "Ask Coin" card and the
+  account at the foot. The dashboard opens on the month's headline figure and
+  three small cards, then the month's rhythm as three coloured blocks
+  (spending, income or budgets), and the recent transactions. Beside them are
+  Coin's insight, the month's financial health on a gauge, quick add and what
+  is coming up. The styles live in `client/src/styles/lefstyle.css`; the code
+  and all the copy are our own.
 - **Illustrations are small 3D scenes** (`client/src/components/Illustrations.jsx`).
   Each is a few 3D objects arranged at different sizes, angles and depths over
   a soft glow, each with its own floor shadow and slow float, so nearer objects
@@ -265,7 +265,7 @@ The interface is written rather than assembled. A few decisions worth naming:
   Microsoft's **Fluent Emoji** set, used under the MIT licence; the files and
   the licence are stored in `client/public/art`, so nothing is fetched from
   outside at runtime. The layout, animation and composition are our own.
-- **A logo and a mascot.** The mark is a gold coin on a blue tile, drawn
+- **A logo and a mascot.** The mark is a gold coin on a sage-green tile, drawn
   in SVG (`client/src/components/Brand.jsx`) so it is sharp from the favicon
   to the hero. The chat assistant has a face - Coin, the gold coin from the
   logo with eyes that blink and a speech bubble whose dots move while it

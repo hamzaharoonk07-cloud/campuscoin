@@ -1308,7 +1308,7 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   top: -18rem;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(143, 176, 255, 0.2), transparent 65%);
+  background: radial-gradient(circle, rgba(239, 217, 167, 0.2), transparent 65%);
 }
 
 .auth-aside > * { position: relative; }
@@ -2675,7 +2675,7 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   right: -12rem;
   top: -16rem;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(143, 176, 255, 0.22), transparent 65%);
+  background: radial-gradient(circle, rgba(239, 217, 167, 0.22), transparent 65%);
   pointer-events: none;
 }
 
@@ -2713,13 +2713,13 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 .btn-sky {
   background: var(--sky);
   border-color: var(--sky);
-  color: #0b1a45;
+  color: #2a2210;
   box-shadow: none;
 }
 .btn-sky:hover:not(:disabled) {
   background: #fff;
   border-color: #fff;
-  color: #0b1a45;
+  color: #2a2210;
 }
 
 .dash-hero-link {

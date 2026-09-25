@@ -40,6 +40,19 @@ const pageFor = (path) =>
 function RailSearch() {
   const navigate = useNavigate();
   const [q, setQ] = useState('');
+  const field = useRef(null);
+
+  // Pressing "/" anywhere outside a text field jumps to the search box.
+  useEffect(() => {
+    const onKey = (event) => {
+      if (event.key !== '/' || /input|textarea|select/i.test(event.target.tagName)) return;
+      event.preventDefault();
+      field.current?.focus();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+
   const submit = (event) => {
     event.preventDefault();
     navigate(q.trim() ? `/transactions?q=${encodeURIComponent(q.trim())}` : '/transactions');
@@ -47,7 +60,15 @@ function RailSearch() {
   return (
     <form className="rail-search" role="search" onSubmit={submit}>
       <Icon name="search" size={16} />
-      <input type="search" placeholder="Search" aria-label="Search transactions" value={q} onChange={(e) => setQ(e.target.value)} />
+      <input
+        ref={field}
+        type="search"
+        placeholder="Quick search"
+        aria-label="Search transactions"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+      />
+      <kbd>/</kbd>
     </form>
   );
 }
@@ -376,16 +397,13 @@ export default function Layout({ title, crumbs, actions, children }) {
       <nav className="rail" aria-label="Main" ref={rail}>
         <span className="rail-indicator" ref={indicator} aria-hidden="true" />
         <Link to={isAdmin ? '/admin' : '/dashboard'} className="rail-brand">
-          <BrandMark size={34} />
-          <span>
-            <small>{isAdmin ? 'Admin' : 'Student'}</small>
-            <strong>Campus Coin</strong>
-          </span>
+          <BrandMark size={28} />
+          <strong>Campus Coin</strong>
+          {isAdmin ? <small>Admin</small> : null}
         </Link>
 
         {!isAdmin ? <RailSearch /> : null}
 
-        <div className="rail-group">{isAdmin ? 'Control panel' : 'Main menu'}</div>
         {nav.map((item) => (
           <NavLink key={item.to} to={item.to} end={item.to === '/admin'}>
             <Icon name={item.icon} />
@@ -395,7 +413,7 @@ export default function Layout({ title, crumbs, actions, children }) {
 
         {!isAdmin && (
           <>
-            <div className="rail-group">Account</div>
+            <div className="rail-divider" />
             {SECONDARY_NAV.map((item) => (
               <NavLink key={item.to} to={item.to}>
                 <Icon name={item.icon} />
@@ -411,6 +429,19 @@ export default function Layout({ title, crumbs, actions, children }) {
         </button>
 
         <div className="rail-spacer" />
+
+        {!isAdmin ? (
+          <div className="rail-coin">
+            <span className="rail-coin-face" aria-hidden="true">
+              <CoinBot size={34} bubble={false} />
+            </span>
+            <strong>Ask Coin</strong>
+            <p>Questions about your money, answered from your own transactions.</p>
+            <button type="button" onClick={() => openChat()}>
+              Ask now
+            </button>
+          </div>
+        ) : null}
 
         <Link to={isAdmin ? '/admin' : '/settings'} className="rail-user" title="Your account">
           <Avatar user={user} size={34} />

@@ -35,9 +35,11 @@ router.get(
     // dashboard never shows a month that is missing this month's allowance.
     await runRecurring(req.user._id);
 
-    const [totals, spending, budgets, sixMonths, tips, announcements, insight, recent] = await Promise.all([
+    const [totals, spending, incomeSources, budgets, sixMonths, tips, announcements, insight, recent] = await Promise.all([
       monthTotals(req.user._id, month),
       byCategory(req.user._id, month, 'expense'),
+      // Where the money came from, for the dashboard's monthly rhythm card.
+      byCategory(req.user._id, month, 'income'),
       budgetProgress(Budget, req.user._id, month),
       trend(req.user._id, month, 6),
       listTips(req.user._id),
@@ -56,6 +58,7 @@ router.get(
       totals,
       topCategory: spending[0] || null,
       spending: spending.slice(0, 6),
+      income: incomeSources.slice(0, 6),
       budgets: budgets.slice(0, 4),
       trend: sixMonths,
       tips: tips.slice(0, 3),

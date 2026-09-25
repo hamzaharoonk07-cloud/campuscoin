@@ -30,8 +30,8 @@ export default function CoinBot({ size = 40, bubble = true, talking = false, cla
           <stop offset="1" stopColor="#9a4a0a" />
         </linearGradient>
         <linearGradient id={`${id}-bubble`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#7aa2ff" />
-          <stop offset="1" stopColor="#2f64f0" />
+          <stop offset="0" stopColor="#6f8f78" />
+          <stop offset="1" stopColor="#3d5243" />
         </linearGradient>
         <radialGradient id={`${id}-shine`} cx="0.32" cy="0.25" r="0.7">
           <stop offset="0" stopColor="#fff" stopOpacity="0.7" />

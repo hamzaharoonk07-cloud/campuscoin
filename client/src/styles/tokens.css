@@ -1,9 +1,9 @@
 /* ===========================================================================
    Campus Coin design tokens
    ---------------------------------------------------------------------------
-   Modelled on the Finstack dashboard: a black sidebar, white cards on a
-   light grey page, and one royal blue for anything you can act on. Red and
-   green are kept for money going out and coming in, and soft pastel tiles
+   Modelled on the Lefstyle dashboard: a warm off-white page, white cards,
+   black for anything you can act on, and muted sage, cream and lilac for the
+   figures. Green and clay orange mark money coming in, and soft pastel tiles
    for the four kinds of money a student deals with. Inter Tight sets the
    headings - tight and even at large sizes - and Inter does the reading.
 
@@ -24,43 +24,43 @@
   --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Inter', system-ui, sans-serif;
   --r-control: 10px;
-  --r-panel-lg: 18px;
+  --r-panel-lg: 20px;
   --r-panel: 14px;
   --shadow-3: 0 4px 8px -2px rgba(10, 10, 11, 0.06), 0 16px 32px -12px rgba(10, 10, 11, 0.18);
   --shadow-2: 0 1px 3px rgba(10, 10, 11, 0.06), 0 6px 16px -8px rgba(10, 10, 11, 0.1);
   --shadow-1: 0 1px 2px rgba(10, 10, 11, 0.04);
-  --bad-soft: rgba(220, 38, 38, 0.08);
-  --bad: #dc2626;
-  --good-soft: rgba(22, 163, 74, 0.1);
-  --good: #16a34a;
-  --tile-goal: #eaf0ff;
-  --tile-budget: #fff5e3;
-  --tile-in: #e8f7ee;
-  --tile-out: #fdecec;
-  --series-out: #e5484d;
-  --series-in: #2f64f0;
-  --on-navy-muted: #a1a1aa;
+  --bad-soft: rgba(194, 65, 12, 0.08);
+  --bad: #c2410c;
+  --good-soft: rgba(31, 107, 87, 0.1);
+  --good: #1f6b57;
+  --tile-goal: #ece3ee;
+  --tile-budget: #f5ecd6;
+  --tile-in: #e3ebe3;
+  --tile-out: #f7e6dc;
+  --series-out: #e38b5b;
+  --series-in: #3d5243;
+  --on-navy-muted: #b5b2a8;
   --on-navy: #ffffff;
-  --sky: #7aa2ff;
-  --navy-raised: #1a1a1d;
-  --navy: #0b0b0c;
-  --accent-glow: 0 6px 16px -8px rgba(47, 100, 240, 0.55);
+  --sky: #efd9a7;
+  --navy-raised: #23231f;
+  --navy: #161614;
+  --accent-glow: 0 6px 16px -8px rgba(27, 27, 25, 0.45);
   --on-accent: #ffffff;
-  --accent-text: #1f4fd1;
-  --accent-line: rgba(47, 100, 240, 0.28);
-  --accent-soft: rgba(47, 100, 240, 0.08);
-  --accent-deep: #2253d6;
-  --accent: #2f64f0;
-  --faint: #71717a;
-  --muted: #52525b;
-  --text: #0a0a0b;
+  --accent-text: #1b1b19;
+  --accent-line: rgba(27, 27, 25, 0.2);
+  --accent-soft: rgba(27, 27, 25, 0.06);
+  --accent-deep: #000000;
+  --accent: #1b1b19;
+  --faint: #8a877f;
+  --muted: #5f5d57;
+  --text: #1b1b19;
   --input-bg: #ffffff;
-  --line-strong: #d9d9de;
-  --line: #e9e9ec;
-  --sunken: #efeff1;
-  --raised: #f7f7f8;
+  --line-strong: #dcd9d1;
+  --line: #ebe9e3;
+  --sunken: #eeede7;
+  --raised: #f8f7f3;
   --surface: #ffffff;
-  --bg: #f4f4f5;
+  --bg: #f2f1ec;
   color-scheme: light;
 
 
@@ -115,34 +115,40 @@
 
   --rail: 248px;
   --gutter: clamp(1rem, 2.6vw, 2rem);
+  --sage: #3d5243;
+  --cream: #efe5cd;
+  --lilac: #c9b6cc;
+  --teal: #1f6b57;
+  --amber: #f5bd45;
+  --clay: #e8895a;
 }
 
 :root[data-theme='dark'] {
-  --tile-goal: #161d2e;
-  --tile-budget: #2a2314;
-  --tile-in: #13241a;
-  --tile-out: #2a1718;
-  --series-out: #f26b70;
-  --series-in: #5b8cff;
-  --navy-raised: #141416;
-  --navy: #000000;
-  --accent-glow: 0 6px 16px -8px rgba(77, 125, 255, 0.5);
-  --on-accent: #ffffff;
-  --accent-text: #93b2ff;
-  --accent-line: rgba(77, 125, 255, 0.32);
-  --accent-soft: rgba(77, 125, 255, 0.12);
-  --accent-deep: #3b6cf6;
-  --accent: #4d7dff;
-  --faint: #7a7a83;
-  --muted: #a1a1aa;
-  --text: #f4f4f5;
-  --input-bg: #0f0f11;
-  --line-strong: #303035;
-  --line: #232326;
-  --sunken: #060607;
-  --raised: #18181b;
-  --surface: #121214;
-  --bg: #09090b;
+  --tile-goal: #27202a;
+  --tile-budget: #2b2619;
+  --tile-in: #1c2620;
+  --tile-out: #2e211a;
+  --series-out: #f0a57c;
+  --series-in: #8fb39a;
+  --navy-raised: #1b1b19;
+  --navy: #0b0b0a;
+  --accent-glow: 0 6px 16px -8px rgba(0, 0, 0, 0.6);
+  --on-accent: #151514;
+  --accent-text: #f2f1ec;
+  --accent-line: rgba(242, 241, 236, 0.22);
+  --accent-soft: rgba(242, 241, 236, 0.08);
+  --accent-deep: #ffffff;
+  --accent: #f2f1ec;
+  --faint: #86837b;
+  --muted: #b0ada4;
+  --text: #f2f1ec;
+  --input-bg: #171715;
+  --line-strong: #37362f;
+  --line: #2a2a27;
+  --sunken: #0d0d0c;
+  --raised: #222220;
+  --surface: #1b1b19;
+  --bg: #121211;
   color-scheme: dark;
 
 
@@ -161,12 +167,12 @@
   --cat-6: #008300;
   --cat-7: #9085e9;
 
-  --good: #4ade80;
-  --good-soft: rgba(74, 222, 128, 0.12);
+  --good: #6fc2a4;
+  --good-soft: rgba(111, 194, 164, 0.12);
   --warn: #e0a83c;
   --warn-soft: rgba(224, 168, 60, 0.13);
-  --bad: #f07a78;
-  --bad-soft: rgba(240, 122, 120, 0.13);
+  --bad: #f0875a;
+  --bad-soft: rgba(240, 135, 90, 0.12);
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.25), 0 12px 28px -12px rgba(0, 0, 0, 0.5);
@@ -175,4 +181,10 @@
   --wash-1: transparent;
   --wash-2: transparent;
   --wash-3: transparent;
+  --sage: #6f8f78;
+  --cream: #d9ccaa;
+  --lilac: #b49bb8;
+  --teal: #4fa98c;
+  --amber: #f5bd45;
+  --clay: #f0a57c;
 }

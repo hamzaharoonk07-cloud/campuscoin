@@ -8,8 +8,8 @@ import './styles/app.css';
 import './styles/motion.css';
 import './styles/pictures.css';
 import './styles/frame.css';
-// The Finstack look, last so it wins.
-import './styles/finstack.css';
+// The Lefstyle look, last so it wins.
+import './styles/lefstyle.css';
 import { installPointerEffects } from './lib/pointerEffects.js';
 
 installPointerEffects();
