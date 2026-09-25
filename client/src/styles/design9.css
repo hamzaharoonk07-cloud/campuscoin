@@ -788,3 +788,101 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 @media (max-width: 720px) {
   .topbar-about.is-personal { display: block; font-size: 0.82rem; line-height: 1.4; margin-top: 0.3rem; }
 }
+
+/* --- The rail opens on hover ------------------------------------------------ */
+
+/* Resting, the rail is a column of round icons. Pointing at it (or tabbing
+   into it) slides it open over the page - it does not push the content - and
+   each icon gains its name beside it. Every button keeps its icon in the same
+   place, so nothing jumps: the button just grows to the right, and the
+   highlight grows with it. */
+.rail {
+  --rail-w: 84px;
+  --btn-w: 46px;
+  position: sticky;
+  z-index: 60;
+  width: var(--rail-w);
+  transition: width 0.28s var(--ease-out), box-shadow 0.28s var(--ease-out);
+}
+.rail:hover,
+.rail:focus-within {
+  --rail-w: 232px;
+  --btn-w: 196px;
+  box-shadow: 18px 0 40px -12px rgba(0, 0, 0, 0.55);
+  transition-delay: 0.08s;
+}
+
+.rail a.rail-btn,
+.rail button.rail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  width: var(--btn-w);
+  padding: 0 0 0 13px;
+  border-radius: 23px;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width 0.28s var(--ease-out), background 0.15s var(--ease), color 0.15s var(--ease);
+}
+.rail:hover .rail-btn,
+.rail:focus-within .rail-btn { transition-delay: 0.08s, 0s, 0s; }
+.rail-btn > svg { flex: none; }
+
+/* The name beside each icon (it was a hover tooltip; now it is the label). */
+.rail .rail-tip {
+  position: static;
+  translate: none;
+  transform: none;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.18s var(--ease);
+}
+.rail:hover .rail-tip,
+.rail:focus-within .rail-tip { opacity: 1; transition-delay: 0.14s; }
+
+.rail-indicator {
+  width: var(--btn-w);
+  left: calc(50% - var(--btn-w) / 2);
+  border-radius: 23px;
+  transition: transform 0.5s var(--ease-out), height 0.5s var(--ease-out), width 0.28s var(--ease-out), left 0.28s var(--ease-out), opacity 0.2s var(--ease);
+}
+
+.rail .rail-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: var(--btn-w);
+  padding: 0 0 1.4rem 3px;
+  border-radius: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width 0.28s var(--ease-out);
+}
+.rail-brand > svg { flex: none; }
+.rail-brand-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  opacity: 0;
+  transition: opacity 0.18s var(--ease);
+}
+.rail-brand-name small { font-size: 0.7rem; color: #a1a1aa; font-weight: 500; }
+.rail:hover .rail-brand-name,
+.rail:focus-within .rail-brand-name { opacity: 1; transition-delay: 0.14s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rail,
+  .rail-btn,
+  .rail .rail-brand,
+  .rail-indicator { transition: none; }
+}

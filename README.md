@@ -291,7 +291,7 @@ The interface is written rather than assembled. A few decisions worth naming:
   Settings also offers "match my device", which follows the operating system live.
 - **Black, white and one blue.** The app follows design 9, a fintech
   dashboard on Dribbble: the app sits in a black frame with a slim rail of
-  round icon buttons (their names appear on hover), the content is one white
+  round icon buttons that slides open on hover to show each page's name, the content is one white
   panel with large rounded corners, buttons are black pills, and one blue
   (`#5b91ff`) carries the figures. Categories take shades of blue and grey.
   Text is set in Outfit. The dashboard opens on three figures beside a tall

@@ -398,6 +398,10 @@ export default function Layout({ title, subtitle, crumbs, actions, children }) {
         <span className="rail-indicator" ref={indicator} aria-hidden="true" />
         <Link to={isAdmin ? '/admin' : '/dashboard'} className="rail-brand" aria-label="Campus Coin home">
           <BrandMark size={40} />
+          {/* Shown when the rail opens on hover (design9.css). */}
+          <span className="rail-brand-name" aria-hidden="true">
+            Campus Coin{isAdmin ? <small>Admin</small> : null}
+          </span>
         </Link>
 
         {nav.map((item) => (
