@@ -34,7 +34,6 @@ export const SITEMAP = [
   {
     title: 'Your account',
     links: [
-      { to: '/assistant', label: 'AI assistant' },
       { to: '/settings', label: 'Profile and accessibility' },
       { to: '/sitemap', label: 'Sitemap' },
     ],

@@ -14,7 +14,6 @@ import Reports from './pages/Reports.jsx';
 import Insights from './pages/Insights.jsx';
 import Tips from './pages/Tips.jsx';
 import Categories from './pages/Categories.jsx';
-import Assistant from './pages/Assistant.jsx';
 import Settings from './pages/Settings.jsx';
 import Sitemap from './pages/Sitemap.jsx';
 
@@ -73,7 +72,6 @@ export default function App() {
       <Route path="/insights" element={<Protected><Insights /></Protected>} />
       <Route path="/tips" element={<Protected><Tips /></Protected>} />
       <Route path="/categories" element={<Protected><Categories /></Protected>} />
-      <Route path="/assistant" element={<Protected><Assistant /></Protected>} />
       <Route path="/settings" element={<Protected><Settings /></Protected>} />
       <Route path="/sitemap" element={<Protected><Sitemap /></Protected>} />
 

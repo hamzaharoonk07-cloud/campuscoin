@@ -189,8 +189,9 @@ arithmetic, so a summary cannot contradict the report it came from. Without a
 key the built-in statistical writer produces the summary instead, and the
 feature reports which one wrote it.
 
-**The chat assistant** (the SRS's "AI ChatBot") is on the AI assistant page and
-in the bubble in the corner of every student page. It is built in rather than
+**The chat assistant** (the SRS's "AI ChatBot") lives in the bubble in the
+corner of every student page; what it has learned, and a button to make it
+forget, are in Settings. It is built in rather than
 embedded from tawk.to or Tidio, because a third-party widget cannot see the
 student's data. A rule-based router in `chat.js` recognises the kind of
 question being asked (balance, one category, the category breakdown, budgets,
@@ -264,7 +265,7 @@ The interface is written rather than assembled. A few decisions worth naming:
   to the hero. The chat assistant has a face - Coin, the gold coin from the
   logo with eyes that blink and a speech bubble whose dots move while it
   answers (`client/src/components/CoinBot.jsx`) - on its button, its
-  messages, its header and the assistant page.
+  messages and its header, and in Settings beside what it has learned.
 - **Every page has a picture.** The sidebar, the phone tab bar and each page
   header show a 3D object for that page, and every category is shown as its
   own 3D object on a tile of its colour (`client/src/lib/art.js`).

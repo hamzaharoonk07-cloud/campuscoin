@@ -27,7 +27,6 @@ const STUDENT_NAV = [
 ];
 
 const SECONDARY_NAV = [
-  { to: '/assistant', label: 'AI assistant', icon: 'chat', art: 'coinbot', about: 'Ask anything about your own money' },
   { to: '/settings', label: 'Settings', icon: 'user', art: 'gear', about: 'Profile, photo and display' },
   { to: '/sitemap', label: 'Sitemap', icon: 'map', art: 'world_map', about: 'Every page in Campus Coin' },
 ];
@@ -165,6 +164,67 @@ function Bell() {
   );
 }
 
+/**
+ * The picture in the top bar opens a small menu with the account's name,
+ * Settings and Sign out. It is there on every screen size - on a phone the
+ * rail is hidden, and this is the way out.
+ */
+function AccountMenu({ onSignOut }) {
+  const { user, isAdmin } = useAuth();
+  const [open, setOpen] = useState(false);
+  const holder = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (event) => {
+      if (!holder.current?.contains(event.target)) setOpen(false);
+    };
+    const onKey = (event) => event.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="has-menu" ref={holder}>
+      <button
+        type="button"
+        className="account-btn"
+        onClick={() => setOpen((was) => !was)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-label="Your account"
+      >
+        <Avatar user={user} size={34} />
+      </button>
+      {open ? (
+        <div className="menu account-menu" role="menu">
+          <div className="account-menu-head">
+            <Avatar user={user} size={42} />
+            <div style={{ minWidth: 0 }}>
+              <strong>{user?.name}</strong>
+              <span>{user?.email}</span>
+            </div>
+          </div>
+          {!isAdmin ? (
+            <Link to="/settings" className="account-menu-item" role="menuitem">
+              <Icon name="user" size={16} />
+              Settings and photo
+            </Link>
+          ) : null}
+          <button type="button" className="account-menu-item is-danger" role="menuitem" onClick={onSignOut}>
+            <Icon name="logout" size={16} />
+            Sign out
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function ThemeButton() {
   const { theme, toggle } = useTheme();
   const { updateProfile } = useAuth();
@@ -211,8 +271,8 @@ function ThemeButton() {
 /**
  * The chat bubble in the corner of every student page - the SRS's "AI ChatBot",
  * built in rather than embedded from tawk.to or Tidio so it can answer from the
- * student's own data. The /assistant page already shows the chat, so the bubble
- * stays away from there.
+ * student's own data. Anything on a page can open it by dispatching the
+ * "campuscoin:open-chat" event (see openChat below).
  */
 function ChatLauncher() {
   const [open, setOpen] = useState(false);
@@ -239,13 +299,20 @@ function ChatLauncher() {
   useEffect(() => setOpen(false), [location.pathname]);
 
   useEffect(() => {
+    const show = () => {
+      setHint(false);
+      setOpen(true);
+    };
+    window.addEventListener('campuscoin:open-chat', show);
+    return () => window.removeEventListener('campuscoin:open-chat', show);
+  }, []);
+
+  useEffect(() => {
     if (!open) return undefined;
     const onKey = (event) => event.key === 'Escape' && setOpen(false);
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [open]);
-
-  if (location.pathname === '/assistant') return null;
 
   return (
     <>
@@ -260,9 +327,6 @@ function ChatLauncher() {
               <strong>Coin, your money assistant</strong>
               <span>Online · answers from your own transactions</span>
             </div>
-            <Link to="/assistant" className="icon-btn" aria-label="Open the full assistant page" title="Open full page">
-              <Icon name="right" size={16} />
-            </Link>
             <button type="button" className="icon-btn" onClick={() => setOpen(false)} aria-label="Close the assistant">
               <Icon name="x" size={16} />
             </button>
@@ -415,6 +479,7 @@ export default function Layout({ title, crumbs, actions, children }) {
           {actions}
           {!isAdmin && <Bell />}
           <ThemeButton />
+          <AccountMenu onSignOut={signOut} />
         </header>
 
         <main id="main" className="page">
@@ -466,3 +531,6 @@ export function MonthPicker({ value, onChange, label = 'Month' }) {
     </div>
   );
 }
+
+/** Opens the chat bubble from anywhere on a page. */
+export const openChat = () => window.dispatchEvent(new Event('campuscoin:open-chat'));

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import Avatar from '../components/Avatar.jsx';
+import AssistantMemory from '../components/AssistantMemory.jsx';
 import { squarePhoto } from '../lib/images.js';
 import { api } from '../lib/api.js';
 import { CURRENCY_SYMBOLS } from '../lib/format.js';
@@ -320,6 +321,8 @@ export default function Settings() {
               </form>
             </div>
           </section>
+
+          <AssistantMemory />
         </div>
       </div>
     </Layout>

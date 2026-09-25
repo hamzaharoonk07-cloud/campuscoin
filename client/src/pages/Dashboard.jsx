@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import Layout, { MonthPicker } from '../components/Layout.jsx';
+import Layout, { MonthPicker, openChat } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
 import { AreaChart, DonutChart, RingGauge } from '../components/DashCharts.jsx';
@@ -171,10 +171,10 @@ export default function Dashboard() {
               <Icon name="plus" />
               Add a transaction
             </button>
-            <Link className="dash-hero-link" to="/assistant">
-              Ask the assistant
+            <button type="button" className="dash-hero-link" onClick={openChat}>
+              Ask Coin
               <Icon name="right" size={15} />
-            </Link>
+            </button>
           </div>
         </div>
 

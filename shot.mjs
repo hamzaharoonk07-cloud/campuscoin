@@ -27,14 +27,12 @@ const PAGES = [
   ['insights', '/insights', token, 'light', 1440, 1000],
   ['tips', '/tips', token, 'light', 1440, 1150],
   ['categories', '/categories', token, 'light', 1440, 1200],
-  ['assistant', '/assistant', token, 'light', 1440, 1000, ASK('How much did I spend on food?')],
-  ['assistant-dark', '/assistant', token, 'dark', 1440, 1000, ASK('Am I within budget?')],
   ['bubble', '/dashboard', token, 'light', 1440, 900, OPEN_BUBBLE],
   ['settings', '/settings', token, 'light', 1440, 1200],
   ['admin', '/admin', adminToken, 'light', 1440, 1100],
   ['admin-students', '/admin/students', adminToken, 'light', 1440, 900],
   ['mobile-dashboard', '/dashboard', token, 'light', 390, 844],
-  ['mobile-assistant', '/assistant', token, 'light', 390, 844],
+  ['mobile-account', '/dashboard', token, 'light', 390, 844, `document.querySelector('.account-btn').click()`],
 ];
 
 fs.mkdirSync(OUT, { recursive: true });
