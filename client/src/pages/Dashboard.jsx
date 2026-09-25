@@ -8,7 +8,7 @@ import { api } from '../lib/api.js';
 import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import { useCountUp } from '../lib/useCountUp.js';
 import CountUp from '../components/CountUp.jsx';
-import { ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
+import { ArtIcon, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /* ---------------------------------------------------------------------------
@@ -151,18 +151,21 @@ export default function Dashboard() {
 
         <div className="money-tiles">
           <Link to="/reports" className="money-tile is-in">
+            <ArtIcon name="dollar_banknote" className="money-tile-art" />
             <span className="money-tile-value num">
               <CountUp value={totals.income} currency={currency} />
             </span>
             <span className="money-tile-label">Money in</span>
           </Link>
           <Link to="/transactions" className="money-tile is-out">
+            <ArtIcon name="money_with_wings" className="money-tile-art" />
             <span className="money-tile-value num">
               <CountUp value={totals.expense} currency={currency} />
             </span>
             <span className="money-tile-label">Money out</span>
           </Link>
           <Link to="/budgets" className="money-tile is-budget">
+            <ArtIcon name="bullseye" className="money-tile-art" />
             <span className="money-tile-value num">
               {budgetHealth.limit > 0 ? `${Math.round(budgetHealth.pct)}%` : '—'}
             </span>
@@ -171,6 +174,7 @@ export default function Dashboard() {
             </span>
           </Link>
           <Link to="/tips" className="money-tile is-goal">
+            <ArtIcon name="seedling" className="money-tile-art" />
             <span className="money-tile-value num">
               {goal.target > 0 ? money(goal.target, currency) : tips.length}
             </span>

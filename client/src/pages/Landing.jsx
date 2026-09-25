@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon, { BrandMark } from '../components/Icon.jsx';
 import { SITEMAP } from './Sitemap.jsx';
-import { ChartArt, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
+import { ArtIcon, ChartArt, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
 import '../styles/landing.css';
 
 /* ---------------------------------------------------------------------------
@@ -541,7 +541,7 @@ export default function Landing() {
                 handled.
               </h3>
               <p>Your allowance and your subscriptions post themselves on the right day, so the only things you type are the ones you chose.</p>
-              <Icon name="repeat" size={22} />
+              <ArtIcon name="calendar" size={52} />
             </article>
             <article className="lp-navy-card is-pale" data-reveal>
               <span className="lp-card-num">02 / Compared to you</span>
@@ -551,7 +551,7 @@ export default function Landing() {
                 not someone else’s.
               </h3>
               <p>Every tip measures this month against your own last three, which is the only reason the advice is worth anything.</p>
-              <Icon name="target" size={22} />
+              <ArtIcon name="bullseye" size={52} />
             </article>
           </div>
         </div>
@@ -581,10 +581,22 @@ export default function Landing() {
             </h3>
             <p>Category breakdowns and six months of history turn your entries into a picture you can actually read.</p>
             <div className="lp-pastels">
-              <span className="is-out">Spending</span>
-              <span className="is-in">Income</span>
-              <span className="is-budget">Budgets</span>
-              <span className="is-goal">Savings</span>
+              <span className="is-out">
+                <ArtIcon name="money_with_wings" size={34} />
+                Spending
+              </span>
+              <span className="is-in">
+                <ArtIcon name="dollar_banknote" size={34} />
+                Income
+              </span>
+              <span className="is-budget">
+                <ArtIcon name="bullseye" size={34} />
+                Budgets
+              </span>
+              <span className="is-goal">
+                <ArtIcon name="seedling" size={34} />
+                Savings
+              </span>
             </div>
             <Link to="/login" className="lp-text-link">
               Explore the reports
@@ -685,7 +697,7 @@ export default function Landing() {
       <section className="lp-cta">
         <div className="lp-wrap lp-center" data-reveal>
           <span className="lp-cta-mark">
-            <BrandMark size={44} />
+            <ArtIcon name="money_bag" size={58} />
           </span>
           <span className="lp-eyebrow">Your money, a little more sorted</span>
           <h2 className="lp-h2 is-light">

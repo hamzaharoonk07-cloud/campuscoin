@@ -252,11 +252,13 @@ The interface is written rather than assembled. A few decisions worth naming:
   the same tokens, so the page you arrive on and the app you sign into are
   visibly one product. The layout was modelled on the style of the Hisab Kitab
   expense app; the code and all the copy are our own.
-- **Illustrations are drawn in code** (`client/src/components/Illustrations.jsx`):
-  a wallet, a budget gauge, a receipt being scanned, a chart, a coin sprout,
-  chat bubbles, tags and a megaphone. They are SVG built from the same colour
-  tokens as everything else, so they recolour with the theme, stay sharp at any
-  size and cost no downloads.
+- **Illustrations are small 3D scenes** (`client/src/components/Illustrations.jsx`).
+  Each is a few 3D objects arranged at different sizes, angles and depths over
+  a soft glow, each with its own floor shadow and slow float, so nearer objects
+  move more and the page reads as having depth. The objects come from
+  Microsoft's **Fluent Emoji** set, used under the MIT licence; the files and
+  the licence are stored in `client/public/art`, so nothing is fetched from
+  outside at runtime. The layout, animation and composition are our own.
 - **Motion explains, it does not decorate** (`client/src/styles/motion.css`).
   Sections arrive top to bottom, charts draw themselves (the donut sweeps in
   ranked order, lines trace, bars grow), headline figures count up, and budget
