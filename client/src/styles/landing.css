@@ -1578,3 +1578,101 @@ body:has(.lp) { background: var(--surface); }
 }
 .lp-coin .lp-h2 { margin-bottom: 1.2rem; }
 .lp-coin .lp-btn-solid { background: #5b91ff; border-color: #5b91ff; color: #fff; box-shadow: 0 14px 30px -12px rgba(91, 145, 255, 0.7); }
+
+/* ============================================================================
+   More colour, depth and motion
+   ============================================================================ */
+
+/* Section headings: bolder, with the second line in a moving blue gradient. */
+.lp-h2.is-light { font-weight: 700; letter-spacing: -0.035em; }
+.lp-section .lp-h2 em,
+.lp-bento-section .lp-h2 em {
+  font-style: normal;
+  background: linear-gradient(90deg, #3f74e6, #8db3ff 45%, #a78bfa 70%, #3f74e6);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: lp-shine 8s linear infinite;
+}
+.lp-eyebrow { color: #3f74e6; }
+
+/* Objects drifting around the hero picture. */
+.lp-float { position: absolute; z-index: 4; width: 58px; height: 58px; filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.45)); pointer-events: none; }
+.lp-float.is-f1 { left: -4%; top: 12%; animation: lp-drift 7s ease-in-out infinite; }
+.lp-float.is-f2 { right: -3%; bottom: 8%; width: 72px; height: 72px; animation: lp-drift 9s ease-in-out -2s infinite; }
+.lp-float.is-f3 { left: 40%; top: -4%; width: 40px; height: 40px; animation: lp-twinkle 3.5s ease-in-out infinite; }
+.lp-float.is-f4 { left: 2%; bottom: 4%; width: 50px; height: 50px; animation: lp-drift 8s ease-in-out -4s infinite; }
+@keyframes lp-drift { 50% { transform: translate(8px, -16px) rotate(8deg); } }
+@keyframes lp-twinkle { 50% { transform: scale(1.25) rotate(20deg); opacity: 0.7; } }
+@media (max-width: 900px) { .lp-float { display: none; } }
+
+/* The features section sits on a soft blue wash. */
+.lp-bento-section { background: radial-gradient(70% 50% at 50% 0%, #eaf1ff, transparent 70%), linear-gradient(180deg, #fff, #f5f8ff); }
+
+/* Feature cards lift on hover, with a glowing blue edge. */
+.lp-bento-card {
+  position: relative;
+  transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+.lp-bento-card:hover { transform: translateY(-6px); border-color: #a9c5ff; box-shadow: 0 24px 50px -24px rgba(63, 116, 230, 0.55); }
+.lp-bento-card:hover .lp-bento-art { transform: scale(1.1) rotate(-6deg); }
+.lp-bento-art { transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1); background: linear-gradient(135deg, #eaf1ff, #fff); border-radius: 16px; }
+.lp-bento-card h3 { font-weight: 700; }
+
+/* Duo cards: gradients and a lift. */
+.lp-duo-card { transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.35s ease; }
+.lp-duo-card:hover { transform: translateY(-5px); box-shadow: 0 26px 50px -26px rgba(18, 18, 20, 0.35); }
+.lp-duo-card.is-blue { background: linear-gradient(145deg, #dfe9ff, #eef3ff 60%, #f6f0ff); }
+.lp-duo-card.is-grey { background: linear-gradient(145deg, #f4f5f7, #fbfbfc); }
+.lp-duo-card h3 { font-weight: 700; }
+
+/* Steps: big numbered circles joined by a dotted line. */
+.lp-steps { position: relative; }
+.lp-steps li { border-top: 0; padding-top: 0; }
+.lp-steps li > span {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-top: 1.2rem;
+  border-radius: 50%;
+  background: #121214;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  box-shadow: 0 0 0 6px #eaf1ff;
+}
+.lp-steps li:nth-child(2) > span { background: #3f74e6; }
+.lp-steps li:nth-child(3) > span { background: #5b91ff; }
+.lp-steps h3 { font-weight: 700; }
+.lp-step-art { transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1); }
+.lp-steps li:hover .lp-step-art { transform: translateY(-6px); }
+
+/* Questions as cards. */
+.lp-faq details {
+  margin-bottom: 0.6rem;
+  padding: 0 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.lp-faq details[open] { border-color: #a9c5ff; box-shadow: 0 16px 36px -22px rgba(63, 116, 230, 0.5); }
+.lp-faq summary { font-weight: 600; }
+.lp-faq details[open] summary svg { transform: rotate(45deg); color: #3f74e6; }
+.lp-faq summary svg { transition: transform 0.25s ease; }
+
+/* Revealing sections rise a little further and faster. */
+[data-reveal] { transition-duration: 0.8s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-float, .lp-section .lp-h2 em, .lp-bento-section .lp-h2 em { animation: none; }
+}
+/* Fixes: no line above the step pictures; icon tiles hug their icon; the
+   chart object sits clear of the phone. */
+.lp-steps li::before { display: none; }
+.lp-bento-art { background: none; }
+.lp-bento-art .art-icon { background: linear-gradient(135deg, #dfe9ff, #fff); box-shadow: 0 8px 18px -10px rgba(63, 116, 230, 0.5); }
+.lp-float.is-f4 { left: auto; right: 38%; bottom: -6%; }
+/* The middle step starts level with the others. */

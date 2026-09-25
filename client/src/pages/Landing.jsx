@@ -511,6 +511,14 @@ export default function Landing() {
             <span className="lp-orbit lp-orbit-b">
               <i className="lp-orbit-coin is-small" />
             </span>
+            {[
+              ['coin', 'is-f1'],
+              ['money-bag', 'is-f2'],
+              ['sparkles', 'is-f3'],
+              ['chart-increasing', 'is-f4'],
+            ].map(([art, cls]) => (
+              <img key={art} className={`lp-float ${cls}`} src={artUrl(art)} alt="" />
+            ))}
 
             <figure className="lp-frame lp-depth" style={{ '--depth': 0.4 }}>
               <div className="lp-frame-bar">
@@ -779,7 +787,7 @@ export default function Landing() {
             <h2 className="lp-h2 is-light">
               Your next semester.
               <br />
-              In three simple steps.
+              <em>In three simple steps.</em>
             </h2>
           </div>
           <ol className="lp-steps">
@@ -835,7 +843,7 @@ export default function Landing() {
             <h2 className="lp-h2 is-light">
               A little more
               <br />
-              peace of mind.
+              <em>peace of mind.</em>
             </h2>
           </div>
           <div className="lp-faq">
