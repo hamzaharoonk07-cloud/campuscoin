@@ -1,7 +1,7 @@
 import { useId } from 'react';
 
 /**
- * The Campus Coin mark: a gold coin standing on an emerald tile, the shape of
+ * The Campus Coin mark: a gold coin standing on a blue tile, the shape of
  * an app icon. The depth is all gradient and highlight - a lit top edge on the
  * tile, a darker rim and a stacked edge under the coin, an embossed C on its
  * face and a glint of light - so it holds up from a 16px favicon to the size
@@ -13,9 +13,9 @@ export function BrandMark({ size = 30 }) {
     <svg className="brand-mark" width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
       <defs>
         <linearGradient id={`${id}-tile`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#34d399" />
-          <stop offset="0.55" stopColor="#059669" />
-          <stop offset="1" stopColor="#064e3b" />
+          <stop offset="0" stopColor="#7aa2ff" />
+          <stop offset="0.55" stopColor="#2f64f0" />
+          <stop offset="1" stopColor="#1e3a8a" />
         </linearGradient>
         <linearGradient id={`${id}-gold`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#fef3c7" />
@@ -36,7 +36,7 @@ export function BrandMark({ size = 30 }) {
       <rect width="48" height="48" rx="14" fill={`url(#${id}-shine)`} />
       <path d="M8 4.5h32" stroke="#fff" strokeOpacity="0.45" strokeWidth="1.5" strokeLinecap="round" />
       {/* the coin's stacked edge, then its face */}
-      <ellipse cx="24" cy="28.5" rx="13" ry="12.5" fill="#064e3b" opacity="0.35" />
+      <ellipse cx="24" cy="28.5" rx="13" ry="12.5" fill="#1e3a8a" opacity="0.35" />
       <circle cx="24" cy="26" r="13" fill={`url(#${id}-rim)`} />
       <circle cx="24" cy="24.4" r="12.2" fill={`url(#${id}-gold)`} />
       <circle cx="24" cy="24.4" r="9.3" fill="none" stroke="#b45309" strokeOpacity="0.45" strokeWidth="1.2" />

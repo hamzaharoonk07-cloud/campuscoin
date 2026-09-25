@@ -15,8 +15,8 @@ export default function Transactions() {
   const { currency } = useAuth();
   const toast = useToast();
   const [params] = useSearchParams();
-  // The top bar's search box arrives as ?q=.
-  const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS, q: params.get('q') || '' }));
+  // The rail's search arrives as ?q=, the dashboard's Flagged button as ?flagged=1.
+  const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS, q: params.get('q') || '', flagged: params.get('flagged') || '' }));
   const [page, setPage] = useState(1);
   const [result, setResult] = useState(null);
   const [categories, setCategories] = useState([]);

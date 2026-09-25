@@ -234,7 +234,7 @@
   inset: 0 0 auto 0;
   z-index: 60;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--sky, #6ee7b7));
+  background: linear-gradient(90deg, var(--accent), var(--sky, #8fb0ff));
   box-shadow: 0 0 10px var(--accent);
   transform-origin: left;
   pointer-events: none;

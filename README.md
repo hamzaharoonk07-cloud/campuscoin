@@ -246,19 +246,18 @@ The interface is written rather than assembled. A few decisions worth naming:
   surface rather than one being an inversion of the other. The choice is saved
   to the device *and* the account, so it follows the student to another machine.
   Settings also offers "match my device", which follows the operating system live.
-- **Forest and lime.** The app follows the style of the *Fynix* finance
-  dashboard by Zero Studio (Dribbble): a soft grey page, white cards with thin
-  borders, deep forest green (`#0f3d2e`) for buttons and money coming in, and
-  lime (`#a3e86f`) for the highlights - the balance card, money going out and
-  the assistant. In dark mode lime becomes the accent. Text is set in Plus
-  Jakarta Sans (the landing page keeps Inter Tight and Inter). The sidebar has
-  the account at the top, "Main menu" and "Preference" sections with the
-  current page as a white pill, and a savings card at the foot. The dashboard
-  reads left to right: the balance, the month's three figures with the change
-  from last month, a budget score; then a cash-flow chart with money in above
-  the line and money out below it, beside an assistant card that hands its
-  question straight to Coin. The styles live in `client/src/styles/fynix.css`;
-  the code and all the copy are our own.
+- **Black, white and one blue.** The app follows the style of the *Finstack*
+  dashboard by Zero Studio (Dribbble): a black sidebar floating beside a light
+  page, white cards with thin borders, and one royal blue (`#2f64f0`) for
+  anything you can act on. Green and red are kept for money coming in and
+  going out. Text is set in Inter. The sidebar has the logo, a search box that
+  finds any transaction, the menu with the current page as a lifted dark
+  panel, and the account at the foot. The dashboard opens on three balance
+  cards (kept, money in, money out - each with the change from last month and
+  an eye to hide the figures), then the cash flow beside the budgets, the
+  recent transactions beside where the money went, and quick add, what is
+  coming up and the best tips underneath. The styles live in
+  `client/src/styles/finstack.css`; the code and all the copy are our own.
 - **Illustrations are small 3D scenes** (`client/src/components/Illustrations.jsx`).
   Each is a few 3D objects arranged at different sizes, angles and depths over
   a soft glow, each with its own floor shadow and slow float, so nearer objects
@@ -266,7 +265,7 @@ The interface is written rather than assembled. A few decisions worth naming:
   Microsoft's **Fluent Emoji** set, used under the MIT licence; the files and
   the licence are stored in `client/public/art`, so nothing is fetched from
   outside at runtime. The layout, animation and composition are our own.
-- **A logo and a mascot.** The mark is a gold coin on a green tile, drawn
+- **A logo and a mascot.** The mark is a gold coin on a blue tile, drawn
   in SVG (`client/src/components/Brand.jsx`) so it is sharp from the favicon
   to the hero. The chat assistant has a face - Coin, the gold coin from the
   logo with eyes that blink and a speech bubble whose dots move while it
@@ -278,7 +277,7 @@ The interface is written rather than assembled. A few decisions worth naming:
 - **The dashboard widgets the SRS names:** quick-add buttons (chai, rickshaw,
   printing, allowance) that open the form already filled in, "Top category
   this month", budget against actual (the budget score), and the repeating
-  payments coming up next. The top bar searches every transaction from any page.
+  payments coming up next. The sidebar searches every transaction from any page.
 - **Motion explains, it does not decorate** (`client/src/styles/motion.css`).
   Sections arrive top to bottom, charts draw themselves (the donut sweeps in
   ranked order, lines trace, bars grow), headline figures count up, and budget

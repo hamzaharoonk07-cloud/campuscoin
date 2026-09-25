@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
-import Icon, { Wordmark } from './Icon.jsx';
+import Icon, { BrandMark } from './Icon.jsx';
 import CoinBot from './CoinBot.jsx';
-import { money } from '../lib/format.js';
 import Chat from './Chat.jsx';
 import Avatar from './Avatar.jsx';
 import { api } from '../lib/api.js';
@@ -37,59 +36,8 @@ const ALL_NAV = [...STUDENT_NAV, ...SECONDARY_NAV, ...ADMIN_NAV];
 const pageFor = (path) =>
   ALL_NAV.filter((item) => path === item.to || path.startsWith(`${item.to}/`)).sort((a, b) => b.to.length - a.to.length)[0];
 
-/**
- * The small "this month" card in the rail: what is kept so far against the
- * savings goal. Cached for a minute outside React, because every page
- * renders its own Layout and the figure does not need fetching on each one.
- */
-let monthCache = { at: 0, data: null };
-
-function MonthCard() {
-  const { currency } = useAuth();
-  const [data, setData] = useState(monthCache.data);
-
-  useEffect(() => {
-    if (Date.now() - monthCache.at < 60000 && monthCache.data) return;
-    api
-      .get('/reports/dashboard')
-      .then(({ totals, goal }) => {
-        monthCache = { at: Date.now(), data: { totals, goal } };
-        setData(monthCache.data);
-      })
-      .catch(() => {});
-  }, []);
-
-  if (!data) return null;
-  const { totals, goal } = data;
-  const pct = goal.target > 0 ? Math.max(0, Math.min(100, (goal.kept / goal.target) * 100)) : 0;
-  const over = totals.balance < 0;
-  const month = new Date().toLocaleString('en', { month: 'long' });
-
-  return (
-    <div className="rail-save">
-      <span className="rail-save-coin" aria-hidden="true">
-        <CoinBot size={44} bubble={false} />
-      </span>
-      <strong>{month} so far</strong>
-      <span className={`rail-save-figure num${over ? ' is-bad' : ''}`}>
-        {over ? `${money(-totals.balance, currency)} over` : `${money(totals.balance, currency)} kept`}
-      </span>
-      {goal.target > 0 ? (
-        <span className="rail-save-bar" title={`${Math.round(pct)}% of your savings goal`}>
-          <i style={{ width: `${pct}%` }} />
-        </span>
-      ) : (
-        <span className="rail-save-note">Set a savings goal to track it here.</span>
-      )}
-      <Link to="/budgets" className="rail-save-btn">
-        {goal.target > 0 ? 'See my budgets' : 'Set a goal'}
-      </Link>
-    </div>
-  );
-}
-
-/** Searches every transaction from the top bar. */
-function TopSearch() {
+/** Searches every transaction from the top of the rail. */
+function RailSearch() {
   const navigate = useNavigate();
   const [q, setQ] = useState('');
   const submit = (event) => {
@@ -97,9 +45,9 @@ function TopSearch() {
     navigate(q.trim() ? `/transactions?q=${encodeURIComponent(q.trim())}` : '/transactions');
   };
   return (
-    <form className="top-search" role="search" onSubmit={submit}>
+    <form className="rail-search" role="search" onSubmit={submit}>
       <Icon name="search" size={16} />
-      <input type="search" placeholder="Search transactions" aria-label="Search transactions" value={q} onChange={(e) => setQ(e.target.value)} />
+      <input type="search" placeholder="Search" aria-label="Search transactions" value={q} onChange={(e) => setQ(e.target.value)} />
     </form>
   );
 }
@@ -427,18 +375,15 @@ export default function Layout({ title, crumbs, actions, children }) {
 
       <nav className="rail" aria-label="Main" ref={rail}>
         <span className="rail-indicator" ref={indicator} aria-hidden="true" />
-        <Link to={isAdmin ? '/admin' : '/dashboard'} className="brand">
-          <Wordmark />
+        <Link to={isAdmin ? '/admin' : '/dashboard'} className="rail-brand">
+          <BrandMark size={34} />
+          <span>
+            <small>{isAdmin ? 'Admin' : 'Student'}</small>
+            <strong>Campus Coin</strong>
+          </span>
         </Link>
 
-        <Link to={isAdmin ? '/admin' : '/settings'} className="rail-account" title="Your account">
-          <Avatar user={user} size={38} />
-          <span className="rail-account-copy">
-            <strong>{user?.name}</strong>
-            <span>{isAdmin ? 'Admin account' : user?.academicYear ? `Student · ${user.academicYear}` : 'Student account'}</span>
-          </span>
-          <Icon name="right" size={15} />
-        </Link>
+        {!isAdmin ? <RailSearch /> : null}
 
         <div className="rail-group">{isAdmin ? 'Control panel' : 'Main menu'}</div>
         {nav.map((item) => (
@@ -450,7 +395,7 @@ export default function Layout({ title, crumbs, actions, children }) {
 
         {!isAdmin && (
           <>
-            <div className="rail-group">Preference</div>
+            <div className="rail-group">Account</div>
             {SECONDARY_NAV.map((item) => (
               <NavLink key={item.to} to={item.to}>
                 <Icon name={item.icon} />
@@ -467,7 +412,13 @@ export default function Layout({ title, crumbs, actions, children }) {
 
         <div className="rail-spacer" />
 
-        {!isAdmin ? <MonthCard /> : null}
+        <Link to={isAdmin ? '/admin' : '/settings'} className="rail-user" title="Your account">
+          <Avatar user={user} size={34} />
+          <span>
+            <strong>{user?.name}</strong>
+            <small>{user?.email}</small>
+          </span>
+        </Link>
       </nav>
 
       <div className="main">
@@ -478,7 +429,6 @@ export default function Layout({ title, crumbs, actions, children }) {
             {page ? <div className="topbar-about">{page.about}</div> : null}
           </div>
           {actions}
-          {!isAdmin && <TopSearch />}
           {!isAdmin && <Bell />}
           <ThemeButton />
           <AccountMenu onSignOut={signOut} />
