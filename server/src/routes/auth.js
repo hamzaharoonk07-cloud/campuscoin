@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import express from 'express';
 import User from '../models/User.js';
 import { protect, signToken, wrap } from '../middleware/auth.js';
-import { sendMail, mailConfigured } from '../services/mailer.js';
+import { sendMail, mailConfigured, screenResetLinkAllowed } from '../services/mailer.js';
 import { cleanImage } from '../utils/images.js';
 import { passwordProblem, isDemo, MAX_FAILED, LOCK_MINUTES } from '../utils/passwords.js';
 
@@ -239,9 +239,13 @@ router.post(
       text: `Open this link within the hour to choose a new password:\n\n${link}\n\nIt works once. If you did not ask for this, you can ignore it - your password stays as it is.`,
     });
 
-    // With no SMTP configured the link comes back in the response instead, so
-    // the flow is still demonstrable end to end.
-    if (!sent.sent) return res.json({ ...reply, devResetLink: link, note: 'SMTP is not configured, so the link is returned here instead of emailed.' });
+    if (sent.sent) return res.json(reply);
+    // On a development machine with no email set up, the link comes back in
+    // the response so the flow can still be demonstrated. Never on the live
+    // site: there, showing it would let anyone reset any account.
+    if (!sent.failed && screenResetLinkAllowed()) {
+      return res.json({ ...reply, devResetLink: link, note: 'Email is not set up on this machine, so the link is shown here instead.' });
+    }
     res.json(reply);
   })
 );

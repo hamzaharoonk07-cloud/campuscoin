@@ -29,14 +29,31 @@ export async function sendMail({ to, subject, text, html }) {
     return { sent: false, preview: { to, subject, text } };
   }
 
-  await getTransport().sendMail({
-    from: process.env.MAIL_FROM || 'Campus Coin <no-reply@campuscoin.app>',
-    to,
-    subject,
-    text,
-    html: html || undefined,
-  });
-  return { sent: true };
+  try {
+    await getTransport().sendMail({
+      // Gmail only sends as the signed-in account, so that is the default sender.
+      from: process.env.MAIL_FROM || `Campus Coin <${process.env.SMTP_USER}>`,
+      to,
+      subject,
+      text,
+      html: html || undefined,
+    });
+    return { sent: true };
+  } catch (err) {
+    // A wrong password or a blocked account must not crash the request; the
+    // caller decides what to tell the user.
+    console.error(`[mail] could not send "${subject}" to ${to}: ${err.message}`);
+    return { sent: false, failed: true };
+  }
 }
+
+/**
+ * Whether a password-reset link may be shown on screen instead of emailed.
+ * Only on a development machine: on the live site that would let anyone who
+ * knows an address reset that account, so there the link is only ever emailed.
+ * ALLOW_SCREEN_RESET_LINK=1 turns it on deliberately for a local demo.
+ */
+export const screenResetLinkAllowed = () =>
+  process.env.ALLOW_SCREEN_RESET_LINK === '1' || (process.env.NODE_ENV !== 'production' && !process.env.VERCEL);
 
 export const mailConfigured = configured;

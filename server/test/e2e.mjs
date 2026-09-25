@@ -108,7 +108,18 @@ await check('Auth', 'Password recovery by tokenised link', async () => {
   const r = await call('POST', '/auth/forgot-password', { email }, { auth: null });
   expect(r.status === 200, `status ${r.status}`);
   const link = r.data.devResetLink;
-  expect(link, 'no reset link returned (SMTP not configured, so it should be)');
+  // On the live site the link is only ever emailed; showing it would let
+  // anyone reset any account. So there, check that it did not leak and stop.
+  const live = !/localhost|127\.0\.0\.1/.test(BASE);
+  if (live) {
+    expect(!link, 'the live site returned a reset link on screen');
+    // Leave the account on the password the later checks expect.
+    const moved = await call('POST', '/auth/change-password', { currentPassword: 'Kharcha@456', newPassword: 'Kharcha@789' });
+    expect(moved.status === 200, `could not move to the next password (${moved.status})`);
+    token = moved.data.token;
+    return 'link emailed, not shown (live site)';
+  }
+  expect(link, 'no reset link returned (email is not set up locally, so it should be)');
   const resetToken = new URL(link).searchParams.get('token');
   const reset = await call('POST', '/auth/reset-password', { token: resetToken, password: 'Kharcha@789' }, { auth: null });
   expect(reset.status === 200, `reset status ${reset.status} ${JSON.stringify(reset.data)}`);
