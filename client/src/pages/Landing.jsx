@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import Icon, { BrandMark } from '../components/Icon.jsx';
+import Icon, { BrandMark, Wordmark } from '../components/Icon.jsx';
 import { SITEMAP } from './Sitemap.jsx';
-import { ArtIcon, ChartArt, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
+import { ArtIcon, ChartArt, ChatArt, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
 import '../styles/landing.css';
 
 /* ---------------------------------------------------------------------------
@@ -221,6 +221,37 @@ const TABS = [
   },
 ];
 
+// The ribbon under the hero: the everyday things students actually log.
+const RIBBON = [
+  ['hot_beverage', 'Canteen chai'],
+  ['house', 'Hostel rent'],
+  ['bus', 'Rickshaw fare'],
+  ['books', 'Textbooks'],
+  ['mobile_phone', 'Netflix'],
+  ['hamburger', 'Biryani'],
+  ['receipt', 'Photocopies'],
+  ['wrapped_gift', 'Eidi'],
+  ['graduation_cap', 'Scholarship'],
+  ['popcorn', 'Cinema night'],
+  ['dollar_banknote', 'Allowance'],
+  ['pizza', 'Pizza Friday'],
+];
+
+// Everything in the app, each with its object. The first two are the ones
+// that most set Campus Coin apart, so they take the larger cards.
+const FEATURES = [
+  { art: 'receipt', title: 'Snap a receipt', body: 'Photo in, amount, shop and date out. Read on your own device, and the photo stays with the entry.', big: true, Scene: ReceiptArt },
+  { art: 'robot', title: 'Ask Coin', body: 'A chat assistant that answers from your own numbers: "how much on food?", "can I afford 2,500?"', big: true, Scene: ChatArt },
+  { art: 'bell', title: 'Budget alerts', body: 'Told once at 80% and once when you go over. Never on every purchase.' },
+  { art: 'bar_chart', title: 'Reports and PDF', body: 'By category, day and week, six months side by side, saved as a PDF.' },
+  { art: 'light_bulb', title: 'Tips that pay', body: 'Ranked by what each would save you, from your own history.' },
+  { art: 'calendar', title: 'Recurring entries', body: 'Allowance and subscriptions post themselves on the right day.' },
+  { art: 'magnifying_glass_tilted_left', title: 'Catches slips', body: 'Duplicates and unusually large amounts are flagged as you save.' },
+  { art: 'card_index_dividers', title: 'CSV import', body: 'Bring last term in; every row gets a suggested category first.' },
+  { art: 'gear', title: 'Your way', body: 'Light or dark, larger text, and your own photo and categories.' },
+  { art: 'shield', title: 'Private by design', body: 'No bank link and no card. Only you can see your transactions.' },
+];
+
 const STEPS = [
   ['01', 'Make an account', 'Name, email and your monthly allowance. No bank details and no card, ever.'],
   ['02', 'Log as you go', 'Type what you bought, snap the receipt, or bring last term in from a CSV. The category fills itself in.'],
@@ -277,8 +308,7 @@ export default function Landing() {
       <nav className={`lp-nav ${scrolled ? 'is-scrolled' : 'is-top'}`}>
         <div className="lp-wrap lp-nav-inner">
           <Link to="/" className="lp-brand">
-            <BrandMark size={30} />
-            Campus Coin
+            <Wordmark size={30} />
           </Link>
           <div className="lp-nav-links">
             <a href="#features">Features</a>
@@ -431,23 +461,16 @@ export default function Landing() {
         </div>
       </header>
 
-      <section className="lp-strip">
-        <div className="lp-wrap lp-strip-inner">
-          <span className="lp-eyebrow is-muted">One app. Every side of student money.</span>
-          <ul>
-            <li>
-              <i style={{ background: 'var(--cat-2)' }} /> Spending
-            </li>
-            <li>
-              <i style={{ background: 'var(--cat-3)' }} /> Income
-            </li>
-            <li>
-              <i style={{ background: 'var(--cat-4)' }} /> Budgets
-            </li>
-            <li>
-              <i style={{ background: 'var(--cat-1)' }} /> Savings
-            </li>
-          </ul>
+      {/* A ribbon of the things students spend on, running sideways forever.
+          The list is written twice so the loop has no visible seam. */}
+      <section className="lp-ribbon" aria-label="Things students log with Campus Coin">
+        <div className="lp-ribbon-track">
+          {[...RIBBON, ...RIBBON].map(([art, label], i) => (
+            <span className="lp-ribbon-chip" key={`${label}-${i}`} aria-hidden={i >= RIBBON.length}>
+              <ArtIcon name={art} size={34} />
+              {label}
+            </span>
+          ))}
         </div>
       </section>
 
@@ -508,6 +531,36 @@ export default function Landing() {
               <span className="lp-eyebrow is-muted">A look inside Campus Coin</span>
               <img src={current.shot} alt={current.alt} loading="lazy" />
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="lp-section lp-bento-section">
+        <div className="lp-wrap">
+          <div className="lp-center" data-reveal>
+            <span className="lp-eyebrow">Everything in it</span>
+            <h2 className="lp-h2 is-light">
+              Small app.
+              <br />
+              <em>Does a lot.</em>
+            </h2>
+          </div>
+          <div className="lp-bento">
+            {FEATURES.map((f) => (
+              <article className={`lp-bento-card${f.big ? ' is-big' : ''}`} key={f.title} data-reveal>
+                {f.Scene ? (
+                  <div className="lp-bento-scene">
+                    <f.Scene />
+                  </div>
+                ) : (
+                  <span className="lp-bento-art">
+                    <ArtIcon name={f.art} size={56} />
+                  </span>
+                )}
+                <h3>{f.title}</h3>
+                <p>{f.body}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -723,8 +776,7 @@ export default function Landing() {
           <div className="lp-footer-top">
             <div>
               <Link to="/" className="lp-brand">
-                <BrandMark size={28} />
-                Campus Coin
+                <Wordmark size={28} />
               </Link>
               <p>Smart spending, student style.</p>
             </div>

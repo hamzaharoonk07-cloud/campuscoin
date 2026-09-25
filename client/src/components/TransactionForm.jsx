@@ -12,13 +12,13 @@ import { useAuth, useToast } from '../context/AppContext.jsx';
  * of those happened is sent with the transaction, which is how the assistant
  * learns.
  */
-export default function TransactionForm({ categories, existing, onSaved, onCancel }) {
+export default function TransactionForm({ categories, existing, preset, onSaved, onCancel }) {
   const toast = useToast();
   const { currency } = useAuth();
   const [form, setForm] = useState(() => ({
-    type: existing?.type || 'expense',
+    type: existing?.type || preset?.type || 'expense',
     amount: existing?.amount ?? '',
-    description: existing?.description || '',
+    description: existing?.description || preset?.description || '',
     note: existing?.note || '',
     date: existing ? new Date(existing.date).toISOString().slice(0, 10) : todayInput(),
     categoryId: existing?.category?._id || existing?.category || '',
@@ -36,7 +36,7 @@ export default function TransactionForm({ categories, existing, onSaved, onCance
   const [receipt, setReceipt] = useState(undefined);
   // After a scan the category is filled in from the suggestion automatically;
   // typed descriptions still wait for the student to tap it.
-  const autoCategory = useRef(false);
+  const autoCategory = useRef(Boolean(preset));
 
   const options = useMemo(() => categories.filter((c) => c.type === form.type), [categories, form.type]);
 

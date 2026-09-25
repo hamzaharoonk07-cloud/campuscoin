@@ -28,7 +28,7 @@ async function resolveCategory(user, categoryId) {
 router.get(
   '/',
   wrap(async (req, res) => {
-    const { month, from, to, category, type, q, flagged } = req.query;
+    const { month, from, to, category, type, q, flagged, recurring } = req.query;
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Number(req.query.limit) || 25);
 
@@ -36,6 +36,8 @@ router.get(
     if (type) filter.type = type;
     if (category) filter.category = category;
     if (flagged === '1') filter.flags = { $ne: [] };
+    // The rules behind repeating entries, for the dashboard's "coming up" list.
+    if (recurring === '1') filter['recurring.enabled'] = true;
     if (q) filter.description = new RegExp(String(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 
     if (month) {

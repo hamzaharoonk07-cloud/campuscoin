@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
-import { WalletArt } from '../components/Illustrations.jsx';
+import { CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
 import ImportWizard from '../components/ImportWizard.jsx';
 import { api } from '../lib/api.js';
 import { dayHeading, formatDate, money, slotColor } from '../lib/format.js';
@@ -207,9 +207,7 @@ export default function Transactions() {
                   </div>
                   {group.rows.map((row) => (
                     <button type="button" className="ledger-row" key={row._id} onClick={() => setEditing(row)}>
-                      <span className="ledger-dot" style={{ background: slotColor(row.category?.slot) }}>
-                        <Icon name={row.category?.icon} size={15} />
-                      </span>
+                      <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={42} />
                       <span className="ledger-main">
                         <span className="ledger-title">{row.description || row.category?.name}</span>
                         <span className="ledger-sub">

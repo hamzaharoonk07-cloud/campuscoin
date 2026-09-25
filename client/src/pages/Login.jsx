@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import Icon, { BrandMark } from '../components/Icon.jsx';
+import Icon, { BrandMark, Wordmark } from '../components/Icon.jsx';
 import { useAuth } from '../context/AppContext.jsx';
 
 /**
@@ -11,8 +11,7 @@ export function AuthAside({ eyebrow = 'Student money. Clearly sorted.', title, h
   return (
     <aside className="auth-aside">
       <Link to="/" className="brand" style={{ padding: 0 }}>
-        <BrandMark />
-        Campus Coin
+        <Wordmark />
       </Link>
       <div>
         <span className="eyebrow has-rule">{eyebrow}</span>

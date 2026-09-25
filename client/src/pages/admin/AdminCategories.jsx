@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Layout from '../../components/Layout.jsx';
 import Icon from '../../components/Icon.jsx';
 import { Modal } from '../../components/TransactionForm.jsx';
+import { CategoryIcon } from '../../components/Illustrations.jsx';
 import { api } from '../../lib/api.js';
 import { slotColor } from '../../lib/format.js';
 import { useToast } from '../../context/AppContext.jsx';
@@ -104,9 +105,7 @@ export default function AdminCategories() {
                 .map((category) => (
                   <div className="spine-row" key={category._id} style={{ gridTemplateColumns: 'minmax(0,1fr) auto' }}>
                     <div className="spine-name">
-                      <span className="ledger-dot" style={{ background: slotColor(category.slot), width: 26, height: 26 }}>
-                        <Icon name={category.icon} size={13} />
-                      </span>
+                      <CategoryIcon icon={category.icon} slot={category.slot} size={34} />
                       <span>{category.name}</span>
                       {category.archived ? <span className="pill is-warn">archived</span> : null}
                     </div>

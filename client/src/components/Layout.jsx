@@ -1,35 +1,89 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
-import Icon, { BrandMark } from './Icon.jsx';
+import Icon, { Wordmark } from './Icon.jsx';
+import { ArtIcon } from './Illustrations.jsx';
+import { money } from '../lib/format.js';
 import Chat from './Chat.jsx';
 import Backdrop from './Backdrop.jsx';
 import Avatar from './Avatar.jsx';
 import { api } from '../lib/api.js';
 import { useAuth, useTheme } from '../context/AppContext.jsx';
 
+// Every destination has a 3D object (client/public/art) for the rail, the
+// phone tab bar and its page header, and a line saying what the page is for.
 const STUDENT_NAV = [
-  { to: '/dashboard', label: 'Dashboard', icon: 'home' },
-  { to: '/transactions', label: 'Transactions', icon: 'ledger' },
-  { to: '/budgets', label: 'Budgets', icon: 'target' },
-  { to: '/reports', label: 'Reports', icon: 'chart' },
-  { to: '/insights', label: 'Insights', icon: 'spark' },
-  { to: '/tips', label: 'Saving tips', icon: 'bulb' },
-  { to: '/categories', label: 'Categories', icon: 'tag' },
+  { to: '/dashboard', label: 'Dashboard', icon: 'home', art: 'house', about: 'Your month at a glance' },
+  { to: '/transactions', label: 'Transactions', icon: 'ledger', art: 'receipt', about: 'Everything that came in and went out' },
+  { to: '/budgets', label: 'Budgets', icon: 'target', art: 'bullseye', about: 'A cap for each category, filling in real time' },
+  { to: '/reports', label: 'Reports', icon: 'chart', art: 'bar_chart', about: 'Where it went, by category, day and week' },
+  { to: '/insights', label: 'Insights', icon: 'spark', art: 'sparkles', about: 'Your month, in plain words' },
+  { to: '/tips', label: 'Saving tips', icon: 'bulb', art: 'light_bulb', about: 'Ranked by what they would save you' },
+  { to: '/categories', label: 'Categories', icon: 'tag', art: 'label', about: 'How your money is sorted' },
 ];
 
 const SECONDARY_NAV = [
-  { to: '/assistant', label: 'AI assistant', icon: 'chat' },
-  { to: '/settings', label: 'Settings', icon: 'user' },
-  { to: '/sitemap', label: 'Sitemap', icon: 'map' },
+  { to: '/assistant', label: 'AI assistant', icon: 'chat', art: 'robot', about: 'Ask anything about your own money' },
+  { to: '/settings', label: 'Settings', icon: 'user', art: 'gear', about: 'Profile, photo and display' },
+  { to: '/sitemap', label: 'Sitemap', icon: 'map', art: 'world_map', about: 'Every page in Campus Coin' },
 ];
 
 const ADMIN_NAV = [
-  { to: '/admin', label: 'Overview', icon: 'chart' },
-  { to: '/admin/students', label: 'Students', icon: 'user' },
-  { to: '/admin/categories', label: 'Default categories', icon: 'tag' },
-  { to: '/admin/announcements', label: 'Announcements', icon: 'bell' },
+  { to: '/admin', label: 'Overview', icon: 'chart', art: 'bar_chart', about: 'How Campus Coin is being used' },
+  { to: '/admin/students', label: 'Students', icon: 'user', art: 'busts_in_silhouette', about: 'Every student account' },
+  { to: '/admin/categories', label: 'Default categories', icon: 'tag', art: 'card_index_dividers', about: 'The categories every student starts with' },
+  { to: '/admin/announcements', label: 'Announcements', icon: 'bell', art: 'megaphone', about: 'Notices and tip templates for everyone' },
 ];
+
+const ALL_NAV = [...STUDENT_NAV, ...SECONDARY_NAV, ...ADMIN_NAV];
+const pageFor = (path) =>
+  ALL_NAV.filter((item) => path === item.to || path.startsWith(`${item.to}/`)).sort((a, b) => b.to.length - a.to.length)[0];
+
+/**
+ * The small "this month" card in the rail: what is kept so far against the
+ * savings goal. Cached for a minute outside React, because every page
+ * renders its own Layout and the figure does not need fetching on each one.
+ */
+let monthCache = { at: 0, data: null };
+
+function MonthCard() {
+  const { currency } = useAuth();
+  const [data, setData] = useState(monthCache.data);
+
+  useEffect(() => {
+    if (Date.now() - monthCache.at < 60000 && monthCache.data) return;
+    api
+      .get('/reports/dashboard')
+      .then(({ totals, goal }) => {
+        monthCache = { at: Date.now(), data: { totals, goal } };
+        setData(monthCache.data);
+      })
+      .catch(() => {});
+  }, []);
+
+  if (!data) return null;
+  const { totals, goal } = data;
+  const pct = goal.target > 0 ? Math.max(0, Math.min(100, (goal.kept / goal.target) * 100)) : 0;
+  const over = totals.balance < 0;
+  const month = new Date().toLocaleString('en', { month: 'long' });
+
+  return (
+    <Link to="/dashboard" className="rail-month">
+      <ArtIcon name={over ? 'money_with_wings' : 'seedling'} size={38} />
+      <span className="rail-month-copy">
+        <span className="rail-month-label">{month} so far</span>
+        <strong className={`num${over ? ' is-bad' : ''}`}>
+          {over ? `${money(-totals.balance, currency)} over` : `${money(totals.balance, currency)} kept`}
+        </strong>
+      </span>
+      {goal.target > 0 ? (
+        <span className="rail-month-bar" title={`${Math.round(pct)}% of your savings goal`}>
+          <i style={{ width: `${pct}%` }} />
+        </span>
+      ) : null}
+    </Link>
+  );
+}
 
 /** Where the rail's highlight last sat, so the next page can slide it from there. */
 let lastRailSpot = null;
@@ -159,6 +213,24 @@ function ThemeButton() {
 function ChatLauncher() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  // A short "need help?" bubble, once per browser session, then never again.
+  const [hint, setHint] = useState(false);
+  useEffect(() => {
+    let seen = true;
+    try {
+      seen = sessionStorage.getItem('campuscoin.chatHint') === '1';
+      sessionStorage.setItem('campuscoin.chatHint', '1');
+    } catch {
+      /* private mode: skip the hint */
+    }
+    if (seen) return undefined;
+    const show = setTimeout(() => setHint(true), 2200);
+    const hide = setTimeout(() => setHint(false), 9000);
+    return () => {
+      clearTimeout(show);
+      clearTimeout(hide);
+    };
+  }, []);
 
   useEffect(() => setOpen(false), [location.pathname]);
 
@@ -176,12 +248,13 @@ function ChatLauncher() {
       {open && (
         <div className="chat-popover" role="dialog" aria-label="Campus Coin assistant">
           <div className="chat-popover-head">
-            <span className="chat-avatar" aria-hidden="true">
-              <Icon name="spark" size={16} />
+            <span className="chat-bot-face" aria-hidden="true">
+              <ArtIcon name="robot" size={34} />
+              <i className="chat-online" />
             </span>
             <div style={{ marginRight: 'auto' }}>
-              <strong>Campus Coin assistant</strong>
-              <span>Answers from your own transactions</span>
+              <strong>Coin, your money assistant</strong>
+              <span>Online · answers from your own transactions</span>
             </div>
             <Link to="/assistant" className="icon-btn" aria-label="Open the full assistant page" title="Open full page">
               <Icon name="right" size={16} />
@@ -193,14 +266,23 @@ function ChatLauncher() {
           <Chat compact />
         </div>
       )}
+      {hint && !open ? (
+        <button type="button" className="chat-hint" onClick={() => setOpen(true)}>
+          <strong>Need help with your money?</strong>
+          <span>Ask Coin anything, like "how much on food?"</span>
+        </button>
+      ) : null}
       <button
         type="button"
-        className="chat-fab"
-        onClick={() => setOpen((was) => !was)}
+        className={`chat-fab${open ? ' is-open' : ''}`}
+        onClick={() => {
+          setHint(false);
+          setOpen((was) => !was);
+        }}
         aria-expanded={open}
         aria-label={open ? 'Close the assistant' : 'Ask the assistant'}
       >
-        <Icon name={open ? 'x' : 'chat'} size={22} />
+        {open ? <Icon name="x" size={22} /> : <ArtIcon name="robot" size={40} />}
       </button>
     </>
   );
@@ -211,6 +293,7 @@ export default function Layout({ title, crumbs, actions, children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const nav = isAdmin ? ADMIN_NAV : STUDENT_NAV;
+  const page = pageFor(location.pathname);
   const rail = useRef(null);
   const indicator = useRef(null);
 
@@ -260,13 +343,15 @@ export default function Layout({ title, crumbs, actions, children }) {
       <nav className="rail" aria-label="Main" ref={rail}>
         <span className="rail-indicator" ref={indicator} aria-hidden="true" />
         <Link to={isAdmin ? '/admin' : '/dashboard'} className="brand">
-          <BrandMark />
-          Campus Coin
+          <Wordmark />
         </Link>
 
+        {!isAdmin ? <div className="rail-group">Money</div> : <div className="rail-group">Control panel</div>}
         {nav.map((item) => (
           <NavLink key={item.to} to={item.to} end={item.to === '/admin'}>
-            <Icon name={item.icon} />
+            <span className="rail-art">
+              <ArtIcon name={item.art} size={22} />
+            </span>
             {item.label}
           </NavLink>
         ))}
@@ -276,7 +361,9 @@ export default function Layout({ title, crumbs, actions, children }) {
             <div className="rail-group">More</div>
             {SECONDARY_NAV.map((item) => (
               <NavLink key={item.to} to={item.to}>
-                <Icon name={item.icon} />
+                <span className="rail-art">
+                  <ArtIcon name={item.art} size={22} />
+                </span>
                 {item.label}
               </NavLink>
             ))}
@@ -284,6 +371,8 @@ export default function Layout({ title, crumbs, actions, children }) {
         )}
 
         <div className="rail-spacer" />
+
+        {!isAdmin ? <MonthCard /> : null}
 
         <div className="rail-footer">
           <div className="row" style={{ padding: '0.35rem 0.7rem 0.6rem' }}>
@@ -294,8 +383,9 @@ export default function Layout({ title, crumbs, actions, children }) {
               <div style={{ fontWeight: 600, fontSize: 'var(--step--1)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {user?.name}
               </div>
-              <div className="muted" style={{ fontSize: '0.75rem' }}>
-                {isAdmin ? 'Administrator' : user?.academicYear || 'Student'}
+              <div className="rail-role">
+                <span className={`rail-badge${isAdmin ? ' is-admin' : ''}`}>{isAdmin ? 'Admin' : 'Student'}</span>
+                {!isAdmin && user?.academicYear ? <span className="muted">{user.academicYear}</span> : null}
               </div>
             </div>
           </div>
@@ -308,9 +398,15 @@ export default function Layout({ title, crumbs, actions, children }) {
 
       <div className="main">
         <header className="topbar">
+          {page ? (
+            <span className="topbar-art" aria-hidden="true">
+              <ArtIcon name={location.pathname === '/dashboard' ? 'waving_hand' : page.art} size={34} />
+            </span>
+          ) : null}
           <div style={{ marginRight: 'auto', minWidth: 0 }}>
             {crumbs ? <div className="crumbs">{crumbs}</div> : null}
             <h1>{title}</h1>
+            {page ? <div className="topbar-about">{page.about}</div> : null}
           </div>
           {actions}
           {!isAdmin && <Bell />}
@@ -328,7 +424,7 @@ export default function Layout({ title, crumbs, actions, children }) {
         <nav className="tabbar" aria-label="Sections">
           {TAB_NAV.map((item) => (
             <NavLink key={item.to} to={item.to} className={location.pathname === item.to ? 'active' : undefined}>
-              <Icon name={item.icon} size={20} />
+              <ArtIcon name={item.art} size={24} />
               {item.label.split(' ')[0]}
             </NavLink>
           ))}

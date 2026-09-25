@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import Chat from '../components/Chat.jsx';
-import { ChatArt } from '../components/Illustrations.jsx';
+import { CategoryIcon, ChatArt } from '../components/Illustrations.jsx';
 import { CountNumber } from '../components/CountUp.jsx';
 import { api } from '../lib/api.js';
 import { slotColor } from '../lib/format.js';
@@ -97,9 +97,7 @@ export default function Assistant() {
               {guess ? (
                 <div className="panel" style={{ padding: '1rem 1.15rem', background: 'var(--raised)' }}>
                   <div className="row">
-                    <span className="ledger-dot" style={{ background: slotColor(guess.slot) }}>
-                      <Icon name={guess.icon} size={15} />
-                    </span>
+                    <CategoryIcon icon={guess.icon} slot={guess.slot} size={42} />
                     <div>
                       <strong>{guess.name}</strong>
                       <div className="small muted">

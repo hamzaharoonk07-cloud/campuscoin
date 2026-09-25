@@ -1313,8 +1313,6 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 
 .auth-aside > * { position: relative; }
 .auth-aside .brand { color: var(--on-navy); }
-.auth-aside .brand-mark rect { fill: var(--sky); }
-.auth-aside .brand-mark :is(path, circle) { stroke: var(--navy); }
 .auth-aside .eyebrow { color: var(--sky); }
 
 .auth-title {

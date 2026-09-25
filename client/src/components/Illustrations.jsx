@@ -12,6 +12,9 @@
    for screen readers and the objects themselves are hidden from them.
 --------------------------------------------------------------------------- */
 
+import { categoryArt } from '../lib/art.js';
+import { slotColor } from '../lib/format.js';
+
 const art = (name) => `/art/${name}.png`;
 
 /**
@@ -144,4 +147,26 @@ export function MegaphoneArt({ label = 'A megaphone with a bell and confetti' })
 /** A single 3D object as an icon, for tiles and cards. */
 export function ArtIcon({ name, size = 44, className = '' }) {
   return <img className={`art-icon ${className}`} src={art(name)} alt="" width={size} height={size} draggable="false" />;
+}
+
+/**
+ * A category as a picture: its 3D object on a tile tinted with the category's
+ * own colour, so colour and shape both say which category it is.
+ */
+export function CategoryIcon({ icon, slot, size = 38 }) {
+  const colour = slotColor(slot);
+  return (
+    <span
+      className="cat-art"
+      aria-hidden="true"
+      style={{
+        width: size,
+        height: size,
+        background: `color-mix(in srgb, ${colour} 15%, var(--surface))`,
+        boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${colour} 30%, transparent)`,
+      }}
+    >
+      <ArtIcon name={categoryArt(icon)} size={Math.round(size * 0.68)} />
+    </span>
+  );
 }

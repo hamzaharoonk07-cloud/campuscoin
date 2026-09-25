@@ -7,6 +7,7 @@ import './styles/app.css';
 // After app.css, so motion rules win over same-specificity base rules.
 import './styles/motion.css';
 import './styles/pictures.css';
+import './styles/frame.css';
 import { installPointerEffects } from './lib/pointerEffects.js';
 
 installPointerEffects();

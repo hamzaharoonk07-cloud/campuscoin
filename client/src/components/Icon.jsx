@@ -75,19 +75,5 @@ export default function Icon({ name, size = 18, strokeWidth = 1.75, className = 
   );
 }
 
-/** The mark: a coin standing on a rounded tile, the shape of an app icon. */
-export function BrandMark({ size = 28 }) {
-  return (
-    <svg className="brand-mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="9" fill="var(--accent)" />
-      <circle cx="16" cy="16" r="9" fill="none" stroke="var(--on-accent)" strokeWidth="2" opacity="0.45" />
-      <path
-        d="M19.2 12.6c-.7-.9-1.8-1.5-3.2-1.5-1.8 0-3.2 1.1-3.2 2.5s1.4 2.2 3.2 2.4c1.8.2 3.2 1 3.2 2.4s-1.4 2.5-3.2 2.5c-1.4 0-2.5-.6-3.2-1.5M16 9.2v13.6"
-        fill="none"
-        stroke="var(--on-accent)"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
+/** The logo lives in Brand.jsx; re-exported so existing imports keep working. */
+export { BrandMark, Wordmark } from './Brand.jsx';

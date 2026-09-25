@@ -259,6 +259,16 @@ The interface is written rather than assembled. A few decisions worth naming:
   Microsoft's **Fluent Emoji** set, used under the MIT licence; the files and
   the licence are stored in `client/public/art`, so nothing is fetched from
   outside at runtime. The layout, animation and composition are our own.
+- **A logo and a mascot.** The mark is a gold coin on an emerald tile, drawn
+  in SVG (`client/src/components/Brand.jsx`) so it is sharp from the favicon
+  to the hero. The chat assistant has a face - Coin, a 3D robot - on its
+  button, its messages and its header.
+- **Every page has a picture.** The sidebar, the phone tab bar and each page
+  header show a 3D object for that page, and every category is shown as its
+  own 3D object on a tile of its colour (`client/src/lib/art.js`).
+- **The dashboard widgets the SRS names:** quick-add buttons (chai, rickshaw,
+  printing, allowance) that open the form already filled in, "Top category
+  this month", budget against actual, and the repeating payments coming up next.
 - **Motion explains, it does not decorate** (`client/src/styles/motion.css`).
   Sections arrive top to bottom, charts draw themselves (the donut sweeps in
   ranked order, lines trace, bars grow), headline figures count up, and budget

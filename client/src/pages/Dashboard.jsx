@@ -8,7 +8,7 @@ import { api } from '../lib/api.js';
 import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import { useCountUp } from '../lib/useCountUp.js';
 import CountUp from '../components/CountUp.jsx';
-import { ArtIcon, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
+import { ArtIcon, CategoryIcon, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /* ---------------------------------------------------------------------------
@@ -20,6 +20,15 @@ import { useAuth, useToast } from '../context/AppContext.jsx';
    learned before the numbers can be.
 --------------------------------------------------------------------------- */
 
+// The things students log most often, one tap away. The description is what
+// the categoriser reads, so each lands in the right category by itself.
+const QUICK = [
+  { label: 'Chai', art: 'hot_beverage', type: 'expense', description: 'Chai at the canteen' },
+  { label: 'Rickshaw', art: 'bus', type: 'expense', description: 'Rickshaw to campus' },
+  { label: 'Printing', art: 'books', type: 'expense', description: 'Printing notes' },
+  { label: 'Allowance', art: 'dollar_banknote', type: 'income', description: 'Monthly allowance' },
+];
+
 export default function Dashboard() {
   const { user, currency } = useAuth();
   const toast = useToast();
@@ -27,6 +36,9 @@ export default function Dashboard() {
   const [data, setData] = useState(null);
   const [categories, setCategories] = useState([]);
   const [adding, setAdding] = useState(false);
+  // A quick-add button opens the form already filled in.
+  const [preset, setPreset] = useState(null);
+  const [upcoming, setUpcoming] = useState([]);
 
   // Called before the loading branch below returns, because a hook cannot sit
   // after an early return.
@@ -43,7 +55,24 @@ export default function Dashboard() {
 
   useEffect(() => {
     api.get('/categories').then(({ categories: list }) => setCategories(list)).catch(() => {});
+    // The repeating entries, soonest first, for "Coming up".
+    api
+      .get('/transactions?recurring=1&limit=20')
+      .then(({ transactions }) =>
+        setUpcoming(
+          transactions
+            .filter((t) => t.recurring?.nextRun)
+            .sort((a, b) => new Date(a.recurring.nextRun) - new Date(b.recurring.nextRun))
+            .slice(0, 4)
+        )
+      )
+      .catch(() => {});
   }, []);
+
+  const quickAdd = (item) => {
+    setPreset(item);
+    setAdding(true);
+  };
 
   // How much of the month's total budget has been used, for the health ring.
   const budgetHealth = useMemo(() => {
@@ -183,6 +212,86 @@ export default function Dashboard() {
         </div>
       </section>
 
+      {/* --- Quick add, top category, coming up ------------------------- */}
+      <div className="dash-row dash-row-3">
+        <section className="panel">
+          <div className="panel-head">
+            <h2>Quick add</h2>
+            <span className="panel-note">One tap, then the amount</span>
+          </div>
+          <div className="panel-body quick-grid">
+            {QUICK.map((item) => (
+              <button key={item.label} type="button" className="quick-btn" onClick={() => quickAdd(item)}>
+                <ArtIcon name={item.art} size={40} />
+                <span>{item.label}</span>
+                <small>{item.type === 'income' ? 'money in' : 'money out'}</small>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="panel top-cat">
+          <div className="panel-head">
+            <h2>Top category</h2>
+            <span className="panel-note">This month</span>
+          </div>
+          <div className="panel-body">
+            {spending.length ? (
+              <>
+                <div className="top-cat-hero">
+                  <CategoryIcon icon={spending[0].icon} slot={spending[0].slot} size={72} />
+                  <div>
+                    <strong>{spending[0].name}</strong>
+                    <span className="num">{money(spending[0].total, currency)}</span>
+                  </div>
+                </div>
+                <div className="top-cat-bar" aria-label={`${spending[0].share}% of spending`}>
+                  <i style={{ width: `${spending[0].share}%`, background: slotColor(spending[0].slot) }} />
+                </div>
+                <p className="small muted" style={{ margin: '0.6rem 0 0' }}>
+                  {spending[0].share}% of everything you spent
+                  {spending[1] ? `, ahead of ${spending[1].name} at ${spending[1].share}%` : ''}.
+                </p>
+              </>
+            ) : (
+              <p className="muted small">Nothing spent yet this month.</p>
+            )}
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="panel-head">
+            <h2>Coming up</h2>
+            <Link className="btn btn-ghost btn-sm" to="/transactions">
+              All
+            </Link>
+          </div>
+          <div className="panel-body">
+            {upcoming.length ? (
+              <ul className="upcoming">
+                {upcoming.map((row) => (
+                  <li key={row._id}>
+                    <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} />
+                    <span className="upcoming-main">
+                      <strong>{row.description || row.category?.name}</strong>
+                      <span>
+                        {formatDate(row.recurring.nextRun, { day: 'numeric', month: 'short' })} · {row.recurring.frequency}
+                      </span>
+                    </span>
+                    <span className={`num upcoming-amount${row.type === 'income' ? ' is-in' : ''}`}>
+                      {row.type === 'income' ? '+' : '−'}
+                      {money(row.amount, currency)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="muted small">Nothing repeats yet. Tick "This repeats" when you add an allowance or a subscription.</p>
+            )}
+          </div>
+        </section>
+      </div>
+
       {/* --- Breakdown and trend ---------------------------------------- */}
       <div className="dash-row dash-row-2">
         <section className="panel">
@@ -242,9 +351,7 @@ export default function Dashboard() {
                     <tr key={row._id}>
                       <td>
                         <div className="tx-name">
-                          <span className="ledger-dot" style={{ background: slotColor(row.category?.slot) }}>
-                            <Icon name={row.category?.icon} size={15} />
-                          </span>
+                          <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} />
                           <span>{row.description || row.category?.name}</span>
                           {row.flags?.includes('duplicate') ? <span className="pill is-warn">duplicate?</span> : null}
                           {row.flags?.includes('large') ? <span className="pill is-warn">unusual</span> : null}
@@ -415,9 +522,16 @@ export default function Dashboard() {
       </div>
 
       {adding ? (
-        <Modal title="Add a transaction" onClose={() => setAdding(false)}>
+        <Modal
+          title="Add a transaction"
+          onClose={() => {
+            setAdding(false);
+            setPreset(null);
+          }}
+        >
           <TransactionForm
             categories={categories}
+            preset={preset}
             onSaved={() => {
               setAdding(false);
               load();
