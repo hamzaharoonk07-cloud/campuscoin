@@ -15,21 +15,23 @@ import { compactMoney, money, slotColor } from '../lib/format.js';
 
 // An SVG with a fixed viewBox scales its text down with its width, which on a
 // phone leaves the labels unreadable. So the viewBox itself gets squarer below
-// 640px: the chart keeps its height while the type stays the same size.
+// 640px: the chart keeps its height while the type stays the same size. On a
+// wide screen, where a full-width chart would double its type, it gets wider.
+const WIDE = { W: 1100, H: 300, PAD: { top: 16, right: 12, bottom: 28, left: 50 } };
 const DESKTOP = { W: 640, H: 220, PAD: { top: 16, right: 12, bottom: 28, left: 46 } };
 const PHONE = { W: 360, H: 240, PAD: { top: 14, right: 8, bottom: 26, left: 42 } };
 
 function useChartBox() {
-  const [box, setBox] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches ? PHONE : DESKTOP
-  );
+  const pick = () =>
+    window.matchMedia('(max-width: 640px)').matches ? PHONE : window.matchMedia('(min-width: 1280px)').matches ? WIDE : DESKTOP;
+  const [box, setBox] = useState(() => (typeof window !== 'undefined' ? pick() : DESKTOP));
 
   useEffect(() => {
-    const query = window.matchMedia('(max-width: 640px)');
-    const apply = () => setBox(query.matches ? PHONE : DESKTOP);
+    const queries = [window.matchMedia('(max-width: 640px)'), window.matchMedia('(min-width: 1280px)')];
+    const apply = () => setBox(pick());
     apply();
-    query.addEventListener('change', apply);
-    return () => query.removeEventListener('change', apply);
+    queries.forEach((q) => q.addEventListener('change', apply));
+    return () => queries.forEach((q) => q.removeEventListener('change', apply));
   }, []);
 
   const plotW = box.W - box.PAD.left - box.PAD.right;

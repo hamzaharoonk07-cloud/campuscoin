@@ -1,11 +1,9 @@
 /* ===========================================================================
    Campus Coin design tokens
    ---------------------------------------------------------------------------
-   Modelled on the Lefstyle dashboard: a warm off-white page, white cards,
-   black for anything you can act on, and muted sage, cream and lilac for the
-   figures. Green and clay orange mark money coming in, and soft pastel tiles
-   for the four kinds of money a student deals with. Inter Tight sets the
-   headings - tight and even at large sizes - and Inter does the reading.
+   Modelled on design 9, a fintech dashboard on Dribbble: black (#121214),
+   white and one blue (#5b91ff), set in Outfit. Blue marks money coming in and
+   black money going out; categories take shades of blue and grey.
 
    Colour is assigned by the job it does, never by decoration:
      accent    - the brand and anything you can act on.
@@ -21,46 +19,46 @@
    =========================================================================== */
 
 :root {
-  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Inter', system-ui, sans-serif;
-  --r-control: 10px;
-  --r-panel-lg: 20px;
-  --r-panel: 14px;
+  --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --r-control: 12px;
+  --r-panel-lg: 24px;
+  --r-panel: 20px;
   --shadow-3: 0 4px 8px -2px rgba(10, 10, 11, 0.06), 0 16px 32px -12px rgba(10, 10, 11, 0.18);
   --shadow-2: 0 1px 3px rgba(10, 10, 11, 0.06), 0 6px 16px -8px rgba(10, 10, 11, 0.1);
   --shadow-1: 0 1px 2px rgba(10, 10, 11, 0.04);
-  --bad-soft: rgba(194, 65, 12, 0.08);
-  --bad: #c2410c;
-  --good-soft: rgba(31, 107, 87, 0.1);
-  --good: #1f6b57;
-  --tile-goal: #ece3ee;
-  --tile-budget: #f5ecd6;
-  --tile-in: #e3ebe3;
-  --tile-out: #f7e6dc;
-  --series-out: #e38b5b;
-  --series-in: #3d5243;
-  --on-navy-muted: #b5b2a8;
+  --bad-soft: rgba(229, 72, 77, 0.1);
+  --bad: #e5484d;
+  --good-soft: rgba(91, 145, 255, 0.14);
+  --good: #2f5fd0;
+  --tile-goal: #eaf1ff;
+  --tile-budget: #f5f5f6;
+  --tile-in: #eaf1ff;
+  --tile-out: #f5f5f6;
+  --series-out: #121214;
+  --series-in: #5b91ff;
+  --on-navy-muted: #a1a1aa;
   --on-navy: #ffffff;
-  --sky: #efd9a7;
-  --navy-raised: #23231f;
-  --navy: #161614;
-  --accent-glow: 0 6px 16px -8px rgba(27, 27, 25, 0.45);
+  --sky: #5b91ff;
+  --navy-raised: #1e1e22;
+  --navy: #121214;
+  --accent-glow: 0 8px 18px -10px rgba(18, 18, 20, 0.5);
   --on-accent: #ffffff;
-  --accent-text: #1b1b19;
-  --accent-line: rgba(27, 27, 25, 0.2);
-  --accent-soft: rgba(27, 27, 25, 0.06);
+  --accent-text: #121214;
+  --accent-line: rgba(18, 18, 20, 0.2);
+  --accent-soft: rgba(18, 18, 20, 0.06);
   --accent-deep: #000000;
-  --accent: #1b1b19;
-  --faint: #8a877f;
-  --muted: #5f5d57;
-  --text: #1b1b19;
-  --input-bg: #ffffff;
-  --line-strong: #dcd9d1;
-  --line: #ebe9e3;
-  --sunken: #eeede7;
-  --raised: #f8f7f3;
+  --accent: #121214;
+  --faint: #8e8e98;
+  --muted: #5c5c66;
+  --text: #121214;
+  --input-bg: #f5f5f6;
+  --line-strong: #d9d9de;
+  --line: #ebebee;
+  --sunken: #ededef;
+  --raised: #f5f5f6;
   --surface: #ffffff;
-  --bg: #f2f1ec;
+  --bg: #121214;
   color-scheme: light;
 
 
@@ -73,13 +71,13 @@
 
 
 
-  --cat-1: #2a78d6;
-  --cat-2: #eb6834;
-  --cat-3: #1baf7a;
-  --cat-4: #eda100;
-  --cat-5: #e87ba4;
-  --cat-6: #008300;
-  --cat-7: #4a3aa7;
+  --cat-1: #5b91ff;
+  --cat-2: #121214;
+  --cat-3: #9ebfff;
+  --cat-4: #6b7488;
+  --cat-5: #2f5fd0;
+  --cat-6: #c4c9d4;
+  --cat-7: #3d3d45;
 
   --warn: #a9690a;
   --warn-soft: rgba(169, 105, 10, 0.1);
@@ -121,34 +119,38 @@
   --teal: #1f6b57;
   --amber: #f5bd45;
   --clay: #e8895a;
+  --blue: #5b91ff;
+  --blue-deep: #3f74e6;
+  --blue-soft: #eaf1ff;
+  --blue-mid: #9ebfff;
 }
 
 :root[data-theme='dark'] {
-  --tile-goal: #27202a;
-  --tile-budget: #2b2619;
-  --tile-in: #1c2620;
-  --tile-out: #2e211a;
-  --series-out: #f0a57c;
-  --series-in: #8fb39a;
-  --navy-raised: #1b1b19;
-  --navy: #0b0b0a;
-  --accent-glow: 0 6px 16px -8px rgba(0, 0, 0, 0.6);
-  --on-accent: #151514;
-  --accent-text: #f2f1ec;
-  --accent-line: rgba(242, 241, 236, 0.22);
-  --accent-soft: rgba(242, 241, 236, 0.08);
+  --tile-goal: #18223a;
+  --tile-budget: #1e1e23;
+  --tile-in: #18223a;
+  --tile-out: #1e1e23;
+  --series-out: #e8e8ec;
+  --series-in: #6b9cff;
+  --navy-raised: #16161a;
+  --navy: #000000;
+  --accent-glow: 0 8px 18px -10px rgba(0, 0, 0, 0.7);
+  --on-accent: #121214;
+  --accent-text: #f4f4f6;
+  --accent-line: rgba(244, 244, 246, 0.22);
+  --accent-soft: rgba(244, 244, 246, 0.08);
   --accent-deep: #ffffff;
-  --accent: #f2f1ec;
-  --faint: #86837b;
-  --muted: #b0ada4;
-  --text: #f2f1ec;
-  --input-bg: #171715;
-  --line-strong: #37362f;
-  --line: #2a2a27;
-  --sunken: #0d0d0c;
-  --raised: #222220;
-  --surface: #1b1b19;
-  --bg: #121211;
+  --accent: #f4f4f6;
+  --faint: #80808a;
+  --muted: #b0b0ba;
+  --text: #f4f4f6;
+  --input-bg: #1e1e23;
+  --line-strong: #34343c;
+  --line: #26262c;
+  --sunken: #0d0d10;
+  --raised: #1e1e23;
+  --surface: #16161a;
+  --bg: #050506;
   color-scheme: dark;
 
 
@@ -159,20 +161,20 @@
 
 
 
-  --cat-1: #3987e5;
-  --cat-2: #d95926;
-  --cat-3: #199e70;
-  --cat-4: #c98500;
-  --cat-5: #d55181;
-  --cat-6: #008300;
-  --cat-7: #9085e9;
+  --cat-1: #6b9cff;
+  --cat-2: #e8e8ec;
+  --cat-3: #3f6fd8;
+  --cat-4: #8a93a8;
+  --cat-5: #a9c5ff;
+  --cat-6: #4b4b55;
+  --cat-7: #c4c9d4;
 
-  --good: #6fc2a4;
-  --good-soft: rgba(111, 194, 164, 0.12);
+  --good: #8fb4ff;
+  --good-soft: rgba(107, 156, 255, 0.16);
   --warn: #e0a83c;
   --warn-soft: rgba(224, 168, 60, 0.13);
-  --bad: #f0875a;
-  --bad-soft: rgba(240, 135, 90, 0.12);
+  --bad: #ff6b70;
+  --bad-soft: rgba(255, 107, 112, 0.12);
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.25), 0 12px 28px -12px rgba(0, 0, 0, 0.5);
@@ -187,4 +189,8 @@
   --teal: #4fa98c;
   --amber: #f5bd45;
   --clay: #f0a57c;
+  --blue: #6b9cff;
+  --blue-deep: #5b91ff;
+  --blue-soft: rgba(91, 145, 255, 0.14);
+  --blue-mid: #3f5f9e;
 }

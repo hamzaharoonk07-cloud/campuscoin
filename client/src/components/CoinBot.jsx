@@ -1,7 +1,7 @@
 import { useId } from 'react';
 
 /**
- * Coin, the assistant's face: the gold coin from the logo, brought to life.
+ * Coin, the assistant's face: the blue coin from the logo, brought to life.
  *
  * Drawn in SVG with the same gradients as the brand mark (Brand.jsx), so the
  * mascot and the logo are visibly the same object. The eyes blink, and while
@@ -21,17 +21,17 @@ export default function CoinBot({ size = 40, bubble = true, talking = false, cla
     >
       <defs>
         <linearGradient id={`${id}-face`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fff7d6" />
-          <stop offset="0.3" stopColor="#fcd34d" />
-          <stop offset="1" stopColor="#e08a0b" />
+          <stop offset="0" stopColor="#d6e4ff" />
+          <stop offset="0.3" stopColor="#8db3ff" />
+          <stop offset="1" stopColor="#3f74e6" />
         </linearGradient>
         <linearGradient id={`${id}-rim`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#f59e0b" />
-          <stop offset="1" stopColor="#9a4a0a" />
+          <stop offset="0" stopColor="#3566dc" />
+          <stop offset="1" stopColor="#1e3f96" />
         </linearGradient>
         <linearGradient id={`${id}-bubble`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#6f8f78" />
-          <stop offset="1" stopColor="#3d5243" />
+          <stop offset="0" stopColor="#2a2a30" />
+          <stop offset="1" stopColor="#121214" />
         </linearGradient>
         <radialGradient id={`${id}-shine`} cx="0.32" cy="0.25" r="0.7">
           <stop offset="0" stopColor="#fff" stopOpacity="0.7" />
@@ -40,22 +40,22 @@ export default function CoinBot({ size = 40, bubble = true, talking = false, cla
       </defs>
 
       {/* the coin: its edge, its face, the engraved ring and a lit top */}
-      <ellipse cx="29" cy="37.5" rx="24" ry="23" fill="#7c3a06" opacity="0.28" />
+      <ellipse cx="29" cy="37.5" rx="24" ry="23" fill="#1e3f96" opacity="0.3" />
       <circle cx="29" cy="35" r="24" fill={`url(#${id}-rim)`} />
       <circle cx="29" cy="33" r="22.6" fill={`url(#${id}-face)`} />
       <circle cx="29" cy="33" r="22.6" fill={`url(#${id}-shine)`} />
-      <circle cx="29" cy="33" r="18" fill="none" stroke="#b45309" strokeOpacity="0.35" strokeWidth="1.4" />
+      <circle cx="29" cy="33" r="18" fill="none" stroke="#fff" strokeOpacity="0.35" strokeWidth="1.4" />
 
       {/* the face */}
-      <ellipse cx="20" cy="38.5" rx="3.6" ry="2.2" fill="#fb7185" opacity="0.4" />
-      <ellipse cx="38" cy="38.5" rx="3.6" ry="2.2" fill="#fb7185" opacity="0.4" />
+      <ellipse cx="20" cy="38.5" rx="3.6" ry="2.2" fill="#ff8fa3" opacity="0.45" />
+      <ellipse cx="38" cy="38.5" rx="3.6" ry="2.2" fill="#ff8fa3" opacity="0.45" />
       <g className="coinbot-eyes">
-        <ellipse cx="22.5" cy="31" rx="2.8" ry="3.8" fill="#3b1d06" />
-        <ellipse cx="35.5" cy="31" rx="2.8" ry="3.8" fill="#3b1d06" />
+        <ellipse cx="22.5" cy="31" rx="2.8" ry="3.8" fill="#121214" />
+        <ellipse cx="35.5" cy="31" rx="2.8" ry="3.8" fill="#121214" />
         <circle cx="23.5" cy="29.4" r="1.1" fill="#fff" />
         <circle cx="36.5" cy="29.4" r="1.1" fill="#fff" />
       </g>
-      <path d="M23.5 38.6c3.1 3.4 7.9 3.4 11 0" fill="none" stroke="#7c2d12" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M23.5 38.6c3.1 3.4 7.9 3.4 11 0" fill="none" stroke="#121214" strokeWidth="2.4" strokeLinecap="round" />
       <path d="M14.6 22.4c2.4-3 5.7-4.9 9.4-5.4" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" opacity="0.85" />
 
       {bubble ? (

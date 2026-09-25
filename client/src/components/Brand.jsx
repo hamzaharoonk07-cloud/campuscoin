@@ -1,56 +1,40 @@
 import { useId } from 'react';
 
 /**
- * The Campus Coin mark: a gold coin standing on a sage-green tile, the shape of
- * an app icon. The depth is all gradient and highlight - a lit top edge on the
- * tile, a darker rim and a stacked edge under the coin, an embossed C on its
- * face and a glint of light - so it holds up from a 16px favicon to the size
- * of a hero, in either theme, without an image file.
+ * The Campus Coin mark: a blue coin with a white C cut into it.
+ *
+ * The C is a thick ring left open on the right, and the dot in its middle is
+ * the coin's centre - so the mark reads as a letter and as a coin at once.
+ * A soft light across the top gives the disc a little depth. It is flat
+ * enough to stay crisp at favicon size and needs no image file.
  */
 export function BrandMark({ size = 30 }) {
   const id = `bm${useId().replace(/:/g, '')}`;
   return (
     <svg className="brand-mark" width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
       <defs>
-        <linearGradient id={`${id}-tile`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#6f8f78" />
-          <stop offset="0.55" stopColor="#3d5243" />
-          <stop offset="1" stopColor="#22302a" />
+        <linearGradient id={`${id}-disc`} x1="0.15" y1="0" x2="0.85" y2="1">
+          <stop offset="0" stopColor="#8db3ff" />
+          <stop offset="0.5" stopColor="#5b91ff" />
+          <stop offset="1" stopColor="#3566dc" />
         </linearGradient>
-        <linearGradient id={`${id}-gold`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fef3c7" />
-          <stop offset="0.35" stopColor="#fcd34d" />
-          <stop offset="1" stopColor="#d97706" />
-        </linearGradient>
-        <linearGradient id={`${id}-rim`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#f59e0b" />
-          <stop offset="1" stopColor="#92400e" />
-        </linearGradient>
-        <radialGradient id={`${id}-shine`} cx="0.3" cy="0.2" r="0.8">
-          <stop offset="0" stopColor="#fff" stopOpacity="0.55" />
-          <stop offset="0.5" stopColor="#fff" stopOpacity="0" />
+        <radialGradient id={`${id}-light`} cx="0.35" cy="0.2" r="0.75">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.45" />
+          <stop offset="0.55" stopColor="#fff" stopOpacity="0" />
         </radialGradient>
       </defs>
-      {/* tile, with a lit top edge */}
-      <rect width="48" height="48" rx="14" fill={`url(#${id}-tile)`} />
-      <rect width="48" height="48" rx="14" fill={`url(#${id}-shine)`} />
-      <path d="M8 4.5h32" stroke="#fff" strokeOpacity="0.45" strokeWidth="1.5" strokeLinecap="round" />
-      {/* the coin's stacked edge, then its face */}
-      <ellipse cx="24" cy="28.5" rx="13" ry="12.5" fill="#22302a" opacity="0.35" />
-      <circle cx="24" cy="26" r="13" fill={`url(#${id}-rim)`} />
-      <circle cx="24" cy="24.4" r="12.2" fill={`url(#${id}-gold)`} />
-      <circle cx="24" cy="24.4" r="9.3" fill="none" stroke="#b45309" strokeOpacity="0.45" strokeWidth="1.2" />
-      {/* an embossed C: a dark stroke with a light one offset above it */}
-      <path d="M28.6 20.2a6.2 6.2 0 1 0 0 8.4" fill="none" stroke="#92400e" strokeWidth="3.2" strokeLinecap="round" />
-      <path d="M28.6 19.4a6.2 6.2 0 1 0 0 8.4" fill="none" stroke="#fffbeb" strokeOpacity="0.55" strokeWidth="1.1" strokeLinecap="round" />
-      {/* a glint of light */}
-      <path d="M17.5 16.6c1.6-1.7 3.6-2.6 5.8-2.8" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
-      <path d="M37.5 9.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="#fff" opacity="0.9" />
+      <circle cx="24" cy="24" r="24" fill={`url(#${id}-disc)`} />
+      <circle cx="24" cy="24" r="24" fill={`url(#${id}-light)`} />
+      <circle cx="24" cy="24" r="22.5" fill="none" stroke="#fff" strokeOpacity="0.28" strokeWidth="1" />
+      {/* the C: a ring open on the right, from 45° round to 315° */}
+      <path d="M32.5 15.5A12 12 0 1 0 32.5 32.5" fill="none" stroke="#fff" strokeWidth="5.5" strokeLinecap="round" />
+      {/* the coin's centre */}
+      <circle cx="24" cy="24" r="3.4" fill="#fff" />
     </svg>
   );
 }
 
-/** The mark with the two-tone name beside it. */
+/** The mark with the name beside it. */
 export function Wordmark({ size = 30 }) {
   return (
     <>

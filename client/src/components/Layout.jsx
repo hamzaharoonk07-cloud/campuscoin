@@ -11,7 +11,7 @@ import { useAuth, useTheme } from '../context/AppContext.jsx';
 // Every destination has a 3D object (client/public/art) for the rail, the
 // phone tab bar and its page header, and a line saying what the page is for.
 const STUDENT_NAV = [
-  { to: '/dashboard', label: 'Dashboard', icon: 'home', art: 'house', about: 'Your month at a glance' },
+  { to: '/dashboard', label: 'Dashboard', icon: 'grid', art: 'house', about: 'Your month at a glance' },
   { to: '/transactions', label: 'Transactions', icon: 'ledger', art: 'receipt', about: 'Everything that came in and went out' },
   { to: '/budgets', label: 'Budgets', icon: 'target', art: 'bullseye', about: 'A cap for each category, filling in real time' },
   { to: '/reports', label: 'Reports', icon: 'chart', art: 'bar_chart', about: 'Where it went, by category, day and week' },
@@ -21,7 +21,7 @@ const STUDENT_NAV = [
 ];
 
 const SECONDARY_NAV = [
-  { to: '/settings', label: 'Settings', icon: 'user', art: 'gear', about: 'Profile, photo and display' },
+  { to: '/settings', label: 'Settings', icon: 'sliders', art: 'gear', about: 'Profile, photo and display' },
   { to: '/sitemap', label: 'Sitemap', icon: 'map', art: 'world_map', about: 'Every page in Campus Coin' },
 ];
 
@@ -36,7 +36,7 @@ const ALL_NAV = [...STUDENT_NAV, ...SECONDARY_NAV, ...ADMIN_NAV];
 const pageFor = (path) =>
   ALL_NAV.filter((item) => path === item.to || path.startsWith(`${item.to}/`)).sort((a, b) => b.to.length - a.to.length)[0];
 
-/** Searches every transaction from the top of the rail. */
+/** Searches every transaction from the top bar. */
 function RailSearch() {
   const navigate = useNavigate();
   const [q, setQ] = useState('');
@@ -58,12 +58,12 @@ function RailSearch() {
     navigate(q.trim() ? `/transactions?q=${encodeURIComponent(q.trim())}` : '/transactions');
   };
   return (
-    <form className="rail-search" role="search" onSubmit={submit}>
+    <form className="top-search" role="search" onSubmit={submit}>
       <Icon name="search" size={16} />
       <input
         ref={field}
         type="search"
-        placeholder="Quick search"
+        placeholder="Search"
         aria-label="Search transactions"
         value={q}
         onChange={(e) => setQ(e.target.value)}
@@ -396,60 +396,32 @@ export default function Layout({ title, crumbs, actions, children }) {
 
       <nav className="rail" aria-label="Main" ref={rail}>
         <span className="rail-indicator" ref={indicator} aria-hidden="true" />
-        <Link to={isAdmin ? '/admin' : '/dashboard'} className="rail-brand">
-          <BrandMark size={28} />
-          <strong>Campus Coin</strong>
-          {isAdmin ? <small>Admin</small> : null}
+        <Link to={isAdmin ? '/admin' : '/dashboard'} className="rail-brand" aria-label="Campus Coin home">
+          <BrandMark size={40} />
         </Link>
 
-        {!isAdmin ? <RailSearch /> : null}
-
         {nav.map((item) => (
-          <NavLink key={item.to} to={item.to} end={item.to === '/admin'}>
-            <Icon name={item.icon} />
-            {item.label}
+          <NavLink key={item.to} to={item.to} end={item.to === '/admin'} className="rail-btn" aria-label={item.label}>
+            <Icon name={item.icon} size={20} />
+            <span className="rail-tip">{item.label}</span>
           </NavLink>
         ))}
 
-        {!isAdmin && (
-          <>
-            <div className="rail-divider" />
-            {SECONDARY_NAV.map((item) => (
-              <NavLink key={item.to} to={item.to}>
-                <Icon name={item.icon} />
-                {item.label}
-              </NavLink>
-            ))}
-          </>
-        )}
-
-        <button type="button" className="rail-item" onClick={signOut}>
-          <Icon name="logout" />
-          Sign out
-        </button>
-
         <div className="rail-spacer" />
 
-        {!isAdmin ? (
-          <div className="rail-coin">
-            <span className="rail-coin-face" aria-hidden="true">
-              <CoinBot size={34} bubble={false} />
-            </span>
-            <strong>Ask Coin</strong>
-            <p>Questions about your money, answered from your own transactions.</p>
-            <button type="button" onClick={() => openChat()}>
-              Ask now
-            </button>
-          </div>
-        ) : null}
+        {!isAdmin
+          ? SECONDARY_NAV.map((item) => (
+              <NavLink key={item.to} to={item.to} className="rail-btn" aria-label={item.label}>
+                <Icon name={item.icon} size={20} />
+                <span className="rail-tip">{item.label}</span>
+              </NavLink>
+            ))
+          : null}
 
-        <Link to={isAdmin ? '/admin' : '/settings'} className="rail-user" title="Your account">
-          <Avatar user={user} size={34} />
-          <span>
-            <strong>{user?.name}</strong>
-            <small>{user?.email}</small>
-          </span>
-        </Link>
+        <button type="button" className="rail-btn rail-item" onClick={signOut} aria-label="Sign out">
+          <Icon name="logout" size={20} />
+          <span className="rail-tip">Sign out</span>
+        </button>
       </nav>
 
       <div className="main">
@@ -459,6 +431,7 @@ export default function Layout({ title, crumbs, actions, children }) {
             <h1>{title}</h1>
             {page ? <div className="topbar-about">{page.about}</div> : null}
           </div>
+          {!isAdmin && <RailSearch />}
           {actions}
           {!isAdmin && <Bell />}
           <ThemeButton />

@@ -8,8 +8,8 @@ import './styles/app.css';
 import './styles/motion.css';
 import './styles/pictures.css';
 import './styles/frame.css';
-// The Lefstyle look, last so it wins.
-import './styles/lefstyle.css';
+// The design 9 look, last so it wins.
+import './styles/design9.css';
 import { installPointerEffects } from './lib/pointerEffects.js';
 
 installPointerEffects();

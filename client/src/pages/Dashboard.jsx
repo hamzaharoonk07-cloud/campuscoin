@@ -4,8 +4,7 @@ import Layout, { MonthPicker, openChat } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
 import { api } from '../lib/api.js';
-import { formatDate, money, monthKey } from '../lib/format.js';
-import { useCountUp } from '../lib/useCountUp.js';
+import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import CountUp from '../components/CountUp.jsx';
 import { CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
 import { useAuth, useToast } from '../context/AppContext.jsx';
@@ -13,10 +12,10 @@ import { useAuth, useToast } from '../context/AppContext.jsx';
 /* ---------------------------------------------------------------------------
    The dashboard.
 
-   Laid out like the Lefstyle finance dashboard: the month's headline figure
-   and three small cards on the left, the month's rhythm as three coloured
-   blocks, then the recent transactions. On the right, Coin's insight, the
-   month's financial health on a gauge, quick add and what is coming up.
+   Laid out like design 9 (a fintech dashboard on Dribbble): three figures
+   across the top beside a tall "my month" card, the cash flow on a black
+   card, then the month's spending as a grid of days, quick add and the
+   latest transactions. Coming up, Coin's insight and the best tips close it.
 --------------------------------------------------------------------------- */
 
 // The things students log most often, one tap away. The description is what
@@ -28,59 +27,108 @@ const QUICK = [
   { label: 'Allowance', icon: 'wallet', type: 'income', description: 'Monthly allowance' },
 ];
 
-// The three blocks of the rhythm card take these colours, in order.
-const BLOCKS = ['var(--sage)', 'var(--cream)', 'var(--lilac)'];
-
-const greeting = () => {
-  const hour = new Date().getHours();
-  return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-};
+const SERIES = [
+  ['income', 'In'],
+  ['expense', 'Out'],
+  ['balance', 'Kept'],
+];
 
 /** Percentage change from last month, or null when there is nothing to compare. */
 const change = (now, before) => (before ? Math.round(((now - before) / Math.abs(before)) * 100) : null);
 
-/** "↑ 20%" in the corner of a small card. */
-function Trend({ pct, goodWhenUp = true }) {
-  if (pct === null) return <span className="lf-trend">new</span>;
-  const good = pct >= 0 === goodWhenUp;
+/** A black pill with the change in it: "+22%". */
+function Chip({ pct }) {
+  if (pct === null) return <span className="d9-chip">new</span>;
   return (
-    <span className={`lf-trend ${good ? 'is-good' : 'is-bad'}`}>
-      {pct >= 0 ? '↑' : '↓'} {Math.abs(pct)}%
+    <span className="d9-chip">
+      {pct >= 0 ? '+' : '−'}
+      {Math.abs(pct)}%
     </span>
   );
 }
 
-/* --- The health gauge ------------------------------------------------------ */
+/* --- The black cash-flow chart -------------------------------------------- */
 
-// A 240° arc, open at the bottom: it starts at the lower left and sweeps
-// clockwise over the top to the lower right. Angles are in degrees on the
-// screen, where y points down.
-const G = { cx: 110, cy: 110, r: 88, from: 150, sweep: 240 };
-const point = (deg) => {
-  const rad = (deg * Math.PI) / 180;
-  return [G.cx + G.r * Math.cos(rad), G.cy + G.r * Math.sin(rad)];
-};
-const arc = (a0, a1) => {
-  const [x0, y0] = point(a0);
-  const [x1, y1] = point(a1);
-  return `M ${x0} ${y0} A ${G.r} ${G.r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}`;
-};
+function FlowChart({ data, series, currency }) {
+  const [hover, setHover] = useState(null);
+  const W = 720;
+  const H = 230;
+  const PAD = { top: 44, bottom: 30, side: 8 };
+  const values = data.map((m) => m[series]);
+  // The scale hugs the data with a margin either side, so the line shows how
+  // the months differ rather than sitting flat far above zero.
+  const hi = Math.max(...values);
+  const lo = Math.min(...values);
+  const margin = (hi - lo || Math.abs(hi) || 1) * 0.35;
+  const max = hi + margin;
+  const min = lo - margin;
+  const span = max - min;
+  const step = (W - PAD.side * 2) / Math.max(1, data.length - 1);
+  const x = (i) => PAD.side + i * step;
+  const y = (v) => PAD.top + (1 - (v - min) / span) * (H - PAD.top - PAD.bottom);
+  // A smooth line through the points (Catmull-Rom turned into Bezier curves).
+  const pts = values.map((v, i) => [x(i), y(v)]);
+  let line = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] || p2;
+    line += ` C ${p1[0] + (p2[0] - p0[0]) / 6} ${p1[1] + (p2[1] - p0[1]) / 6}, ${p2[0] - (p3[0] - p1[0]) / 6} ${p2[1] - (p3[1] - p1[1]) / 6}, ${p2[0]} ${p2[1]}`;
+  }
+  const area = `${line} L ${x(data.length - 1)} ${H - PAD.bottom} L ${x(0)} ${H - PAD.bottom} Z`;
+  const at = hover ?? data.length - 1;
 
-function HealthGauge({ pct }) {
-  const p = Math.max(0, Math.min(100, pct));
-  const end = G.from + (G.sweep * p) / 100;
-  const stop = G.from + G.sweep;
-  // What is left of the arc is split between amber and clay, with small gaps.
-  const rest = stop - end;
-  const split = end + rest * 0.55;
-  const [kx, ky] = point(end);
   return (
-    <svg className="lf-gauge" viewBox="0 0 220 200" role="img" aria-label={`${Math.round(p)}% of this month's income saved`}>
-      {p > 0 ? <path className="lf-gauge-fill" d={arc(G.from, end)} /> : null}
-      {rest > 14 ? <path d={arc(end + 7, split - 3)} stroke="var(--amber)" /> : null}
-      {rest > 14 ? <path d={arc(split + 3, stop)} stroke="var(--clay)" /> : null}
-      <circle cx={kx} cy={ky} r="11" fill="var(--teal)" stroke="var(--surface)" strokeWidth="4" />
-    </svg>
+    <div className="d9-flow">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Money by month for the last six months" onMouseLeave={() => setHover(null)}>
+        <defs>
+          <linearGradient id="d9-area" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#fff" stopOpacity="0.32" />
+            <stop offset="1" stopColor="#fff" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={area} fill="url(#d9-area)" className="d9-flow-area" />
+        <path d={line} fill="none" stroke="#fff" strokeWidth="2.2" className="line-draw" pathLength="1" />
+        <line x1={x(at)} x2={x(at)} y1={y(values[at])} y2={H - PAD.bottom} stroke="#fff" strokeOpacity="0.6" />
+        <circle cx={x(at)} cy={y(values[at])} r="6" fill="#121214" stroke="#fff" strokeWidth="2.5" />
+        {data.map((m, i) => (
+          <g key={m.month}>
+            <text x={x(i)} y={H - 8} textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'} className="d9-flow-label">
+              {m.label}
+            </text>
+            <rect x={x(i) - step / 2} y="0" width={step} height={H} fill="transparent" onMouseEnter={() => setHover(i)} />
+          </g>
+        ))}
+      </svg>
+      <span
+        className={`d9-flow-tip num${at === data.length - 1 ? ' is-end' : at === 0 ? ' is-start' : ''}`}
+        style={{ left: `${(x(at) / W) * 100}%`, top: `${(y(values[at]) / H) * 100}%` }}>
+        {money(values[at], currency)}
+      </span>
+    </div>
+  );
+}
+
+/* --- The month as a grid of days ------------------------------------------ */
+
+function DayGrid({ daily, currency }) {
+  const peak = Math.max(...daily.map((d) => d.total), 1);
+  // Four shades: nothing spent, a little, a fair amount, a heavy day.
+  const shade = (t) => (t === 0 ? 'is-0' : t < peak * 0.25 ? 'is-1' : t < peak * 0.6 ? 'is-2' : 'is-3');
+  // Seven columns, Monday first, one row per week, like a calendar.
+  const first = daily.length ? (new Date(daily[0].date).getUTCDay() + 6) % 7 : 0;
+  const cells = [...Array(first).fill(null), ...daily];
+  return (
+    <div className="d9-days">
+      {cells.map((d, i) =>
+        d ? (
+          <span key={d.date} className={`d9-day ${shade(d.total)}`} title={`${formatDate(d.date, { day: 'numeric', month: 'short' })}: ${money(d.total, currency)}`} />
+        ) : (
+          <span key={`pad${i}`} className="d9-day is-pad" />
+        )
+      )}
+    </div>
   );
 }
 
@@ -89,23 +137,24 @@ export default function Dashboard() {
   const toast = useToast();
   const [month, setMonth] = useState(monthKey());
   const [data, setData] = useState(null);
+  const [daily, setDaily] = useState([]);
   const [categories, setCategories] = useState([]);
   const [adding, setAdding] = useState(false);
   // A quick-add button opens the form already filled in.
   const [preset, setPreset] = useState(null);
   const [upcoming, setUpcoming] = useState([]);
-  const [rhythm, setRhythm] = useState('out');
-  const [search, setSearch] = useState('');
-
-  // Called before the loading branch below returns, because a hook cannot sit
-  // after an early return.
-  const kept = useCountUp(Math.abs(data?.totals?.balance ?? 0));
+  const [series, setSeries] = useState('expense');
 
   const load = useCallback(() => {
     api
       .get(`/reports/dashboard?month=${month}`)
       .then(setData)
       .catch((err) => toast.error('Could not load your dashboard', err.message));
+    // The day-by-day spending, for the activity grid.
+    api
+      .get(`/reports/monthly?month=${month}`)
+      .then(({ daily: days }) => setDaily(days || []))
+      .catch(() => setDaily([]));
   }, [month, toast]);
 
   useEffect(load, [load]);
@@ -131,383 +180,305 @@ export default function Dashboard() {
     setAdding(true);
   };
 
-  // The three blocks of the rhythm card for the chosen tab.
-  const blocks = useMemo(() => {
-    if (!data) return [];
-    if (rhythm === 'budgets') {
-      return data.budgets.slice(0, 3).map((b) => ({
-        key: b._id,
-        figure: money(b.spent, currency),
-        label: `${b.category.name} · ${b.pct}% of ${money(b.limitAmount, currency)}`,
-        weight: b.limitAmount,
-        fill: Math.min(100, b.pct),
-      }));
-    }
-    const rows = rhythm === 'in' ? data.income || [] : data.spending;
-    return rows.slice(0, 3).map((r) => ({
-      key: r._id || r.name,
-      figure: money(r.total, currency),
-      label: r.name,
-      weight: r.total,
-      fill: null,
-    }));
-  }, [data, rhythm, currency]);
+  const activeDays = useMemo(() => daily.filter((d) => d.total > 0), [daily]);
+  const busiest = useMemo(() => [...activeDays].sort((a, b) => b.total - a.total)[0], [activeDays]);
 
-  const actions = (
-    <>
-      <MonthPicker value={month} onChange={setMonth} />
-      <button type="button" className="btn btn-primary" onClick={() => setAdding(true)}>
-        <Icon name="plus" size={16} />
-        Add
-      </button>
-    </>
-  );
-
-  const title = `${greeting()}, ${user?.name?.split(' ')[0] || 'there'} 👋`;
+  const actions = <MonthPicker value={month} onChange={setMonth} />;
+  const title = `Hello, ${user?.name?.split(' ')[0] || 'there'}`;
 
   if (!data) {
     return (
       <Layout title={title} actions={actions}>
-        <div className="lf-grid">
-          <div className="skeleton" style={{ height: 520 }} />
-          <div className="skeleton" style={{ height: 520 }} />
+        <div className="d9-top">
+          <div className="skeleton" style={{ height: 160 }} />
+          <div className="skeleton" style={{ height: 160 }} />
+          <div className="skeleton" style={{ height: 160 }} />
+          <div className="skeleton" style={{ height: 160 }} />
         </div>
       </Layout>
     );
   }
 
-  const { totals, trend, tips, recent, goal, announcements } = data;
-  const overspent = totals.balance < 0;
-  // Last month, for the change figures: the trend ends with the month shown.
+  const { totals, spending, trend, tips, recent, insight, budgets, announcements } = data;
+  // Last month, for the change chips: the trend ends with the month shown.
   const before = trend.length > 1 ? trend[trend.length - 2] : null;
-  const spendChange = change(totals.expense, before?.expense);
-  const savedPct = totals.savingsRate === null ? 0 : Math.max(0, totals.savingsRate);
-  const health =
-    totals.savingsRate === null ? ['Waiting', 'is-flat'] : totals.savingsRate >= 20 ? ['On track', 'is-good'] : totals.savingsRate >= 0 ? ['Tight', 'is-warn'] : ['Over', 'is-bad'];
-  const biggest = Math.max(...recent.map((r) => r.amount), 1);
-  const shown = recent.filter((r) =>
-    `${r.description || ''} ${r.category?.name || ''}`.toLowerCase().includes(search.trim().toLowerCase())
-  );
-  const tip = tips[0];
+  const [year, monthIndex] = month.split('-').map(Number);
+  const monthName = new Date(Date.UTC(year, monthIndex - 1, 1)).toLocaleString('en', { month: 'long', timeZone: 'UTC' });
+  const over = budgets.filter((b) => b.state === 'exceeded').length;
 
   return (
     <Layout title={title} actions={actions}>
       {announcements?.length ? (
-        <div className="lf-notice">
+        <div className="d9-notice">
           <Icon name="bell" size={16} />
           <strong>{announcements[0].title}</strong>
           <span>{announcements[0].body}</span>
         </div>
       ) : null}
 
-      <div className="lf-grid">
-        {/* --- Left: the month in figures ------------------------------- */}
-        <div className="lf-col">
-          <section className="lf-hero">
-            <span className="lf-label">{overspent ? 'Spent beyond income' : 'Kept this month'}</span>
-            <div className="lf-hero-row">
-              <strong className="lf-hero-figure num">{money(kept, currency)}</strong>
-              <span className="lf-hero-note">
-                {totals.savingsRate === null ? (
-                  'Nothing has come in yet this month'
-                ) : overspent ? (
-                  <>
-                    Spending is <b className="is-bad">{Math.abs(totals.savingsRate)}%</b> ahead of income
-                  </>
-                ) : (
-                  <>
-                    Saved <b>{totals.savingsRate}%</b> of what came in
-                  </>
-                )}
-              </span>
-            </div>
-          </section>
+      <div className="d9-top">
+        {/* --- Three figures ------------------------------------------- */}
+        <Link to="/reports" className="d9-card d9-stat">
+          <span className="d9-stat-head">
+            <Icon name="download" size={18} />
+            Money in
+          </span>
+          <span className="d9-stat-row">
+            <strong className="num">
+              <CountUp value={totals.income} currency={currency} />
+            </strong>
+            <Chip pct={change(totals.income, before?.income)} />
+          </span>
+        </Link>
+        <Link to="/transactions" className="d9-card d9-stat">
+          <span className="d9-stat-head">
+            <Icon name="upload" size={18} />
+            Money out
+          </span>
+          <span className="d9-stat-row">
+            <strong className="num">
+              <CountUp value={totals.expense} currency={currency} />
+            </strong>
+            <Chip pct={change(totals.expense, before?.expense)} />
+          </span>
+        </Link>
+        <Link to="/insights" className="d9-card d9-stat">
+          <span className="d9-stat-head">
+            <Icon name="calendar" size={18} />
+            {totals.balance < 0 ? 'Spent beyond income' : 'Kept'}
+          </span>
+          <span className="d9-stat-row">
+            <strong className="num">{money(totals.balance, currency)}</strong>
+            <small>in {monthName}</small>
+          </span>
+        </Link>
 
-          <div className="lf-three">
-            <Link to="/reports" className="lf-card lf-stat">
-              <span className="lf-stat-head">
-                Income <Icon name="right" size={14} />
-              </span>
-              <strong className="num">
-                <CountUp value={totals.income} currency={currency} />
-              </strong>
-              <span className="lf-stat-foot">
-                vs last month <Trend pct={change(totals.income, before?.income)} />
-              </span>
-            </Link>
-            <Link to="/transactions" className="lf-card lf-stat">
-              <span className="lf-stat-head">
-                Expense <Icon name="right" size={14} />
-              </span>
-              <strong className="num">
-                <CountUp value={totals.expense} currency={currency} />
-              </strong>
-              <span className="lf-stat-foot">
-                vs last month <Trend pct={spendChange} goodWhenUp={false} />
-              </span>
-            </Link>
-            <Link to="/settings" className="lf-card lf-stat">
-              <span className="lf-stat-head">
-                Savings goal <Icon name="right" size={14} />
-              </span>
-              <strong className="num">{goal.target > 0 ? money(goal.target, currency) : 'Not set'}</strong>
-              <span className="lf-stat-foot">
-                {goal.target > 0 ? (
-                  <>
-                    reached <span className="lf-trend">{Math.max(0, goal.pct ?? 0)}%</span>
-                  </>
-                ) : (
-                  'Set one in Settings'
-                )}
-              </span>
-            </Link>
+        {/* --- My month: the tall card on the right --------------------- */}
+        <section className="d9-card d9-month">
+          <div className="d9-head">
+            <h2>My month</h2>
+            <button type="button" className="d9-pill is-dark" onClick={() => setAdding(true)}>
+              <Icon name="plus" size={15} />
+              Add
+            </button>
           </div>
-
-          <section className="lf-card lf-rhythm">
-            <div className="lf-card-head">
-              <h2>Monthly money rhythm</h2>
-              <div className="lf-tabs" role="tablist">
-                {[
-                  ['out', 'Spending'],
-                  ['in', 'Income'],
-                  ['budgets', 'Budgets'],
-                ].map(([key, label]) => (
-                  <button key={key} type="button" role="tab" aria-selected={rhythm === key} className={rhythm === key ? 'is-on' : ''} onClick={() => setRhythm(key)}>
-                    {label}
-                  </button>
+          <div className="d9-month-figure">
+            <strong className="num">{money(totals.expense, currency)}</strong>
+            <span>
+              spent
+              {totals.savingsRate !== null ? `, ${totals.savingsRate >= 0 ? totals.savingsRate + '% of income kept' : Math.abs(totals.savingsRate) + '% over income'}` : ''}
+            </span>
+          </div>
+          <span className="d9-sub">Where it went</span>
+          {spending.length ? (
+            <>
+              <div className="d9-alloc" aria-hidden="true">
+                {spending.map((c) => (
+                  <i key={c.name} style={{ flexGrow: c.share, background: slotColor(c.slot) }} />
                 ))}
               </div>
-            </div>
-            {blocks.length ? (
-              <div className="lf-blocks">
-                {blocks.map((b, i) => (
-                  <div key={b.key} className="lf-block" style={{ flexGrow: Math.max(b.weight, 1), '--block': BLOCKS[i] }}>
-                    <i className="lf-block-dot" />
-                    <strong className="num">{b.figure}</strong>
-                    <span>{b.label}</span>
-                    <span className="lf-block-bar">{b.fill !== null ? <i style={{ height: `${b.fill}%` }} /> : null}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="lf-muted">
-                {rhythm === 'budgets' ? (
-                  <>
-                    No budgets this month. <Link to="/budgets">Set one</Link> on your biggest category.
-                  </>
-                ) : (
-                  'Nothing logged here for this month yet.'
-                )}
-              </p>
-            )}
-          </section>
-
-          <section className="lf-card">
-            <div className="lf-card-head">
-              <h2>Recent transactions</h2>
-              <label className="lf-search">
-                <Icon name="search" size={15} />
-                <input type="search" placeholder="Search" aria-label="Search recent transactions" value={search} onChange={(e) => setSearch(e.target.value)} />
-              </label>
-              <Link to="/transactions" className="lf-btn">
-                <Icon name="ledger" size={15} />
-                View all
-              </Link>
-            </div>
-            {recent.length === 0 ? (
-              <div className="empty">
-                <WalletArt />
-                <h3>Nothing logged yet</h3>
-                <p>Start with the thing you bought most recently &mdash; it takes about five seconds.</p>
-                <button type="button" className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => setAdding(true)}>
-                  Add your first transaction
-                </button>
-              </div>
-            ) : (
-              <div className="table-wrap">
-                <table className="lf-table">
-                  <thead>
-                    <tr>
-                      <th>Transaction</th>
-                      <th className="tx-hide">Date</th>
-                      <th className="tx-hide">Size</th>
-                      <th style={{ textAlign: 'right' }}>Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {shown.map((row) => {
-                      const flagged = row.flags?.includes('duplicate') || row.flags?.includes('large');
-                      const share = Math.round((row.amount / biggest) * 100);
-                      return (
-                        <tr key={row._id}>
-                          <td>
-                            <div className="lf-tx">
-                              <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={32} />
-                              <span>
-                                <strong>{row.description || row.category?.name}</strong>
-                                <small>
-                                  {row.category?.name}
-                                  {flagged ? <em> · {row.flags.includes('duplicate') ? 'duplicate?' : 'unusual'}</em> : null}
-                                </small>
-                              </span>
-                            </div>
-                          </td>
-                          <td className="lf-date tx-hide">{formatDate(row.date, { day: 'numeric', month: 'short' })}</td>
-                          <td className="tx-hide">
-                            <span className="lf-share">
-                              <span className="lf-share-bar">
-                                <i style={{ width: `${share}%` }} />
-                              </span>
-                              {share}%
-                            </span>
-                          </td>
-                          <td className={`lf-amount num${row.type === 'income' ? ' is-in' : ''}`}>
-                            {row.type === 'income' ? '+' : '−'}
-                            {money(row.amount, currency).replace('−', '')}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-                {shown.length === 0 ? <p className="lf-muted">Nothing recent matches "{search}".</p> : null}
-              </div>
-            )}
-          </section>
-        </div>
-
-        {/* --- Right: insight, health, quick add ------------------------ */}
-        <div className="lf-col">
-          <section className="lf-card lf-insight">
-            <div className="lf-insight-head">
-              <span className="lf-insight-icon" aria-hidden="true">
-                <Icon name="spark" size={16} />
-              </span>
-              <span>
-                <strong>Coin's insight</strong>
-                <small>Generated from your transactions</small>
-              </span>
-              <button type="button" className="lf-icon-btn" onClick={() => openChat()} aria-label="Ask Coin">
-                <Icon name="chat" size={17} />
-              </button>
-            </div>
-            <div className="lf-insight-tiles">
-              <Link to="/reports" className="lf-insight-tile">
-                <span>
-                  Money alert <Icon name="right" size={14} />
-                </span>
-                <p>
-                  {spendChange === null ? (
-                    <>
-                      First month <em>of spending on record</em>
-                    </>
-                  ) : (
-                    <>
-                      Spending {spendChange >= 0 ? 'up' : 'down'} <em>{Math.abs(spendChange)}% on last month</em>
-                    </>
-                  )}
-                </p>
-              </Link>
-              <Link to="/tips" className="lf-insight-tile">
-                <span>
-                  Advice <Icon name="right" size={14} />
-                </span>
-                <p>
-                  {tip ? (
-                    <>
-                      {tip.title.split(' ').slice(0, 3).join(' ')} <em>{tip.title.split(' ').slice(3).join(' ')}</em>
-                    </>
-                  ) : (
-                    <>
-                      Tips appear <em>after two weeks</em>
-                    </>
-                  )}
-                </p>
-              </Link>
-            </div>
-          </section>
-
-          <section className="lf-card lf-health">
-            <div className="lf-card-head">
-              <h2>Financial health</h2>
-              <Link to="/insights" className="lf-icon-btn" aria-label="Read the monthly insight">
-                <Icon name="right" size={16} />
-              </Link>
-            </div>
-            <div className="lf-health-body">
-              <div className="lf-health-copy">
-                <span className={`lf-chip ${health[1]}`}>{health[0]}</span>
-                <strong className="num">{money(totals.balance, currency)}</strong>
-                <span className="lf-muted">
-                  {before ? (
-                    <>
-                      <b className={totals.balance >= before.balance ? 'is-good' : 'is-bad'}>
-                        {totals.balance >= before.balance ? '+' : '−'}
-                        {money(Math.abs(totals.balance - before.balance), currency)}
-                      </b>{' '}
-                      from last month
-                    </>
-                  ) : (
-                    'kept this month'
-                  )}
-                </span>
-                <small>Based on this month's transactions.</small>
-              </div>
-              <div className="lf-gauge-wrap">
-                <HealthGauge pct={savedPct} />
-                <div className="lf-gauge-centre">
-                  <strong className="num">{savedPct}%</strong>
-                  <span>of income saved</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="lf-card">
-            <div className="lf-card-head">
-              <h2>Quick add</h2>
-              <span className="lf-muted">One tap</span>
-            </div>
-            <div className="lf-quick">
-              {QUICK.map((item) => (
-                <button key={item.label} type="button" onClick={() => quickAdd(item)}>
-                  <Icon name={item.icon} size={18} />
-                  <strong>{item.label}</strong>
-                  <small>{item.type === 'income' ? 'Money in' : 'Money out'}</small>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="lf-card">
-            <div className="lf-card-head">
-              <h2>Coming up</h2>
-              <Link to="/transactions" className="lf-icon-btn" aria-label="All transactions">
-                <Icon name="right" size={16} />
-              </Link>
-            </div>
-            {upcoming.length ? (
-              <ul className="lf-list">
-                {upcoming.map((row) => (
-                  <li key={row._id}>
-                    <span>
-                      <strong>{row.description || row.category?.name}</strong>
-                      <small>
-                        {formatDate(row.recurring.nextRun, { day: 'numeric', month: 'short' })} · {row.recurring.frequency}
-                      </small>
-                    </span>
-                    <span className={`lf-amount num${row.type === 'income' ? ' is-in' : ''}`}>
-                      {row.type === 'income' ? '+' : '−'}
-                      {money(row.amount, currency)}
-                    </span>
+              <ul className="d9-alloc-list">
+                {spending.slice(0, 5).map((c) => (
+                  <li key={c.name}>
+                    <i style={{ background: slotColor(c.slot) }} />
+                    <span>{c.name}</span>
+                    <small>{c.share}%</small>
+                    <strong className="num">{money(c.total, currency)}</strong>
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p className="lf-muted">Nothing repeats yet. Tick "This repeats" when you add an allowance or a subscription.</p>
-            )}
-          </section>
-        </div>
+            </>
+          ) : (
+            <p className="d9-muted">Nothing spent yet this month.</p>
+          )}
+          <p className="d9-muted d9-budget-line">
+            {budgets.length ? `${budgets.length} budgets set · ${over ? `${over} over the cap` : 'all within their cap'}` : 'No budgets set this month.'}
+          </p>
+          <Link to="/budgets" className="d9-pill is-dark is-wide">
+            Manage budgets
+          </Link>
+        </section>
+
+        {/* --- Cash flow on black ---------------------------------------- */}
+        <section className="d9-card d9-dark d9-flow-card">
+          <div className="d9-head">
+            <h2>Cash flow</h2>
+            <div className="d9-seg" role="tablist" aria-label="Which figure to plot">
+              {SERIES.map(([key, label]) => (
+                <button key={key} type="button" role="tab" aria-selected={series === key} className={series === key ? 'is-on' : ''} onClick={() => setSeries(key)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <FlowChart data={trend} series={series} currency={currency} />
+        </section>
+      </div>
+
+      <div className="d9-row">
+        {/* --- Spending activity ----------------------------------------- */}
+        <section className="d9-card d9-activity">
+          <div className="d9-head">
+            <h2>Spending activity</h2>
+            <span className="d9-pill is-dark is-small">{monthName}</span>
+          </div>
+          <div className="d9-activity-figure">
+            <strong className="num">{activeDays.length}</strong>
+            <span>days with spending</span>
+          </div>
+          {daily.length ? <DayGrid daily={daily} currency={currency} /> : <p className="d9-muted">No days to show yet.</p>}
+          <div className="d9-legend">
+            <span>Less</span>
+            <i className="d9-day is-0" />
+            <i className="d9-day is-1" />
+            <i className="d9-day is-2" />
+            <i className="d9-day is-3" />
+            <span>More</span>
+          </div>
+          {busiest ? (
+            <p className="d9-muted">
+              Busiest day: {formatDate(busiest.date, { day: 'numeric', month: 'short' })}, {money(busiest.total, currency)}
+            </p>
+          ) : null}
+        </section>
+
+        {/* --- Quick add: dark tiles ------------------------------------- */}
+        <section className="d9-card">
+          <div className="d9-head">
+            <h2>Quick add</h2>
+            <span className="d9-muted">One tap</span>
+          </div>
+          <div className="d9-quick">
+            {QUICK.map((item) => (
+              <button key={item.label} type="button" onClick={() => quickAdd(item)}>
+                <span className="d9-quick-icon">
+                  <Icon name={item.icon} size={18} />
+                </span>
+                <strong>{item.label}</strong>
+                <small>{item.type === 'income' ? 'Money in' : 'Money out'}</small>
+              </button>
+            ))}
+          </div>
+          <button type="button" className="d9-pill is-dark is-wide" onClick={() => setAdding(true)}>
+            <Icon name="camera" size={15} />
+            Scan a receipt
+          </button>
+        </section>
+
+        {/* --- Latest transactions --------------------------------------- */}
+        <section className="d9-card">
+          <div className="d9-head">
+            <h2>Transactions</h2>
+            <Link to="/transactions" className="d9-link">
+              View all
+            </Link>
+          </div>
+          {recent.length === 0 ? (
+            <div className="empty">
+              <WalletArt />
+              <h3>Nothing logged yet</h3>
+              <p>Start with the thing you bought most recently.</p>
+            </div>
+          ) : (
+            <ul className="d9-tx">
+              {recent.map((row) => {
+                const flagged = row.flags?.includes('duplicate') || row.flags?.includes('large');
+                return (
+                  <li key={row._id}>
+                    <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} />
+                    <span className="d9-tx-name">
+                      <strong>{row.description || row.category?.name}</strong>
+                      <small>
+                        {row.category?.name}
+                        {flagged ? <em> · {row.flags.includes('duplicate') ? 'duplicate?' : 'unusual'}</em> : null}
+                      </small>
+                    </span>
+                    <span className="d9-tx-amount">
+                      <strong className={`num${row.type === 'income' ? ' is-in' : ''}`}>
+                        {row.type === 'income' ? '+' : '−'}
+                        {money(row.amount, currency).replace('−', '')}
+                      </strong>
+                      <small>{formatDate(row.date, { day: 'numeric', month: 'short' })}</small>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+      </div>
+
+      <div className="d9-row">
+        <section className="d9-card">
+          <div className="d9-head">
+            <h2>Coming up</h2>
+            <span className="d9-muted">Repeating</span>
+          </div>
+          {upcoming.length ? (
+            <ul className="d9-tx">
+              {upcoming.map((row) => (
+                <li key={row._id}>
+                  <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} />
+                  <span className="d9-tx-name">
+                    <strong>{row.description || row.category?.name}</strong>
+                    <small>{row.recurring.frequency}</small>
+                  </span>
+                  <span className="d9-tx-amount">
+                    <strong className={`num${row.type === 'income' ? ' is-in' : ''}`}>
+                      {row.type === 'income' ? '+' : '−'}
+                      {money(row.amount, currency)}
+                    </strong>
+                    <small>{formatDate(row.recurring.nextRun, { day: 'numeric', month: 'short' })}</small>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="d9-muted">Nothing repeats yet. Tick "This repeats" when you add an allowance or a subscription.</p>
+          )}
+        </section>
+
+        <section className="d9-card d9-blue">
+          <div className="d9-head">
+            <h2>Coin's insight</h2>
+            <button type="button" className="d9-round" onClick={() => openChat()} aria-label="Ask Coin">
+              <Icon name="chat" size={17} />
+            </button>
+          </div>
+          <p className="d9-insight">
+            {insight?.summaryText ||
+              (tips[0] ? tips[0].body : 'Log a couple of weeks of spending and Coin will sum up your month here.')}
+          </p>
+          <Link to="/insights" className="d9-pill is-light">
+            Read the full insight
+          </Link>
+        </section>
+
+        <section className="d9-card">
+          <div className="d9-head">
+            <h2>Worth doing</h2>
+            <Link to="/tips" className="d9-link">
+              All tips
+            </Link>
+          </div>
+          {tips.length ? (
+            <ul className="d9-tips">
+              {tips.slice(0, 3).map((tip) => (
+                <li key={tip._id}>
+                  <span className="d9-round is-small">
+                    <Icon name="bulb" size={15} />
+                  </span>
+                  <span>
+                    <strong>{tip.title}</strong>
+                    {tip.impact > 0 ? <small>Could save {money(tip.impact, currency)} a month</small> : null}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="d9-muted">Tips appear once there is a couple of weeks of history to compare against.</p>
+          )}
+        </section>
       </div>
 
       {adding ? (

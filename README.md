@@ -246,28 +246,27 @@ The interface is written rather than assembled. A few decisions worth naming:
   surface rather than one being an inversion of the other. The choice is saved
   to the device *and* the account, so it follows the student to another machine.
   Settings also offers "match my device", which follows the operating system live.
-- **Warm, calm and black.** The app follows the style of the *Lefstyle*
-  finance dashboard by Odama (Dribbble): a warm off-white page with the menu
-  sitting straight on it, one large white panel for the content, black for
-  anything you can act on, and muted sage, cream and lilac for the figures.
-  Text is set in Inter. The sidebar has a quick search (press "/"), the menu
-  with the current page as a white pill, a black "Ask Coin" card and the
-  account at the foot. The dashboard opens on the month's headline figure and
-  three small cards, then the month's rhythm as three coloured blocks
-  (spending, income or budgets), and the recent transactions. Beside them are
-  Coin's insight, the month's financial health on a gauge, quick add and what
-  is coming up. The styles live in `client/src/styles/lefstyle.css`; the code
-  and all the copy are our own.
-- **Illustrations are small 3D scenes** (`client/src/components/Illustrations.jsx`).
-  Each is a few 3D objects arranged at different sizes, angles and depths over
-  a soft glow, each with its own floor shadow and slow float, so nearer objects
-  move more and the page reads as having depth. The objects come from
-  Microsoft's **Fluent Emoji** set, used under the MIT licence; the files and
-  the licence are stored in `client/public/art`, so nothing is fetched from
-  outside at runtime. The layout, animation and composition are our own.
-- **A logo and a mascot.** The mark is a gold coin on a sage-green tile, drawn
+- **Black, white and one blue.** The app follows design 9, a fintech
+  dashboard on Dribbble: the app sits in a black frame with a slim rail of
+  round icon buttons (their names appear on hover), the content is one white
+  panel with large rounded corners, buttons are black pills, and one blue
+  (`#5b91ff`) carries the figures. Categories take shades of blue and grey.
+  Text is set in Outfit. The dashboard opens on three figures beside a tall
+  "my month" card, the cash flow on a black card with In / Out / Kept tabs,
+  then the month's spending as a calendar of squares, dark quick-add tiles and
+  the latest transactions. Every other tab uses the same cards, pills, inputs
+  and segmented controls. The styles live in `client/src/styles/design9.css`;
+  the code and all the copy are our own.
+- **Illustrations are flat spot drawings** (`client/src/components/Illustrations.jsx`).
+  Each is the same small SVG composition - a pale disc, a black card with a
+  few lines of content, and a blue coin carrying the subject's icon - so every
+  empty state and feature card looks like part of one set. Category icons are
+  a white glyph on a round black tile with a dot in the category's colour.
+  The line icons (`Icon.jsx`) are drawn on one 24px grid with round joins,
+  following the conventions of the Lucide set (ISC licence).
+- **A logo and a mascot.** The mark is a blue coin with a white C cut into it, drawn
   in SVG (`client/src/components/Brand.jsx`) so it is sharp from the favicon
-  to the hero. The chat assistant has a face - Coin, the gold coin from the
+  to the hero. The chat assistant has a face - Coin, the blue coin from the
   logo with eyes that blink and a speech bubble whose dots move while it
   answers (`client/src/components/CoinBot.jsx`) - on its button, its
   messages and its header, and in Settings beside what it has learned.
