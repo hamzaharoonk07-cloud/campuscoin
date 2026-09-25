@@ -12,6 +12,7 @@ import Transactions from './pages/Transactions.jsx';
 import Budgets from './pages/Budgets.jsx';
 import Reports from './pages/Reports.jsx';
 import Insights from './pages/Insights.jsx';
+import Calendar from './pages/Calendar.jsx';
 import Tips from './pages/Tips.jsx';
 import Categories from './pages/Categories.jsx';
 import Settings from './pages/Settings.jsx';
@@ -64,6 +65,7 @@ export default function App() {
       <Route path="/budgets" element={<Protected><Budgets /></Protected>} />
       <Route path="/reports" element={<Protected><Reports /></Protected>} />
       <Route path="/insights" element={<Protected><Insights /></Protected>} />
+      <Route path="/calendar" element={<Protected><Calendar /></Protected>} />
       <Route path="/tips" element={<Protected><Tips /></Protected>} />
       <Route path="/categories" element={<Protected><Categories /></Protected>} />
       <Route path="/settings" element={<Protected><Settings /></Protected>} />

@@ -16,7 +16,7 @@ export default function Transactions() {
   const toast = useToast();
   const [params] = useSearchParams();
   // The rail's search arrives as ?q=, the dashboard's Flagged button as ?flagged=1.
-  const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS, q: params.get('q') || '', flagged: params.get('flagged') || '' }));
+  const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS, q: params.get('q') || '', flagged: params.get('flagged') || '', from: params.get('from') || '', to: params.get('to') || '' }));
   const [page, setPage] = useState(1);
   // On a phone only the search shows until the student opens the other filters.
   const [moreFilters, setMoreFilters] = useState(false);

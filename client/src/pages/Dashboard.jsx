@@ -154,13 +154,14 @@ function DayGrid({ daily, currency }) {
       ))}
       {cells.map((d, i) =>
         d ? (
-          <span
+          <Link
             key={d.date}
+            to={`/calendar?day=${d.date}`}
             className={`d9-day ${shade(d.total)}`}
-            title={`${formatDate(d.date, { day: 'numeric', month: 'short' })}: ${d.total ? money(d.total, currency) : 'nothing spent'}`}
+            title={`${formatDate(d.date, { day: 'numeric', month: 'short' })}: ${d.total ? money(d.total, currency) : 'nothing spent'} - open in the calendar`}
           >
             {d.day}
-          </span>
+          </Link>
         ) : (
           <span key={`pad${i}`} className="d9-day is-pad" />
         )
@@ -518,6 +519,9 @@ export default function Dashboard() {
           <section className="d9-card d9-activity">
             <div className="d9-head">
               <h2>Spending activity</h2>
+            <Link to="/calendar" className="d9-link">
+              Open calendar
+            </Link>
               <span className="d9-pill is-dark is-small">{monthName}</span>
             </div>
             <div className="d9-activity-figure">

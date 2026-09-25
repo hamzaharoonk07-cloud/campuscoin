@@ -321,6 +321,14 @@ await check('Reports', 'Category-wise monthly report', async () => {
   const keys = Object.keys(r.data);
   return keys.join(',');
 });
+await check('Reports', 'Calendar groups the month by day', async () => {
+  const r = await call('GET', `/reports/calendar?month=${month}`);
+  expect(r.status === 200 && r.data.days, `status ${r.status}`);
+  const day = r.data.days[today];
+  expect(day && day.transactions.length > 0, 'today has no transactions in the calendar');
+  const sum = day.transactions.filter((t) => t.type === 'expense').reduce((a, t) => a + t.amount, 0);
+  expect(Math.abs(sum - day.expense) < 0.01, `day total ${day.expense} does not match its transactions ${sum}`);
+});
 await check('Reports', 'Daily and weekly summaries', async () => {
   const r = await call('GET', `/reports/monthly?month=${month}`);
   const s = JSON.stringify(r.data);

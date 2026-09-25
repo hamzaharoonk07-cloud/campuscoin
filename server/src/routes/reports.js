@@ -74,6 +74,64 @@ router.get(
   })
 );
 
+/**
+ * The calendar: every day of the month with what came in, what went out and
+ * the transactions themselves, so a day can be opened without another request.
+ * Recurring entries still to come this month are included as "upcoming".
+ */
+router.get(
+  '/calendar',
+  wrap(async (req, res) => {
+    const month = parseMonth(req.query.month);
+    const next = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 1));
+    const [rows, repeating] = await Promise.all([
+      Transaction.find({ user: req.user._id, date: { $gte: month, $lt: next } })
+        .populate('category', 'name icon slot')
+        .sort({ date: 1, createdAt: 1 })
+        .lean(),
+      Transaction.find({ user: req.user._id, 'recurring.nextRun': { $gte: new Date(), $lt: next } })
+        .populate('category', 'name icon slot')
+        .lean(),
+    ]);
+
+    const days = {};
+    const dayOf = (d) => new Date(d).toISOString().slice(0, 10);
+    const bucket = (key) => (days[key] ||= { date: key, income: 0, expense: 0, transactions: [], upcoming: [] });
+    for (const t of rows) {
+      const day = bucket(dayOf(t.date));
+      day[t.type === 'income' ? 'income' : 'expense'] += t.amount;
+      day.transactions.push({
+        _id: t._id,
+        type: t.type,
+        amount: t.amount,
+        description: t.description,
+        category: t.category,
+        flags: t.flags,
+      });
+    }
+    for (const t of repeating) {
+      bucket(dayOf(t.recurring.nextRun)).upcoming.push({
+        _id: t._id,
+        type: t.type,
+        amount: t.amount,
+        description: t.description,
+        category: t.category,
+        frequency: t.recurring.frequency,
+      });
+    }
+    for (const day of Object.values(days)) {
+      day.income = round2(day.income);
+      day.expense = round2(day.expense);
+    }
+
+    const totals = Object.values(days).reduce(
+      (acc, d) => ({ income: acc.income + d.income, expense: acc.expense + d.expense }),
+      { income: 0, expense: 0 }
+    );
+    res.json({ month: monthKey(month), days, totals: { income: round2(totals.income), expense: round2(totals.expense) } });
+  })
+);
+
 /** The full monthly report: category split, daily and weekly views, trend. */
 router.get(
   '/monthly',

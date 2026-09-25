@@ -1,0 +1,176 @@
+/* ===========================================================================
+   The money calendar (pages/Calendar.jsx).
+   =========================================================================== */
+
+.cal-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }
+@media (max-width: 900px) { .cal-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cal-fact {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  animation: d9-greet-in 0.45s var(--ease-out) backwards;
+}
+.cal-fact > span { display: grid; line-height: 1.25; min-width: 0; }
+.cal-fact small { font-size: 0.75rem; color: var(--faint); }
+.cal-fact strong { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
+.cal-fact strong.is-in { color: var(--blue-deep); }
+
+.cal-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 1100px) { .cal-layout { grid-template-columns: minmax(0, 1fr); } }
+.cal-card { padding: 1.1rem; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); }
+
+.cal-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 6px; }
+.cal-week span { text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--faint); text-transform: uppercase; letter-spacing: 0.05em; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.cal-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-height: 86px;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.15s var(--ease), border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  animation: cal-in 0.35s var(--ease-out) backwards;
+}
+.cal-day:nth-child(7n + 2) { animation-delay: 0.02s; }
+.cal-day:nth-child(7n + 3) { animation-delay: 0.04s; }
+.cal-day:nth-child(7n + 4) { animation-delay: 0.06s; }
+.cal-day:nth-child(7n + 5) { animation-delay: 0.08s; }
+.cal-day:nth-child(7n + 6) { animation-delay: 0.1s; }
+.cal-day:nth-child(7n) { animation-delay: 0.12s; }
+@keyframes cal-in { from { opacity: 0; transform: scale(0.94); } }
+.cal-day:hover { transform: translateY(-2px); border-color: var(--line-strong); box-shadow: 0 8px 18px -12px rgba(18, 18, 20, 0.35); }
+.cal-day.is-pad { border: 0; background: none; cursor: default; animation: none; }
+.cal-day.is-pad:hover { transform: none; box-shadow: none; }
+.cal-day.is-1 { background: var(--blue-soft); border-color: transparent; }
+.cal-day.is-2 { background: color-mix(in srgb, var(--blue) 32%, var(--surface)); border-color: transparent; }
+.cal-day.is-3 { background: var(--blue); border-color: transparent; color: #fff; }
+.cal-day.is-future { background: repeating-linear-gradient(135deg, var(--surface) 0 8px, var(--raised) 8px 9px); }
+.cal-day.is-today { box-shadow: inset 0 0 0 2px var(--accent); }
+.cal-day.is-picked { box-shadow: inset 0 0 0 2px var(--accent), 0 10px 22px -12px rgba(18, 18, 20, 0.45); transform: translateY(-2px); }
+.cal-num { font-size: 0.85rem; font-weight: 700; }
+.cal-day.is-today .cal-num::after { content: ' · today'; font-weight: 500; font-size: 0.7rem; opacity: 0.7; }
+.cal-day .cat-art { position: absolute; right: 6px; top: 6px; }
+.cal-amounts { display: grid; margin-top: auto; line-height: 1.2; }
+.cal-amounts b { font-size: 0.78rem; font-weight: 700; }
+.cal-amounts i { font-style: normal; font-size: 0.72rem; font-weight: 700; color: var(--blue-deep); }
+.cal-day.is-3 .cal-amounts i { color: #fff; }
+.cal-due { position: absolute; left: 8px; bottom: 6px; width: 7px; height: 7px; border-radius: 50%; background: #f5a524; box-shadow: 0 0 0 2px var(--surface); }
+.cal-day .cal-due { left: auto; right: 8px; bottom: 8px; }
+
+.cal-legend { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 0.9rem; font-size: 0.75rem; color: var(--faint); }
+.cal-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); }
+.cal-swatch.is-1 { background: var(--blue-soft); border-color: transparent; }
+.cal-swatch.is-2 { background: color-mix(in srgb, var(--blue) 32%, var(--surface)); border-color: transparent; }
+.cal-swatch.is-3 { background: var(--blue); border-color: transparent; }
+.cal-legend-due { position: relative; display: inline-flex; align-items: center; gap: 0.35rem; margin-left: 1rem; }
+.cal-legend-due .cal-due { position: static; box-shadow: none; }
+
+/* The picked day. */
+.cal-dayview { position: sticky; top: 1rem; display: flex; flex-direction: column; gap: 0.9rem; min-height: 300px; }
+.cal-empty { display: grid; justify-items: center; gap: 0.4rem; margin: auto; padding: 2rem 1rem; text-align: center; }
+.cal-empty span { font-size: 0.85rem; color: var(--faint); max-width: 26ch; line-height: 1.5; }
+.cal-day-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; }
+.cal-day-head > span { display: grid; line-height: 1.25; }
+.cal-day-head small { font-size: 0.75rem; color: var(--faint); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.cal-day-head strong { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+.cal-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 38px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 99px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 600 0.85rem var(--font-body);
+  cursor: pointer;
+  flex: none;
+}
+.cal-day-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.cal-day-totals > span { display: grid; gap: 0.15rem; padding: 0.75rem 0.85rem; border-radius: 14px; background: var(--raised); }
+.cal-day-totals small { font-size: 0.75rem; color: var(--faint); }
+.cal-day-totals strong { font-size: 1.1rem; font-weight: 700; }
+.cal-day-totals strong.is-in { color: var(--blue-deep); }
+.cal-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+.cal-list li { display: flex; align-items: center; gap: 0.7rem; animation: chat-msg-in 0.25s var(--ease-out) backwards; }
+.cal-list.is-upcoming li { opacity: 0.85; }
+.cal-list-main { display: grid; min-width: 0; flex: 1; line-height: 1.3; }
+.cal-list-main strong { font-size: 0.9rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-list-main small { font-size: 0.75rem; color: var(--faint); }
+.cal-list-amt { font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
+.cal-list-amt.is-in { color: var(--blue-deep); }
+.cal-note { margin: 0; padding: 0.9rem; border-radius: 14px; background: var(--raised); font-size: 0.85rem; color: var(--muted); }
+.cal-sub { font-size: 0.75rem; font-weight: 600; color: var(--faint); text-transform: uppercase; letter-spacing: 0.05em; }
+.cal-more { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: auto; font-size: 0.85rem; font-weight: 600; color: var(--blue-deep); text-decoration: none; }
+
+@media (max-width: 640px) {
+  .cal-card { padding: 0.7rem; border-radius: 18px; }
+  .cal-grid, .cal-week { gap: 4px; }
+  .cal-day { min-height: 58px; padding: 0.35rem; border-radius: 10px; }
+  .cal-day .cat-art { display: none; }
+  .cal-amounts i { display: none; }
+  .cal-amounts b { font-size: 0.6rem; letter-spacing: -0.02em; }
+  .cal-dayview { scroll-margin-top: 0.5rem; }
+  .cal-day.is-today .cal-num::after { content: ''; }
+  .cal-dayview { position: static; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cal-day, .cal-fact, .cal-list li { animation: none; }
+}
+
+/* --- A background that moves ------------------------------------------------
+
+   Inside the white panel too, not just the frame: soft blue and lavender
+   shapes drift slowly behind the cards, visible in the gaps between them.
+   Kept faint so text never has to compete with them. */
+
+.main { position: relative; isolation: isolate; }
+.main::before,
+.main::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(60px);
+}
+.main::before {
+  width: 560px;
+  height: 560px;
+  top: -120px;
+  right: -120px;
+  background: radial-gradient(circle, rgba(91, 145, 255, 0.22), transparent 65%);
+  animation: panel-drift-a 24s ease-in-out infinite alternate;
+}
+.main::after {
+  width: 480px;
+  height: 480px;
+  bottom: 10%;
+  left: -140px;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.16), transparent 65%);
+  animation: panel-drift-b 30s ease-in-out infinite alternate;
+}
+@keyframes panel-drift-a { to { transform: translate(-45vw, 60vh) scale(1.2); } }
+@keyframes panel-drift-b { to { transform: translate(55vw, -40vh) scale(0.9); } }
+/* The panel's own white sits over the frame, so the shapes need it behind them. */
+.main { background: var(--surface); overflow: clip; }
+:root[data-theme="dark"] .main::before { background: radial-gradient(circle, rgba(91, 145, 255, 0.16), transparent 65%); }
+:root[data-theme="dark"] .main::after { background: radial-gradient(circle, rgba(167, 139, 250, 0.1), transparent 65%); }
+@media (prefers-reduced-motion: reduce) {
+  .main::before, .main::after { animation: none; }
+}

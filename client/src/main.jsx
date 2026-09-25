@@ -13,6 +13,7 @@ import './styles/design9.css';
 import './styles/insights.css';
 import './styles/account.css';
 import './styles/live.css';
+import './styles/calendar.css';
 import { installPointerEffects } from './lib/pointerEffects.js';
 
 installPointerEffects();

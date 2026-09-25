@@ -15,6 +15,7 @@ import { useAuth, useTheme } from '../context/AppContext.jsx';
 const STUDENT_NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: 'grid', art: 'house', about: 'Your month at a glance' },
   { to: '/transactions', label: 'Transactions', icon: 'ledger', art: 'receipt', about: 'Everything that came in and went out' },
+  { to: '/calendar', label: 'Calendar', icon: 'calendar', art: 'spiral_calendar', about: 'Your money, day by day' },
   { to: '/budgets', label: 'Budgets', icon: 'target', art: 'bullseye', about: 'A cap for each category, filling in real time' },
   { to: '/reports', label: 'Reports', icon: 'chart', art: 'bar_chart', about: 'Where it went, by category, day and week' },
   { to: '/insights', label: 'Insights', icon: 'spark', art: 'sparkles', about: 'Your month, in plain words' },
