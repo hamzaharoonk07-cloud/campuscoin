@@ -80,7 +80,65 @@ function RailSearch() {
 let lastRailSpot = null;
 
 /** The five destinations that earn a place in the phone tab bar. */
-const TAB_NAV = STUDENT_NAV.slice(0, 5);
+const TAB_NAV = STUDENT_NAV.slice(0, 4);
+
+/**
+ * The phone's bottom bar: four pages and a "More" button that opens a sheet
+ * with every page, so nothing in the menu is out of reach on a phone.
+ */
+function TabBar({ onSignOut }) {
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (event) => event.key === 'Escape' && setOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+  const inMore = !TAB_NAV.some((item) => location.pathname === item.to);
+
+  return (
+    <>
+      {open ? (
+        <div className="more-sheet" role="dialog" aria-label="All pages">
+          <button type="button" className="more-backdrop" aria-label="Close" onClick={() => setOpen(false)} />
+          <div className="more-panel">
+            <span className="more-grip" aria-hidden="true" />
+            <strong className="more-title">All pages</strong>
+            <div className="more-grid">
+              {[...STUDENT_NAV, ...SECONDARY_NAV].map((item) => (
+                <NavLink key={item.to} to={item.to} className={({ isActive }) => `more-item${isActive ? ' is-on' : ''}`}>
+                  <span className="more-icon">
+                    <Icon name={item.icon} size={20} />
+                  </span>
+                  <span className="more-label">{item.label}</span>
+                  <small>{item.about}</small>
+                </NavLink>
+              ))}
+            </div>
+            <button type="button" className="more-signout" onClick={onSignOut}>
+              <Icon name="logout" size={17} />
+              Sign out
+            </button>
+          </div>
+        </div>
+      ) : null}
+      <nav className="tabbar" aria-label="Sections">
+        {TAB_NAV.map((item) => (
+          <NavLink key={item.to} to={item.to} className={location.pathname === item.to ? 'active' : undefined}>
+            <Icon name={item.icon} size={20} />
+            {item.label.split(' ')[0]}
+          </NavLink>
+        ))}
+        <button type="button" className={`tab-more${inMore || open ? ' active' : ''}`} onClick={() => setOpen((was) => !was)} aria-expanded={open}>
+          <Icon name={open ? 'x' : 'more'} size={20} strokeWidth={open ? 1.75 : 3.2} />
+          More
+        </button>
+      </nav>
+    </>
+  );
+}
 
 /**
  * The picture in the top bar opens a small menu with the account's name,
@@ -420,14 +478,7 @@ export default function Layout({ title, subtitle, crumbs, actions, children }) {
       {!isAdmin && <WelcomeBack />}
 
       {!isAdmin && (
-        <nav className="tabbar" aria-label="Sections">
-          {TAB_NAV.map((item) => (
-            <NavLink key={item.to} to={item.to} className={location.pathname === item.to ? 'active' : undefined}>
-              <Icon name={item.icon} size={20} />
-              {item.label.split(' ')[0]}
-            </NavLink>
-          ))}
-        </nav>
+        <TabBar onSignOut={signOut} />
       )}
     </div>
   );

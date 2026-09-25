@@ -293,3 +293,73 @@
 @media (prefers-reduced-motion: reduce) {
   .chat-fab.is-tucked { transform: none; opacity: 0.25; }
 }
+
+/* --- Phone: the "More" tab and its sheet of every page ------------------------ */
+
+.tabbar { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.tabbar .tab-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.22rem;
+  padding: 0.42rem 0.2rem;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 500 0.6875rem var(--font-body);
+  cursor: pointer;
+}
+.tabbar .tab-more.active { color: var(--accent-text); }
+.more-sheet { position: fixed; inset: 0; z-index: 70; display: flex; align-items: flex-end; }
+.more-backdrop { position: absolute; inset: 0; border: 0; background: rgba(18, 18, 20, 0.45); backdrop-filter: blur(2px); animation: fade-in 0.2s ease; }
+.more-panel {
+  position: relative;
+  width: 100%;
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 0.6rem 1rem calc(5.4rem + env(safe-area-inset-bottom));
+  border-radius: 26px 26px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -20px 50px -20px rgba(0, 0, 0, 0.4);
+  animation: sheet-up 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+}
+@keyframes sheet-up { from { transform: translateY(100%); } }
+.more-grip { display: block; width: 40px; height: 4px; margin: 0 auto 0.8rem; border-radius: 99px; background: var(--line-strong); }
+.more-title { display: block; margin-bottom: 0.8rem; font-size: 1.1rem; font-weight: 700; }
+.more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+.more-item {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--text);
+  text-decoration: none;
+}
+.more-item.is-on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.more-icon { display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 0.3rem; border-radius: 11px; background: var(--raised); }
+.more-item.is-on .more-icon { background: var(--accent); color: var(--on-accent); }
+.more-label { font-size: 0.9rem; font-weight: 600; }
+.more-item small { font-size: 0.72rem; line-height: 1.35; color: var(--faint); }
+.more-signout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  height: 46px;
+  margin-top: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: none;
+  color: var(--bad);
+  font: 600 0.9rem var(--font-body);
+  cursor: pointer;
+}
+.tabbar { z-index: 71; }
+@media (prefers-reduced-motion: reduce) { .more-panel, .more-backdrop { animation: none; } }
+/* Compact: three across, icon and name, so every page fits on one screen. */
+.more-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.more-item { justify-items: center; text-align: center; padding: 0.75rem 0.4rem; }
+.more-item small { display: none; }
+.more-label { font-size: 0.8rem; }
