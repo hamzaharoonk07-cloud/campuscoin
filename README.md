@@ -126,7 +126,7 @@ tokenised link. How Campus Coin does each:
   from that link - so a stolen, still-signed-in session is not enough to take
   over an account. The old in-place endpoint answers 410 Gone.
 - **Branded emails.** Welcome, password-link, "password changed" and monthly
-  summary emails share one HTML layout (\`server/src/services/emailTemplate.js\`):
+  summary emails share one HTML layout (`server/src/services/emailTemplate.js`):
   a PNG banner (Gmail does not show SVG), a 600px table with inline styles, one
   button, and a plain-text version alongside.
 - **Sessions end when they should.** Every sign-in token carries the account's
