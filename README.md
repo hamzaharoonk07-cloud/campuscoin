@@ -385,7 +385,7 @@ The interface is written rather than assembled. A few decisions worth naming:
 - [x] Test data — seeded automatically on first run (`server/src/seed/`)
 - [x] Sitemap on the home page — `/` and `/sitemap`
 - [ ] Demonstration video (.mp4) — to record
-- [ ] Project report with flowcharts and DFDs — to write
+- [x] Project report with flowcharts, DFDs, ER diagram, test data, installation and credentials — `docs/Campus Coin - Project Report.pdf`
 
 ---
 
