@@ -4,10 +4,10 @@ import { AuthAside, AuthTop, IconField } from './Login.jsx';
 import { BrandMark } from '../components/Icon.jsx';
 import PasswordStrength from '../components/PasswordStrength.jsx';
 import { CURRENCY_SYMBOLS } from '../lib/format.js';
+import { StudyOptions } from '../lib/study.jsx';
 import { passwordOk } from '../lib/password.js';
 import { useAuth } from '../context/AppContext.jsx';
 
-const YEARS = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Masters', 'PhD'];
 
 export default function Register() {
   const { register } = useAuth();
@@ -123,14 +123,10 @@ export default function Register() {
 
           <div className="field-row">
             <div className="field">
-              <label htmlFor="year">Year of study</label>
+              <label htmlFor="year">Where you study</label>
               <select id="year" value={form.academicYear} onChange={set('academicYear')}>
                 <option value="">Prefer not to say</option>
-                {YEARS.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
+                <StudyOptions />
               </select>
             </div>
             <div className="field">
@@ -146,7 +142,7 @@ export default function Register() {
           </div>
 
           <div className="field">
-            <label htmlFor="institution">College or university</label>
+            <label htmlFor="institution">School, college or university</label>
             <input id="institution" value={form.institution} onChange={set('institution')} />
           </div>
 

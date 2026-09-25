@@ -68,6 +68,15 @@ await check('Auth', 'Edit profile (name, year, allowance, goal)', async () => {
   const r = await call('PATCH', '/auth/me', { name: 'Test Student Two', academicYear: 'Year 2', monthlyAllowance: 25000, savingsGoal: 4000 });
   expect(r.status === 200 && r.data.user.name === 'Test Student Two' && r.data.user.savingsGoal === 4000, JSON.stringify(r.data).slice(0, 200));
 });
+await check('Auth', 'Year of study covers school, college and university', async () => {
+  for (const level of ['Matric - Class 10', 'O Levels', 'Intermediate - Part 1', 'A Levels - A2', 'Year 3', 'MPhil']) {
+    const r = await call('PATCH', '/auth/me', { academicYear: level });
+    expect(r.status === 200 && r.data.user.academicYear === level, `${level}: ${r.status}`);
+  }
+  const bad = await call('PATCH', '/auth/me', { academicYear: 'Year 9' });
+  expect(bad.status >= 400, `an unknown level was accepted (${bad.status})`);
+  await call('PATCH', '/auth/me', { academicYear: 'Year 2' });
+});
 await check('Auth', 'Theme and font size saved to the account', async () => {
   const r = await call('PATCH', '/auth/me', { preferences: { theme: 'dark', fontScale: 1.125 } });
   expect(r.data.user.preferences.theme === 'dark' && r.data.user.preferences.fontScale === 1.125, JSON.stringify(r.data.user?.preferences));

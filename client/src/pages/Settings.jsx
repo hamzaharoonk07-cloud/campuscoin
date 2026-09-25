@@ -8,9 +8,9 @@ import { squarePhoto } from '../lib/images.js';
 import { api, setToken } from '../lib/api.js';
 import { artUrl } from '../components/Illustrations.jsx';
 import { CURRENCY_SYMBOLS, formatDate } from '../lib/format.js';
+import { StudyOptions, studyLabel } from '../lib/study.jsx';
 import { useAuth, useTheme, useToast } from '../context/AppContext.jsx';
 
-const YEARS = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Masters', 'PhD'];
 const SCALES = [
   { value: 0.875, label: 'Small' },
   { value: 1, label: 'Default' },
@@ -133,7 +133,7 @@ export default function Settings() {
           <span>{user.email}</span>
           <small>
             {user.isDemo ? 'Shared demo account' : 'Student account'}
-            {user.academicYear ? ` · ${user.academicYear}` : ''}
+            {user.academicYear ? ` · ${studyLabel(user.academicYear)}` : ''}
             {user.institution ? ` · ${user.institution}` : ''}
             {user.createdAt ? ` · member since ${formatDate(user.createdAt, { month: 'long', year: 'numeric' })}` : ''}
           </small>
@@ -224,14 +224,10 @@ export default function Settings() {
 
               <div className="field-row">
                 <div className="field">
-                  <label htmlFor="year">Year of study</label>
+                  <label htmlFor="year">Where you study</label>
                   <select id="year" value={profile.academicYear} onChange={set('academicYear')}>
                     <option value="">Prefer not to say</option>
-                    {YEARS.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
+                    <StudyOptions />
                   </select>
                 </div>
                 <div className="field">
@@ -247,7 +243,7 @@ export default function Settings() {
               </div>
 
               <div className="field">
-                <label htmlFor="institution">College or university</label>
+                <label htmlFor="institution">School, college or university</label>
                 <input id="institution" value={profile.institution} onChange={set('institution')} />
               </div>
 

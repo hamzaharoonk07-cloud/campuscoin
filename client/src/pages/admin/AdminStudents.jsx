@@ -6,6 +6,7 @@ import Avatar from '../../components/Avatar.jsx';
 import { api } from '../../lib/api.js';
 import { formatDate } from '../../lib/format.js';
 import { useToast } from '../../context/AppContext.jsx';
+import { studyLabel } from '../../lib/study.jsx';
 
 export default function AdminStudents() {
   const toast = useToast();
@@ -97,7 +98,7 @@ export default function AdminStudents() {
                     <div className="small muted">{user.email}</div>
                   </td>
                   <td>
-                    {user.academicYear || '--'}
+                    {studyLabel(user.academicYear) || '--'}
                     {user.institution ? <div className="small muted">{user.institution}</div> : null}
                   </td>
                   <td className="right num">{user.transactionCount}</td>

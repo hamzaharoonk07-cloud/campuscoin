@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { STUDY_LEVELS } from '../utils/study.js';
 
 const userSchema = new mongoose.Schema(
   {
@@ -16,7 +17,8 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ['student', 'admin'], default: 'student', index: true },
 
     // Profile fields from the SRS (section 1.6, "User Authentication and Management")
-    academicYear: { type: String, enum: ['', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Masters', 'PhD'], default: '' },
+    // School, college, university or postgraduate year (utils/study.js).
+    academicYear: { type: String, enum: STUDY_LEVELS, default: '' },
     institution: { type: String, trim: true, maxlength: 120, default: '' },
     monthlyAllowance: { type: Number, default: 0, min: 0 },
     savingsGoal: { type: Number, default: 0, min: 0 },
