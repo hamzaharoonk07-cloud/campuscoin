@@ -39,17 +39,17 @@ let ctx = {};
 
 /* --- Authentication and profile ------------------------------------------ */
 await check('Auth', 'Register a student with profile fields', async () => {
-  const r = await call('POST', '/auth/register', { name: 'Test Student', email, password: 'Testing@123', academicYear: 'Year 1', monthlyAllowance: 20000, savingsGoal: 3000, currency: 'PKR' }, { auth: null });
+  const r = await call('POST', '/auth/register', { name: 'Test Student', email, password: 'Kharcha@123', academicYear: 'Year 1', monthlyAllowance: 20000, savingsGoal: 3000, currency: 'PKR' }, { auth: null });
   expect(r.status === 201 || r.status === 200, `status ${r.status} ${JSON.stringify(r.data)}`);
   token = r.data.token; ctx.userId = r.data.user?._id || r.data.user?.id;
   expect(token, 'no token');
 });
 await check('Auth', 'Duplicate email is refused', async () => {
-  const r = await call('POST', '/auth/register', { name: 'x', email, password: 'Testing@123' }, { auth: null });
+  const r = await call('POST', '/auth/register', { name: 'x', email, password: 'Kharcha@123' }, { auth: null });
   expect(r.status >= 400, `status ${r.status}`);
 });
 await check('Auth', 'Log in', async () => {
-  const r = await call('POST', '/auth/login', { email, password: 'Testing@123' }, { auth: null });
+  const r = await call('POST', '/auth/login', { email, password: 'Kharcha@123' }, { auth: null });
   expect(r.status === 200 && r.data.token, `status ${r.status}`); token = r.data.token;
 });
 await check('Auth', 'Wrong password is refused', async () => {
@@ -57,7 +57,7 @@ await check('Auth', 'Wrong password is refused', async () => {
   expect(r.status === 401 || r.status === 400, `status ${r.status}`);
 });
 await check('Auth', 'Admin sign-in refuses a student', async () => {
-  const r = await call('POST', '/auth/admin/login', { email, password: 'Testing@123' }, { auth: null });
+  const r = await call('POST', '/auth/admin/login', { email, password: 'Kharcha@123' }, { auth: null });
   expect(r.status >= 400, `status ${r.status}`);
 });
 await check('Auth', 'Protected routes need a session', async () => {
@@ -72,11 +72,37 @@ await check('Auth', 'Theme and font size saved to the account', async () => {
   const r = await call('PATCH', '/auth/me', { preferences: { theme: 'dark', fontScale: 1.125 } });
   expect(r.data.user.preferences.theme === 'dark' && r.data.user.preferences.fontScale === 1.125, JSON.stringify(r.data.user?.preferences));
 });
-await check('Auth', 'Change password', async () => {
-  const r = await call('POST', '/auth/change-password', { currentPassword: 'Testing@123', newPassword: 'Testing@456' });
-  expect(r.status === 200, `status ${r.status} ${JSON.stringify(r.data)}`);
-  const again = await call('POST', '/auth/login', { email, password: 'Testing@456' }, { auth: null });
+await check('Auth', 'Weak passwords are refused', async () => {
+  for (const password of ['short1', 'abcdefghij', 'password123', `Test${Date.now() % 1000}9x`]) {
+    const r = await call('POST', '/auth/register', { name: 'Test Student', email: `weak.${Date.now()}@campuscoin.app`, password }, { auth: null });
+    expect(r.status === 400, `"${password}" was accepted (${r.status})`);
+  }
+});
+await check('Auth', 'Change password ends other sessions', async () => {
+  const old = token;
+  const r = await call('POST', '/auth/change-password', { currentPassword: 'Kharcha@123', newPassword: 'Kharcha@456' });
+  expect(r.status === 200 && r.data.token, `status ${r.status} ${JSON.stringify(r.data)}`);
+  token = r.data.token;
+  const stale = await call('GET', '/auth/me', undefined, { auth: old });
+  expect(stale.status === 401, `the old session still works (${stale.status})`);
+  const fresh = await call('GET', '/auth/me');
+  expect(fresh.status === 200, 'the new session does not work');
+  const again = await call('POST', '/auth/login', { email, password: 'Kharcha@456' }, { auth: null });
   expect(again.status === 200, 'new password does not work');
+});
+await check('Auth', 'Sign out everywhere', async () => {
+  const old = token;
+  const r = await call('POST', '/auth/logout-all', {});
+  expect(r.status === 200 && r.data.token, `status ${r.status}`);
+  token = r.data.token;
+  const stale = await call('GET', '/auth/me', undefined, { auth: old });
+  expect(stale.status === 401, `the old session still works (${stale.status})`);
+});
+await check('Auth', 'The shared demo password cannot be changed', async () => {
+  const demo = await call('POST', '/auth/login', { email: 'student@campuscoin.app', password: 'Student@12345' }, { auth: null });
+  expect(demo.status === 200, `demo login ${demo.status}`);
+  const r = await call('POST', '/auth/change-password', { currentPassword: 'Student@12345', newPassword: 'Kharcha@999' }, { auth: demo.data.token });
+  expect(r.status === 403, `status ${r.status}`);
 });
 await check('Auth', 'Password recovery by tokenised link', async () => {
   const r = await call('POST', '/auth/forgot-password', { email }, { auth: null });
@@ -84,11 +110,11 @@ await check('Auth', 'Password recovery by tokenised link', async () => {
   const link = r.data.devResetLink;
   expect(link, 'no reset link returned (SMTP not configured, so it should be)');
   const resetToken = new URL(link).searchParams.get('token');
-  const reset = await call('POST', '/auth/reset-password', { token: resetToken, password: 'Testing@789' }, { auth: null });
+  const reset = await call('POST', '/auth/reset-password', { token: resetToken, password: 'Kharcha@789' }, { auth: null });
   expect(reset.status === 200, `reset status ${reset.status} ${JSON.stringify(reset.data)}`);
-  const login = await call('POST', '/auth/login', { email, password: 'Testing@789' }, { auth: null });
+  const login = await call('POST', '/auth/login', { email, password: 'Kharcha@789' }, { auth: null });
   expect(login.status === 200, 'cannot log in with reset password'); token = login.data.token;
-  const reuse = await call('POST', '/auth/reset-password', { token: resetToken, password: 'Testing@000' }, { auth: null });
+  const reuse = await call('POST', '/auth/reset-password', { token: resetToken, password: 'Kharcha@000' }, { auth: null });
   expect(reuse.status >= 400, 'reset link worked twice');
 });
 
@@ -359,18 +385,32 @@ await check('Admin', 'View and search users', async () => {
 await check('Admin', 'Disable a user blocks login, enable restores it', async () => {
   const d = await call('PATCH', `/admin/users/${ctx.adminUserId}`, { disabled: true }, { auth: adminToken });
   expect(d.status === 200, `disable ${d.status}`);
-  const blocked = await call('POST', '/auth/login', { email, password: 'Testing@789' }, { auth: null });
+  const blocked = await call('POST', '/auth/login', { email, password: 'Kharcha@789' }, { auth: null });
   expect(blocked.status >= 400, `disabled user could log in (${blocked.status})`);
   const stillWorks = await call('GET', '/transactions');
   expect(stillWorks.status === 401 || stillWorks.status === 403, `disabled user's existing session still works (${stillWorks.status})`);
   await call('PATCH', `/admin/users/${ctx.adminUserId}`, { disabled: false }, { auth: adminToken });
-  const back = await call('POST', '/auth/login', { email, password: 'Testing@789' }, { auth: null });
+  const back = await call('POST', '/auth/login', { email, password: 'Kharcha@789' }, { auth: null });
   expect(back.status === 200, 'enable did not restore login'); token = back.data.token;
 });
 await check('Admin', 'Reset a user password', async () => {
   const r = await call('POST', `/admin/users/${ctx.adminUserId}/reset-password`, {}, { auth: adminToken });
-  expect(r.status === 200, `status ${r.status} ${JSON.stringify(r.data)}`);
-  return JSON.stringify(r.data).slice(0, 120);
+  expect(r.status === 200 && r.data.temporaryPassword, `status ${r.status} ${JSON.stringify(r.data)}`);
+  const stale = await call('GET', '/auth/me');
+  expect(stale.status === 401, `the student's old session still works (${stale.status})`);
+  const login = await call('POST', '/auth/login', { email, password: r.data.temporaryPassword }, { auth: null });
+  expect(login.status === 200 && login.data.user.mustChangePassword, 'temporary password does not work or is not flagged');
+  token = login.data.token;
+  return 'temporary password issued; student asked to change it';
+});
+await check('Admin', 'Repeated wrong passwords lock the account', async () => {
+  const lockEmail = `lock.${Date.now()}@campuscoin.app`;
+  const reg = await call('POST', '/auth/register', { name: 'Lock Check', email: lockEmail, password: 'Kharcha@123' }, { auth: null });
+  expect(reg.status === 201, `register ${reg.status}`);
+  for (let i = 0; i < 5; i++) await call('POST', '/auth/login', { email: lockEmail, password: 'wrong-guess-1' }, { auth: null });
+  const locked = await call('POST', '/auth/login', { email: lockEmail, password: 'Kharcha@123' }, { auth: null });
+  expect(locked.status === 429, `the right password still got in after 5 wrong ones (${locked.status})`);
+  await call('DELETE', `/admin/users/${reg.data.user._id}`, undefined, { auth: adminToken });
 });
 await check('Admin', 'Add, edit and remove a default category', async () => {
   const c = await call('POST', '/admin/categories', { name: 'Laundry E2E', type: 'expense', icon: 'tag', slot: 5, keywords: ['laundry'] }, { auth: adminToken });

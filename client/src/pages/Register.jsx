@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthAside, AuthTop, IconField } from './Login.jsx';
 import { BrandMark } from '../components/Icon.jsx';
+import PasswordStrength from '../components/PasswordStrength.jsx';
 import { CURRENCY_SYMBOLS } from '../lib/format.js';
+import { passwordOk } from '../lib/password.js';
 import { useAuth } from '../context/AppContext.jsx';
 
 const YEARS = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Masters', 'PhD'];
@@ -14,6 +16,7 @@ export default function Register() {
     name: '',
     email: '',
     password: '',
+    confirm: '',
     academicYear: '',
     institution: '',
     monthlyAllowance: '',
@@ -27,11 +30,20 @@ export default function Register() {
 
   const submit = async (event) => {
     event.preventDefault();
+    if (!passwordOk(form.password, form)) {
+      setError('Your password does not meet the rules under it yet');
+      return;
+    }
+    if (form.password !== form.confirm) {
+      setError('Those two passwords do not match');
+      return;
+    }
     setBusy(true);
     setError('');
     try {
+      const { confirm, ...details } = form;
       await register({
-        ...form,
+        ...details,
         monthlyAllowance: Number(form.monthlyAllowance) || 0,
         savingsGoal: Number(form.savingsGoal) || 0,
       });
@@ -96,6 +108,18 @@ export default function Register() {
             onChange={set('password')}
             autoComplete="new-password"
           />
+
+          <IconField
+            id="confirm"
+            label="Confirm password"
+            icon="key"
+            type="password"
+            required
+            value={form.confirm}
+            onChange={set('confirm')}
+            autoComplete="new-password"
+          />
+          {form.password ? <PasswordStrength password={form.password} confirm={form.confirm} email={form.email} name={form.name} /> : null}
 
           <div className="field-row">
             <div className="field">

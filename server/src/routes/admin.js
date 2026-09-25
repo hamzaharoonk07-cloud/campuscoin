@@ -12,6 +12,7 @@ import CategoryHint from '../models/CategoryHint.js';
 import { protect, allow, wrap } from '../middleware/auth.js';
 import { startOfMonth, addMonths } from '../utils/dates.js';
 import { round2 } from '../utils/money.js';
+import { temporaryPassword, isDemo } from '../utils/passwords.js';
 
 const router = express.Router();
 router.use(protect, allow('admin'));
@@ -125,14 +126,23 @@ router.post(
   wrap(async (req, res) => {
     const user = await User.findOne({ _id: req.params.id, role: 'student' }).select('+passwordHash');
     if (!user) return res.status(404).json({ message: 'That student was not found' });
+    if (isDemo(user)) {
+      return res.status(403).json({ message: 'The demo student keeps its published password, so it cannot be reset.' });
+    }
 
-    const temporary = `cc-${Math.random().toString(36).slice(2, 10)}`;
+    // Random from the crypto module, not Math.random, since it guards an account.
+    const temporary = temporaryPassword();
     await user.setPassword(temporary);
+    // Signs the student out everywhere (setPassword raised the session version),
+    // lifts any lock, and asks them to choose their own password next time.
+    user.mustChangePassword = true;
+    user.failedLogins = 0;
+    user.lockUntil = undefined;
     await user.save();
 
     res.json({
       temporaryPassword: temporary,
-      message: `Share this with ${user.name}. It is shown once and is not stored anywhere in readable form.`,
+      message: `Share this with ${user.name}. It is shown once, is not stored anywhere in readable form, and they will be asked to replace it when they sign in.`,
     });
   })
 );

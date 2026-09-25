@@ -58,12 +58,13 @@ npm run test:e2e --prefix server
 ```
 
 It registers a throwaway student and works through every functional
-requirement in the SRS - sign-up, login, password reset, profile, categories,
+requirement in the SRS - sign-up, login, password rules, reset, lockout and
+sessions, profile, categories,
 income and expenses, recurring entries, CSV import and export, the
 categoriser learning from corrections, anomaly flags, budgets and alerts,
 reports and filters, insights, tips, sharing, the chat assistant and every
 administrator control - then deletes the account. It prints PASS or FAIL for
-each of its 58 checks.
+each of its 62 checks.
 
 ### Reseeding
 
@@ -88,6 +89,43 @@ Students sign in at `/login`. The administrator has a **separate, direct-access
 sign-in at `/admin/login`**, which posts to its own endpoint and refuses any
 account that is not an administrator — a student's password is useless there
 even with the URL.
+
+These three demo accounts are shared, so their passwords are fixed: they
+cannot be changed, reset or locked out, and anyone evaluating the app can
+always sign in with the table above. Register a new account to try the
+password features.
+
+---
+
+## Passwords and sessions
+
+The SRS asks for secure sessions, hashed passwords, and recovery through a
+tokenised link. How Campus Coin does each:
+
+- **Stored as hashes.** Passwords are hashed with bcrypt (cost 10, a salt per
+  password) and never stored or logged in readable form
+  (`server/src/models/User.js`).
+- **Rules everyone can see.** At least 8 characters, letters and numbers, not
+  one of the most common passwords and not built from the account's own name
+  or email (`server/src/utils/passwords.js`). The sign-up, reset and change
+  forms show the same rules as a live checklist with a strength meter.
+- **Recovery by tokenised link.** "Forgot password" emails a random 64-character
+  token that works once, for one hour; only its SHA-256 hash is stored. The
+  reset page checks the link before showing the form and says so plainly when
+  it has expired. With no SMTP configured the link is shown on screen instead,
+  so the flow can still be demonstrated. The reply is the same whether or not
+  the email has an account, so the form cannot be used to find accounts.
+- **Sessions end when they should.** Every sign-in token carries the account's
+  session version. Changing or resetting the password raises it, which signs
+  out every other device at once; Settings also has **Sign out everywhere**.
+  A disabled account loses access immediately.
+- **Guessing is impractical.** Five wrong passwords in a row lock sign-in for
+  15 minutes; a password reset lifts the lock.
+- **Administrator resets.** The administrator can issue a temporary password
+  (random, from the crypto module, shown once). It signs the student out
+  everywhere, and every page asks them to choose their own until they do.
+- **Told when it changes.** A password change or reset sends a "your password
+  was changed" email, so an account holder notices one they did not make.
 
 ---
 

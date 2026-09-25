@@ -3,7 +3,10 @@ import User from '../models/User.js';
 
 export const JWT_SECRET = process.env.JWT_SECRET || 'campus-coin-dev-secret-change-me';
 
-export const signToken = (user) => jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+// The token carries the account's session version (`v`), so raising the
+// version on the account ends every session that was signed in before it.
+export const signToken = (user) =>
+  jwt.sign({ id: user._id, role: user.role, v: user.tokenVersion || 0 }, JWT_SECRET, { expiresIn: '7d' });
 
 async function userFromRequest(req) {
   const header = req.headers.authorization || '';
@@ -16,7 +19,10 @@ async function userFromRequest(req) {
   }
   const user = await User.findById(payload.id);
   // A disabled account keeps its token but loses access immediately.
-  return user && !user.disabled ? user : null;
+  if (!user || user.disabled) return null;
+  // A token from before the last password change or "sign out everywhere".
+  if ((payload.v || 0) !== (user.tokenVersion || 0)) return null;
+  return user;
 }
 
 export async function protect(req, res, next) {

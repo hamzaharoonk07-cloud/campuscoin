@@ -533,3 +533,52 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 /* A black letter avatar needs an edge to show on the dark theme. */
 :root[data-theme='dark'] .avatar { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
 :root[data-theme='dark'] .d9-day.is-0 { background: #26262c; }
+
+/* --- Passwords -------------------------------------------------------------- */
+
+.pw-strength { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem 0.8rem; align-items: center; }
+.pw-meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.pw-meter i { height: 6px; border-radius: 99px; background: var(--sunken); transition: background 0.2s var(--ease); }
+.pw-meter[data-score='1'] i.is-on { background: var(--bad); }
+.pw-meter[data-score='2'] i.is-on { background: var(--blue-mid); }
+.pw-meter[data-score='3'] i.is-on { background: var(--blue); }
+.pw-meter[data-score='4'] i.is-on { background: var(--accent); }
+.pw-label { font-size: 0.8rem; font-weight: 500; }
+.pw-label.is-1 { color: var(--bad); }
+.pw-checks { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
+.pw-checks li { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--faint); }
+.pw-checks li svg { flex: none; padding: 2px; border-radius: 50%; background: var(--sunken); color: var(--faint); box-sizing: content-box; }
+.pw-checks li.is-ok { color: var(--text); }
+.pw-checks li.is-ok svg { background: var(--blue); color: #fff; }
+
+.security-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}
+.security-row > span { display: grid; gap: 0.2rem; max-width: 34ch; }
+.security-row strong { font-weight: 500; }
+.security-row small { font-size: 0.8rem; color: var(--faint); }
+.security-note { display: flex; gap: 0.55rem; align-items: flex-start; margin: 0 0 1rem; padding: 0.75rem 0.9rem; border-radius: 14px; background: var(--blue-soft); font-size: 0.85rem; }
+.security-note svg { flex: none; margin-top: 1px; color: var(--blue-deep); }
+.security-note.is-quiet { margin: 1rem 0 0; background: var(--raised); color: var(--muted); }
+.security-note.is-quiet svg { color: var(--muted); }
+
+.must-change {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0.9rem 0.75rem 1.1rem;
+  border-radius: 16px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.9rem;
+}
+.must-change span { flex: 1; min-width: 14rem; }
+.must-change .btn-primary { background: var(--blue); border-color: var(--blue); color: #fff; }

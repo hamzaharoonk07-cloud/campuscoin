@@ -4,9 +4,12 @@ import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import Avatar from '../components/Avatar.jsx';
 import AssistantMemory from '../components/AssistantMemory.jsx';
+import { IconField } from './Login.jsx';
+import PasswordStrength from '../components/PasswordStrength.jsx';
 import { squarePhoto } from '../lib/images.js';
-import { api } from '../lib/api.js';
-import { CURRENCY_SYMBOLS } from '../lib/format.js';
+import { api, setToken } from '../lib/api.js';
+import { passwordOk } from '../lib/password.js';
+import { CURRENCY_SYMBOLS, formatDate } from '../lib/format.js';
 import { useAuth, useTheme, useToast } from '../context/AppContext.jsx';
 
 const YEARS = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Masters', 'PhD'];
@@ -18,7 +21,7 @@ const SCALES = [
 ];
 
 export default function Settings() {
-  const { user, updateProfile } = useAuth();
+  const { user, setUser, updateProfile } = useAuth();
   const { theme, setTheme, fontScale, setFontScale } = useTheme();
   const toast = useToast();
 
@@ -30,7 +33,8 @@ export default function Settings() {
     savingsGoal: user.savingsGoal || 0,
     currency: user.currency,
   });
-  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '' });
+  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirm: '' });
+  const [pwBusy, setPwBusy] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const set = (key) => (event) => setProfile({ ...profile, [key]: event.target.value });
@@ -91,14 +95,42 @@ export default function Settings() {
     }
   };
 
+  // A new password ends every other session; the server hands this device a
+  // fresh token so it stays signed in.
   const changePassword = async (event) => {
     event.preventDefault();
+    if (!passwordOk(passwords.newPassword, user)) {
+      toast.error('Not changed yet', 'Your new password does not meet the rules under it.');
+      return;
+    }
+    if (passwords.newPassword !== passwords.confirm) {
+      toast.error('Not changed yet', 'The two new passwords do not match.');
+      return;
+    }
+    setPwBusy(true);
     try {
-      const { message } = await api.post('/auth/change-password', passwords);
-      setPasswords({ currentPassword: '', newPassword: '' });
-      toast.success(message);
+      const data = await api.post('/auth/change-password', {
+        currentPassword: passwords.currentPassword,
+        newPassword: passwords.newPassword,
+      });
+      setToken(data.token);
+      setUser(data.user);
+      setPasswords({ currentPassword: '', newPassword: '', confirm: '' });
+      toast.success('Password changed', 'Every other device has been signed out.');
     } catch (err) {
       toast.error('Could not change your password', err.message);
+    } finally {
+      setPwBusy(false);
+    }
+  };
+
+  const signOutEverywhere = async () => {
+    try {
+      const data = await api.post('/auth/logout-all', {});
+      setToken(data.token);
+      toast.success('Signed out everywhere else', 'This device stays signed in.');
+    } catch (err) {
+      toast.error('Could not sign the other devices out', err.message);
     }
   };
 
@@ -285,40 +317,83 @@ export default function Settings() {
             </div>
           </section>
 
-          <section className="panel">
+          <section className="panel" id="password">
             <div className="panel-head">
-              <h2>Password</h2>
+              <h2>Password and security</h2>
+              <span className="panel-note">
+                {user.passwordChangedAt ? `Changed ${formatDate(user.passwordChangedAt, { day: 'numeric', month: 'short', year: 'numeric' })}` : 'Set when you registered'}
+              </span>
             </div>
             <div className="panel-body">
+              {user.mustChangePassword ? (
+                <div className="form-error" style={{ marginBottom: '1rem' }}>
+                  You signed in with a temporary password from an administrator. Choose your own below.
+                </div>
+              ) : null}
+              {user.isDemo ? (
+                <p className="security-note">
+                  <Icon name="shield" size={16} />
+                  This is the shared demo account, so its password stays as published. Register your own account to try
+                  changing a password.
+                </p>
+              ) : null}
               <form className="stack" onSubmit={changePassword}>
-                <div className="field">
-                  <label htmlFor="current">Current password</label>
-                  <input
-                    id="current"
-                    type="password"
-                    required
-                    autoComplete="current-password"
-                    value={passwords.currentPassword}
-                    onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="new">New password</label>
-                  <input
-                    id="new"
-                    type="password"
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                    value={passwords.newPassword}
-                    onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-                  />
-                </div>
-                <button type="submit" className="btn">
+                <IconField
+                  id="current"
+                  label="Current password"
+                  icon="key"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  value={passwords.currentPassword}
+                  onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
+                  disabled={user.isDemo}
+                />
+                <IconField
+                  id="new"
+                  label="New password"
+                  icon="key"
+                  type="password"
+                  required
+                  autoComplete="new-password"
+                  value={passwords.newPassword}
+                  onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
+                  disabled={user.isDemo}
+                />
+                <IconField
+                  id="confirm-new"
+                  label="Confirm new password"
+                  icon="key"
+                  type="password"
+                  required
+                  autoComplete="new-password"
+                  value={passwords.confirm}
+                  onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                  disabled={user.isDemo}
+                />
+                {passwords.newPassword ? (
+                  <PasswordStrength password={passwords.newPassword} confirm={passwords.confirm} email={user.email} name={user.name} />
+                ) : null}
+                <button type="submit" className="btn btn-primary" disabled={user.isDemo || pwBusy}>
                   <Icon name="key" size={15} />
-                  Change password
+                  {pwBusy ? 'Changing' : 'Change password'}
                 </button>
               </form>
+
+              <div className="security-row">
+                <span>
+                  <strong>Signed in somewhere else?</strong>
+                  <small>Ends every other session - a lab computer, an old phone. This device stays signed in.</small>
+                </span>
+                <button type="button" className="btn btn-sm" onClick={signOutEverywhere} disabled={user.isDemo}>
+                  <Icon name="logout" size={14} />
+                  Sign out everywhere
+                </button>
+              </div>
+              <p className="security-note is-quiet">
+                <Icon name="shield" size={16} />
+                Passwords are stored only as salted bcrypt hashes. Five wrong tries lock sign-in for 15 minutes.
+              </p>
             </div>
           </section>
 

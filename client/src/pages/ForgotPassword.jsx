@@ -58,6 +58,8 @@ export default function ForgotPassword() {
                 Open the reset link
               </Link>
             </div>
+          ) : result?.note ? (
+            <p className="small muted">{result.note}</p>
           ) : null}
 
           <IconField

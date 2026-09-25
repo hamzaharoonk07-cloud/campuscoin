@@ -439,6 +439,17 @@ export default function Layout({ title, crumbs, actions, children }) {
         </header>
 
         <main id="main" className="page">
+          {/* After an administrator reset, every page asks for a new password
+              until the student has chosen one. */}
+          {user?.mustChangePassword ? (
+            <div className="must-change" role="alert">
+              <Icon name="key" size={16} />
+              <span>You are using a temporary password. Choose your own to keep your account safe.</span>
+              <Link to="/settings#password" className="btn btn-sm btn-primary">
+                Choose a password
+              </Link>
+            </div>
+          ) : null}
           {children}
         </main>
       </div>

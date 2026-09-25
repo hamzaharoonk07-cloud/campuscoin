@@ -40,12 +40,30 @@ const userSchema = new mongoose.Schema(
     // Password reset: only the hash of the token is stored, never the token itself.
     resetTokenHash: { type: String, select: false },
     resetTokenExpires: { type: Date, select: false },
+
+    // Sessions. Every sign-in token carries this number; raising it (on a new
+    // password, or "sign out everywhere") makes every older token invalid.
+    tokenVersion: { type: Number, default: 0 },
+    passwordChangedAt: Date,
+    // Set when an administrator issues a temporary password, so the student is
+    // asked to choose their own the next time they sign in.
+    mustChangePassword: { type: Boolean, default: false },
+
+    // Sign-in lockout after repeated wrong passwords (see utils/passwords.js).
+    failedLogins: { type: Number, default: 0, select: false },
+    lockUntil: { type: Date, select: false },
   },
   { timestamps: true }
 );
 
+/**
+ * Stores a new password as a bcrypt hash (cost 10, salted per password) and
+ * ends every session signed in with the old one.
+ */
 userSchema.methods.setPassword = async function setPassword(plain) {
   this.passwordHash = await bcrypt.hash(plain, 10);
+  this.passwordChangedAt = new Date();
+  this.tokenVersion = (this.tokenVersion || 0) + 1;
 };
 
 userSchema.methods.checkPassword = function checkPassword(plain) {
