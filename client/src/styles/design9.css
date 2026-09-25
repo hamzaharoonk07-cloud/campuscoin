@@ -886,3 +886,17 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
   .rail .rail-brand,
   .rail-indicator { transition: none; }
 }
+
+/* Placeholders while a page's figures load: soft grey cards with a light
+   passing across them, the same shape as the cards that replace them. */
+.skeleton {
+  border: 0;
+  border-radius: 22px;
+  background: linear-gradient(100deg, var(--raised) 30%, var(--surface) 50%, var(--raised) 70%);
+  background-size: 300% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+:root[data-theme='dark'] .skeleton {
+  background: linear-gradient(100deg, var(--raised) 30%, #2a2a31 50%, var(--raised) 70%);
+  background-size: 300% 100%;
+}

@@ -22,16 +22,10 @@ import AdminOverview from './pages/admin/AdminOverview.jsx';
 import AdminStudents from './pages/admin/AdminStudents.jsx';
 import AdminCategories from './pages/admin/AdminCategories.jsx';
 import AdminAnnouncements from './pages/admin/AdminAnnouncements.jsx';
+import Loader from './components/Loader.jsx';
 
-function Loading() {
-  return (
-    <div className="center-screen">
-      <div className="row">
-        <span className="spinner" /> Loading Campus Coin
-      </div>
-    </div>
-  );
-}
+/** While the saved sign-in is checked: the branded loader (components/Loader.jsx). */
+const Loading = () => <Loader />;
 
 /** Keeps a page behind the sign-in wall, remembering where the visitor wanted to go. */
 function Protected({ children, admin = false }) {
