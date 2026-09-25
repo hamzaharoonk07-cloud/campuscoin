@@ -8,3 +8,4 @@ server/data/
 *.log
 /shots/
 shot*.mjs
+.env*.local
