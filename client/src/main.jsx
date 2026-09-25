@@ -10,6 +10,7 @@ import './styles/pictures.css';
 import './styles/frame.css';
 // The design 9 look, last so it wins.
 import './styles/design9.css';
+import './styles/insights.css';
 import { installPointerEffects } from './lib/pointerEffects.js';
 
 installPointerEffects();

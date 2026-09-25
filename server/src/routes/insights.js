@@ -1,7 +1,7 @@
 import express from 'express';
 import Insight from '../models/Insight.js';
 import { protect, wrap } from '../middleware/auth.js';
-import { generateInsight } from '../services/insights.js';
+import { generateInsight, monthDetails } from '../services/insights.js';
 import { llmEnabled } from '../services/llm.js';
 import { sendMail } from '../services/mailer.js';
 import { parseMonth, monthKey } from '../utils/dates.js';
@@ -25,7 +25,9 @@ router.get(
     const month = parseMonth(req.params.month);
     let insight = await Insight.findOne({ user: req.user._id, month });
     if (!insight) insight = await generateInsight(req.user, month);
-    res.json({ insight, aiEnabled: llmEnabled() });
+    // The score, categories, habits and budgets beside the summary.
+    const details = await monthDetails(req.user, month);
+    res.json({ insight, details, aiEnabled: llmEnabled() });
   })
 );
 
@@ -77,7 +79,7 @@ router.post(
       sent: result.sent,
       message: result.sent
         ? `Summary sent to ${to}`
-        : 'SMTP is not configured on this server, so nothing was emailed. The summary is below instead.',
+        : 'Email could not be sent to that address, so nothing went out. The summary is below instead.',
       preview: result.sent ? undefined : body,
     });
   })
