@@ -1475,3 +1475,106 @@
 
 /* The page ends on white, not the app's black frame. */
 body:has(.lp) { background: var(--surface); }
+
+/* --- Headline fits its column ---------------------------------------------- */
+.lp-hero h1 { font-size: clamp(2.3rem, 4.4vw, 3.9rem); }
+.lp-hero h1 em { white-space: nowrap; }
+.lp-hero h1 em {
+  background: linear-gradient(90deg, #5b91ff, #a9c5ff, #5b91ff);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: lp-shine 6s linear infinite;
+}
+@keyframes lp-shine { to { background-position: -200% 0; } }
+
+/* --- The facts strip ------------------------------------------------------- */
+.lp-stats { padding: 3.2rem 0 1rem; }
+.lp-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.lp-stat {
+  padding: 1.4rem 1.3rem;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: linear-gradient(160deg, #f5f8ff, #fff 60%);
+}
+.lp-stat strong { display: block; font-size: clamp(2.4rem, 4vw, 3.4rem); font-weight: 800; letter-spacing: -0.05em; line-height: 1; color: #121214; }
+.lp-stat strong span { background: linear-gradient(135deg, #121214 30%, #5b91ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lp-stat > span { display: block; margin-top: 0.5rem; font-size: 0.95rem; color: var(--muted); line-height: 1.4; }
+@media (max-width: 820px) { .lp-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* --- Meet Coin --------------------------------------------------------------- */
+.lp-coin {
+  padding: clamp(4rem, 8vw, 6.5rem) 0;
+  color: #fff;
+  background:
+    radial-gradient(60% 80% at 90% 20%, rgba(91, 145, 255, 0.35), transparent 60%),
+    radial-gradient(40% 60% at 5% 90%, rgba(167, 139, 250, 0.18), transparent 70%),
+    #0c0c0e;
+  overflow: hidden;
+}
+.lp-coin-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; align-items: center; }
+@media (max-width: 900px) { .lp-coin-grid { grid-template-columns: minmax(0, 1fr); } }
+.lp-coin .lp-h2 { color: #fff; }
+.lp-coin .lp-h2 em { font-style: normal; color: #5b91ff; }
+.lp-coin p { color: #b8bcc8; font-size: 1.08rem; line-height: 1.65; max-width: 34rem; }
+.lp-coin-points { list-style: none; padding: 0; margin: 1.4rem 0 2rem; display: grid; gap: 0.8rem; }
+.lp-coin-points li { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: #eef0f5; }
+.lp-coin-points img { padding: 6px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); box-sizing: content-box; }
+
+.lp-talk {
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+.lp-talk-head { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.lp-talk-face { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #fff; }
+.lp-talk-head > span:last-child { display: grid; line-height: 1.3; }
+.lp-talk-head strong { color: #fff; }
+.lp-talk-head small { color: #a1a1aa; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem; }
+.lp-talk-head small i { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; }
+.lp-talk-log { display: flex; flex-direction: column; gap: 0.7rem; padding: 1.3rem; min-height: 420px; }
+.lp-msg {
+  max-width: 82%;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 20px;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  animation: lp-msg 0.4s cubic-bezier(0.2, 1.1, 0.3, 1) backwards;
+}
+.lp-coin p.lp-msg { color: inherit; max-width: 82%; font-size: 0.98rem; }
+.lp-msg.is-me { align-self: flex-end; background: #5b91ff; color: #fff; border-top-right-radius: 6px; }
+.lp-msg.is-coin { align-self: flex-start; background: rgba(255, 255, 255, 0.1); color: #eef0f5; border-top-left-radius: 6px; }
+.lp-msg.is-typing { display: inline-flex; gap: 5px; padding: 0.95rem 1.1rem; }
+.lp-msg.is-typing i { width: 7px; height: 7px; border-radius: 50%; background: #a9c5ff; animation: lp-dot 1s ease-in-out infinite; }
+.lp-msg.is-typing i:nth-child(2) { animation-delay: 0.15s; }
+.lp-msg.is-typing i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes lp-msg { from { opacity: 0; transform: translateY(10px) scale(0.96); } }
+@keyframes lp-dot { 50% { transform: translateY(-4px); opacity: 0.5; } }
+
+/* --- A bolder closing section ------------------------------------------------ */
+.lp-cta {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(70% 90% at 50% 0%, rgba(91, 145, 255, 0.45), transparent 60%),
+    #121214;
+  border-top: 0;
+}
+.lp-cta .lp-h2 { color: #fff; }
+.lp-cta .lp-lead { color: #b8bcc8; }
+.lp-cta .lp-eyebrow { color: #a9c5ff; }
+.lp-cta .lp-btn-solid { background: #5b91ff; border-color: #5b91ff; color: #fff; }
+.lp-cta .lp-btn:not(.lp-btn-solid) { background: rgba(255, 255, 255, 0.1); color: #fff; border-color: rgba(255, 255, 255, 0.2); }
+.lp-cta-mark { background: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-hero h1 em, .lp-msg, .lp-msg.is-typing i { animation: none; }
+}
+.lp-coin .lp-h2 { margin-bottom: 1.2rem; }
+.lp-coin .lp-btn-solid { background: #5b91ff; border-color: #5b91ff; color: #fff; box-shadow: 0 14px 30px -12px rgba(91, 145, 255, 0.7); }

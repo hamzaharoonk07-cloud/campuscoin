@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon, { BrandMark, Wordmark } from '../components/Icon.jsx';
 import { SITEMAP } from './Sitemap.jsx';
-import { ArtIcon, ChartArt, ChatArt, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
+import { ArtIcon, artUrl, ChartArt, ChatArt, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
+import CoinBot from '../components/CoinBot.jsx';
 import '../styles/landing.css';
 
 /* ---------------------------------------------------------------------------
@@ -10,9 +11,8 @@ import '../styles/landing.css';
 
    Calm and plain on purpose: one clear promise at the top, the real app shown
    rather than described, and every section answering one question a student
-   would actually ask before signing up. Every figure and screenshot comes
-   from the seeded demo account, and the credentials further down let anyone
-   sign in and check it.
+   would actually ask before signing up. The figures and screenshots come
+   from the app itself.
 --------------------------------------------------------------------------- */
 
 /** Adds `is-in` to each [data-reveal] element as it scrolls into view. */
@@ -258,11 +258,109 @@ const STEPS = [
   ['03', 'Read your month', 'Budgets, reports, a plain-language summary and tips ranked by what they would save you.'],
 ];
 
-const CREDS = [
-  ['Student', 'student@campuscoin.app', 'Student@12345', '/login'],
-  ['Student', 'bilal@campuscoin.app', 'Student@12345', '/login'],
-  ['Administrator', 'admin@campuscoin.app', 'Admin@12345', '/admin/login'],
+// Plain facts about the product, counted up when they come into view.
+const STATS = [
+  [12, '', 'categories ready on day one'],
+  [3, '', 'ways to add: type, scan or import'],
+  [2, '', 'budget alerts: at 80% and at 100%'],
+  [0, '', 'bank details needed, ever'],
 ];
+
+/** Counts from 0 to the value the first time the number scrolls into view. */
+function CountOnView({ to }) {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !('IntersectionObserver' in window) || to === 0) return undefined;
+    const io = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      io.disconnect();
+      const start = performance.now();
+      const tick = (now) => {
+        const p = Math.min(1, (now - start) / 900);
+        setShown(Math.round(to * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [to]);
+  return <span ref={ref}>{shown}</span>;
+}
+
+// A conversation with Coin, played message by message.
+const TALK = [
+  ['me', 'How much did I spend on food this month?'],
+  ['coin', 'Rs 10,941 on Food in September - 7% more than your usual month, and Rs 1,941 over its budget.'],
+  ['me', 'Can I afford a Rs 2,500 concert ticket?'],
+  ['coin', 'You have Rs 3,200 left to spend this month. It fits, but it would leave Rs 700 for the last 6 days.'],
+  ['me', 'Where can I save?'],
+  ['coin', 'Food delivery rose 40%. A weekly cap of Rs 1,800 would save about Rs 2,100 a month.'],
+];
+
+/** The chat showcase: messages appear one after another once it is in view. */
+function CoinTalk() {
+  const ref = useRef(null);
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    let timer;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !('IntersectionObserver' in window)) {
+      setCount(TALK.length);
+      return undefined;
+    }
+    const io = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      io.disconnect();
+      let n = 0;
+      const next = () => {
+        n += 1;
+        setCount(n);
+        if (n < TALK.length) timer = setTimeout(next, n % 2 ? 1300 : 900);
+      };
+      timer = setTimeout(next, 300);
+    }, { threshold: 0.35 });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      clearTimeout(timer);
+    };
+  }, []);
+  const typing = count < TALK.length && count > 0 && TALK[count][0] === 'coin';
+  return (
+    <div className="lp-talk" ref={ref} aria-label="An example conversation with Coin">
+      <div className="lp-talk-head">
+        <span className="lp-talk-face">
+          <CoinBot size={36} bubble={false} />
+        </span>
+        <span>
+          <strong>Coin</strong>
+          <small>
+            <i /> Online - answers from your own money
+          </small>
+        </span>
+      </div>
+      <div className="lp-talk-log">
+        {TALK.slice(0, count).map(([who, text], i) => (
+          <p key={i} className={`lp-msg is-${who}`}>
+            {text}
+          </p>
+        ))}
+        {typing ? (
+          <p className="lp-msg is-coin is-typing" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 const FAQ = [
   [
@@ -313,7 +411,7 @@ export default function Landing() {
           <div className="lp-nav-links">
             <a href="#features">Features</a>
             <a href="#how">How it works</a>
-            <a href="#demo">Demo</a>
+            <a href="#coin">Meet Coin</a>
             <a href="#faq">Help</a>
             <Link to="/login">Sign in</Link>
           </div>
@@ -367,10 +465,10 @@ export default function Landing() {
                 Start tracking
                 <Icon name="arrow-ne" size={16} />
               </Link>
-              <Link to="/login" className="lp-text-link">
-                Try the demo
+              <a href="#how" className="lp-text-link">
+                See how it works
                 <Icon name="right" size={16} />
-              </Link>
+              </a>
             </div>
             <ul className="lp-facts">
               <li>
@@ -404,7 +502,7 @@ export default function Landing() {
           </div>
 
           {/* The app, layered: the desktop dashboard behind, the phone in front,
-              and cards carrying the demo account's real figures. Each layer
+              and cards with figures from the app. Each layer
               has its own depth, so they drift apart as the pointer moves. */}
           <div className="lp-stage" aria-hidden="true">
             <span className="lp-orbit lp-orbit-a">
@@ -475,6 +573,20 @@ export default function Landing() {
         </div>
       </section>
 
+      <section className="lp-stats" aria-label="Campus Coin in numbers">
+        <div className="lp-wrap lp-stats-grid">
+          {STATS.map(([n, suffix, label]) => (
+            <div className="lp-stat" key={label} data-reveal>
+              <strong>
+                <CountOnView to={n} />
+                {suffix}
+              </strong>
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="lp-section" id="features">
         <div className="lp-wrap">
           <div className="lp-head-split" data-reveal>
@@ -523,8 +635,8 @@ export default function Landing() {
                   </li>
                 ))}
               </ul>
-              <Link to="/login" className="lp-text-link">
-                Try it in the demo
+              <Link to="/register" className="lp-text-link">
+                Start free
                 <Icon name="right" size={16} />
               </Link>
             </div>
@@ -621,8 +733,8 @@ export default function Landing() {
             </h3>
             <p>Describe a purchase the way you would say it and the category fills itself in. Correct it once and it learns your words.</p>
             <TypingFlow />
-            <Link to="/login" className="lp-text-link">
-              See the categoriser
+            <Link to="/register" className="lp-text-link">
+              Try it free
               <Icon name="right" size={16} />
             </Link>
           </article>
@@ -652,8 +764,8 @@ export default function Landing() {
                 Savings
               </span>
             </div>
-            <Link to="/login" className="lp-text-link">
-              Explore the reports
+            <Link to="/register" className="lp-text-link">
+              Get started
               <Icon name="right" size={16} />
             </Link>
           </article>
@@ -683,44 +795,36 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="lp-band" id="demo">
-        <div className="lp-wrap">
-          <div className="lp-head-split" data-reveal>
-            <div>
-              <span className="lp-eyebrow">Try before you sign up</span>
-              <h2 className="lp-h2 is-light">
-                Real data.
-                <br />
-                Real accounts.
-              </h2>
-            </div>
-            <a href="#sitemap" className="lp-text-link">
-              See every page
-              <Icon name="right" size={16} />
-            </a>
+      <section className="lp-coin" id="coin">
+        <div className="lp-wrap lp-coin-grid">
+          <div data-reveal>
+            <span className="lp-eyebrow is-sky">Meet Coin</span>
+            <h2 className="lp-h2 is-light">
+              Ask your money
+              <br />
+              <em>anything.</em>
+            </h2>
+            <p>
+              Coin is the assistant inside Campus Coin. Ask in plain words and it answers from your own transactions -
+              what you spent, what is left, whether something fits, and where the easy savings are.
+            </p>
+            <ul className="lp-coin-points">
+              <li>
+                <img src={artUrl('speech-balloon')} alt="" width="26" height="26" /> Plain questions, plain answers
+              </li>
+              <li>
+                <img src={artUrl('bar-chart')} alt="" width="26" height="26" /> Every figure comes from your own data
+              </li>
+              <li>
+                <img src={artUrl('light-bulb')} alt="" width="26" height="26" /> Advice worth real money, not rules of thumb
+              </li>
+            </ul>
+            <Link to="/register" className="lp-btn lp-btn-solid">
+              Start chatting with Coin
+              <Icon name="arrow-ne" size={16} />
+            </Link>
           </div>
-          <div className="lp-creds">
-            {CREDS.map(([role, email, password, to]) => (
-              <article className="lp-cred" key={email} data-reveal>
-                <span className="lp-cred-role">{role}</span>
-                <dl>
-                  <div>
-                    <dt>Email</dt>
-                    <dd>{email}</dd>
-                  </div>
-                  <div>
-                    <dt>Password</dt>
-                    <dd>{password}</dd>
-                  </div>
-                </dl>
-                <Link to={to} className="lp-text-link">
-                  Sign in as {role.toLowerCase()}
-                  <Icon name="right" size={16} />
-                </Link>
-              </article>
-            ))}
-          </div>
-          <p className="lp-note">Six months of history is already in the demo accounts, so every chart has something to show.</p>
+          <CoinTalk />
         </div>
       </section>
 
