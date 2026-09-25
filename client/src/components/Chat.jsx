@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from './Icon.jsx';
 import Avatar from './Avatar.jsx';
-import { ArtIcon } from './Illustrations.jsx';
+import { ArtIcon, artUrl } from './Illustrations.jsx';
 import CoinBot from './CoinBot.jsx';
 import { api } from '../lib/api.js';
 import { slotColor } from '../lib/format.js';
@@ -28,6 +28,17 @@ const saveHistory = (messages) => {
   } catch {
     /* private mode - the chat still works, it just will not survive navigation */
   }
+};
+
+/** The picture for a suggested question, from the words in it. */
+const chipArt = (text) => {
+  const t = text.toLowerCase();
+  if (/budget|within|cap/.test(t)) return 'bullseye';
+  if (/tip|save|saving/.test(t)) return 'light-bulb';
+  if (/where|go|categor/.test(t)) return 'bar-chart';
+  if (/food|eat/.test(t)) return 'hamburger';
+  if (/afford|can i/.test(t)) return 'money-bag';
+  return 'chart-increasing';
 };
 
 /** One assistant reply: the sentence, then any figures and a link to go deeper. */
@@ -87,6 +98,8 @@ export default function Chat({ compact = false, question = null, onAsked }) {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, busy, opening]);
 
+  const chips = opening?.chips || [];
+
   const ask = async (text) => {
     const question = text.trim();
     if (!question || busy) return;
@@ -119,7 +132,6 @@ export default function Chat({ compact = false, question = null, onAsked }) {
   }, [question]);
 
   const clear = () => setMessages([]);
-  const chips = opening?.chips || [];
 
   return (
     <div className={`chat${compact ? ' is-compact' : ''}`}>
@@ -162,6 +174,20 @@ export default function Chat({ compact = false, question = null, onAsked }) {
           </div>
         )}
 
+        {opening && messages.length === 0 && chips.length ? (
+          <div className="chat-start">
+            <span className="chat-start-label">Try asking</span>
+            <div className="chat-start-grid">
+              {chips.slice(0, 4).map((chip) => (
+                <button key={chip} type="button" onClick={() => ask(chip)} disabled={busy}>
+                  <img src={artUrl(chipArt(chip))} alt="" width="28" height="28" />
+                  <span>{chip}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {messages.map((message, i) => (
           // eslint-disable-next-line react/no-array-index-key -- messages are append-only
           <div key={i} className={`chat-msg ${message.from === 'me' ? 'is-me' : 'is-bot'}`}>
@@ -179,7 +205,7 @@ export default function Chat({ compact = false, question = null, onAsked }) {
         {busy ? (
           <div className="chat-msg is-bot">
             <span className="chat-avatar is-bot" aria-hidden="true">
-              <CoinBot size={30} bubble={false} />
+              <CoinBot size={30} bubble={false} talking />
             </span>
             <div className="chat-bubble">
               <span className="chat-typing" aria-label="Thinking">
@@ -192,7 +218,7 @@ export default function Chat({ compact = false, question = null, onAsked }) {
         ) : null}
       </div>
 
-      {chips.length ? (
+      {chips.length && messages.length ? (
         <div className="chat-chips" role="group" aria-label="Suggested questions">
           {chips.map((chip) => (
             <button key={chip} type="button" className="chip" onClick={() => ask(chip)} disabled={busy}>

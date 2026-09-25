@@ -2,7 +2,7 @@ import Budget from '../models/Budget.js';
 import Notification from '../models/Notification.js';
 import { byCategory } from './analytics.js';
 import { startOfMonth } from '../utils/dates.js';
-import { round2 } from '../utils/money.js';
+import { formatMoney, round2 } from '../utils/money.js';
 
 // ---------------------------------------------------------------------------
 // Budget alerts
@@ -41,6 +41,7 @@ export async function checkBudgets(user, month) {
       continue;
     }
 
+    const fmt = (n) => formatMoney(round2(n), user.currency || 'PKR');
     const notification = await Notification.create({
       user: user._id,
       kind: level === 100 ? 'budget-exceeded' : 'budget-warning',
@@ -50,8 +51,8 @@ export async function checkBudgets(user, month) {
           : `${budget.category.name} is at ${pct}% of its budget`,
       body:
         level === 100
-          ? `You have spent ${round2(used)} against a ${round2(budget.limitAmount)} cap - ${round2(used - budget.limitAmount)} over.`
-          : `${round2(budget.limitAmount - used)} of your ${round2(budget.limitAmount)} cap is left for the rest of the month.`,
+          ? `You have spent ${fmt(used)} against a ${fmt(budget.limitAmount)} cap - ${fmt(used - budget.limitAmount)} over.`
+          : `${fmt(budget.limitAmount - used)} of your ${fmt(budget.limitAmount)} cap is left for the rest of the month.`,
       link: '/budgets',
     });
 

@@ -3,6 +3,7 @@ import Category from '../models/Category.js';
 import Transaction from '../models/Transaction.js';
 import Budget from '../models/Budget.js';
 import Announcement from '../models/Announcement.js';
+import Notification from '../models/Notification.js';
 import { DEFAULT_CATEGORIES } from './defaults.js';
 import { learn } from '../services/categorizer.js';
 import { refreshTips } from '../services/tips.js';
@@ -208,6 +209,9 @@ async function seedHistory(user, categories, seed) {
 
 /** Runs on first boot. Safe to call repeatedly - it only fills what is missing. */
 export async function seedIfEmpty() {
+  // Announcements the automated test posted before notifications were linked
+  // to their announcement were never taken back out of the bells; clear them.
+  await Notification.deleteMany({ kind: 'announcement', title: /^E2E /, announcement: { $exists: false } });
   const categories = await seedCategories();
 
   const admin = await createUser({

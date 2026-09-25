@@ -5,6 +5,7 @@ import Icon, { BrandMark } from './Icon.jsx';
 import CoinBot from './CoinBot.jsx';
 import Chat from './Chat.jsx';
 import WelcomeBack from './WelcomeBack.jsx';
+import Notifications from './Notifications.jsx';
 import Avatar from './Avatar.jsx';
 import { api } from '../lib/api.js';
 import { useAuth, useTheme } from '../context/AppContext.jsx';
@@ -79,76 +80,6 @@ let lastRailSpot = null;
 
 /** The five destinations that earn a place in the phone tab bar. */
 const TAB_NAV = STUDENT_NAV.slice(0, 5);
-
-function Bell() {
-  const [open, setOpen] = useState(false);
-  const [state, setState] = useState({ notifications: [], unread: 0 });
-  const holder = useRef(null);
-
-  const load = useCallback(() => {
-    api
-      .get('/notifications')
-      .then(setState)
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    load();
-    const timer = setInterval(load, 60000);
-    return () => clearInterval(timer);
-  }, [load]);
-
-  // Clicking anywhere else closes the panel.
-  useEffect(() => {
-    if (!open) return undefined;
-    const close = (event) => {
-      if (!holder.current?.contains(event.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
-  }, [open]);
-
-  const openPanel = async () => {
-    setOpen((was) => !was);
-    if (!open && state.unread > 0) {
-      await api.post('/notifications/read', {}).catch(() => {});
-      setState((current) => ({ ...current, unread: 0 }));
-    }
-  };
-
-  return (
-    <div className="has-menu" ref={holder}>
-      <button
-        type="button"
-        className="icon-btn"
-        onClick={openPanel}
-        aria-expanded={open}
-        aria-label={state.unread ? `Alerts, ${state.unread} unread` : 'Alerts'}
-      >
-        <Icon name="bell" />
-        {state.unread > 0 && <span className="badge-count">{state.unread > 9 ? '9+' : state.unread}</span>}
-      </button>
-
-      {open && (
-        <div className="menu">
-          {state.notifications.length === 0 ? (
-            <div className="menu-item">
-              <strong>Nothing to report</strong>
-              <span>Budget warnings and unusual transactions will show up here.</span>
-            </div>
-          ) : (
-            state.notifications.slice(0, 8).map((note) => (
-              <div key={note._id} className={`menu-item${note.read ? '' : ' is-unread'}`}>
-                <strong>{note.title}</strong>
-                <span>{note.body}</span>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 /**
  * The picture in the top bar opens a small menu with the account's name,
@@ -313,8 +244,10 @@ function ChatLauncher() {
               <i className="chat-online" />
             </span>
             <div style={{ marginRight: 'auto' }}>
-              <strong>Coin, your money assistant</strong>
-              <span>Online · answers from your own transactions</span>
+              <strong>Coin</strong>
+              <span>
+                <i className="chat-online-dot" /> Online · answers from your own money
+              </span>
             </div>
             <button type="button" className="icon-btn" onClick={() => setOpen(false)} aria-label="Close the assistant">
               <Icon name="x" size={16} />
@@ -395,6 +328,13 @@ export default function Layout({ title, subtitle, crumbs, actions, children }) {
       {/* A thin bar that sweeps across the top as each page opens. */}
       <span className="route-progress" aria-hidden="true" />
 
+      {/* Soft blue lights drifting through the frame (styles/live.css). */}
+      <div className="app-glow" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+
       <nav className="rail" aria-label="Main" ref={rail}>
         <span className="rail-indicator" ref={indicator} aria-hidden="true" />
         <Link to={isAdmin ? '/admin' : '/dashboard'} className="rail-brand" aria-label="Campus Coin home">
@@ -438,7 +378,7 @@ export default function Layout({ title, subtitle, crumbs, actions, children }) {
           </div>
           {!isAdmin && <RailSearch />}
           {actions}
-          {!isAdmin && <Bell />}
+          {!isAdmin && <Notifications />}
           <ThemeButton />
           <AccountMenu onSignOut={signOut} />
         </header>

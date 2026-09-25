@@ -13,6 +13,8 @@ const notificationSchema = new mongoose.Schema(
     title: { type: String, required: true },
     body: { type: String, default: '' },
     link: { type: String, default: '' },
+    // The announcement this came from, so removing the announcement removes it too.
+    announcement: { type: mongoose.Schema.Types.ObjectId, ref: 'Announcement', index: true },
     read: { type: Boolean, default: false, index: true },
   },
   { timestamps: true }

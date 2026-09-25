@@ -281,6 +281,7 @@ router.post(
             kind: 'announcement',
             title: announcement.title,
             body: announcement.body,
+            announcement: announcement._id,
           }))
         );
       }
@@ -308,6 +309,8 @@ router.delete(
   '/announcements/:id',
   wrap(async (req, res) => {
     await Announcement.findByIdAndDelete(req.params.id);
+    // Take it out of every student's bell as well.
+    await Notification.deleteMany({ announcement: req.params.id });
     res.json({ message: 'Announcement removed' });
   })
 );

@@ -27,6 +27,15 @@ router.post(
   })
 );
 
+/** Clears every notification (the "Clear all" link). */
+router.delete(
+  '/',
+  wrap(async (req, res) => {
+    const result = await Notification.deleteMany({ user: req.user._id });
+    res.json({ cleared: result.deletedCount });
+  })
+);
+
 router.delete(
   '/:id',
   wrap(async (req, res) => {
