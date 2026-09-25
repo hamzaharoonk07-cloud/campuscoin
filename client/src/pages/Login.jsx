@@ -137,7 +137,7 @@ export default function Login() {
               <BrandMark size={36} />
             </span>
             <span className="eyebrow">Welcome back</span>
-            <h1>Sign in to your hisab</h1>
+            <h1>Sign in to Campus Coin</h1>
             <p>Pick up where you left off: your month, your budgets and your tips.</p>
           </div>
 

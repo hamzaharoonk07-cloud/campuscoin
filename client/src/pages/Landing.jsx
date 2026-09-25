@@ -575,7 +575,7 @@ export default function Landing() {
               <br />
               One semester.
               <br />
-              <em>One clear hisab.</em>
+              <em>One clear picture.</em>
             </h2>
             <p>
               An allowance that turns up when it turns up, a bit of tutoring money, a scholarship instalment if you
@@ -757,7 +757,7 @@ export default function Landing() {
           <h2 className="lp-h2 is-light">
             Good semesters start
             <br />
-            with a clear hisab.
+            with a clear plan.
           </h2>
           <p className="lp-lead">Six months from now, you will know exactly where it went.</p>
           <div className="lp-actions is-center">
