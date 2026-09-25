@@ -293,3 +293,21 @@
   .shell.is-rail-open { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) { .shell { transition: none; } }
+
+/* --- Nothing hides under the chat button ------------------------------------ */
+
+/* Room at the foot of every page, so the last card can scroll clear of the
+   floating chat button (and the phone tab bar). */
+.page { padding-bottom: 6.5rem; }
+@media (max-width: 900px) { .page { padding-bottom: 9rem; } }
+
+/* While the page scrolls, the button slides down out of the way. */
+.chat-fab { transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out), box-shadow 0.3s var(--ease); }
+.chat-fab.is-tucked { transform: translateY(140%); opacity: 0; pointer-events: none; }
+@media (max-width: 900px) {
+  .chat-fab { width: 52px; height: 52px; }
+  .chat-fab svg { width: 40px; height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-fab.is-tucked { transform: none; opacity: 0.25; }
+}

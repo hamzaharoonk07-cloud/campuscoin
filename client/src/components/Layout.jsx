@@ -209,6 +209,22 @@ function ChatLauncher() {
   const location = useLocation();
   // A short "need help?" bubble, once per browser session, then never again.
   const [hint, setHint] = useState(false);
+  // The button tucks away while the page scrolls, so it never sits on top of
+  // what the student is reading, and comes back once scrolling stops.
+  const [tucked, setTucked] = useState(false);
+  useEffect(() => {
+    let timer;
+    const onScroll = () => {
+      setTucked(true);
+      clearTimeout(timer);
+      timer = setTimeout(() => setTucked(false), 700);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(timer);
+    };
+  }, []);
   useEffect(() => {
     let seen = true;
     try {
@@ -275,7 +291,7 @@ function ChatLauncher() {
       ) : null}
       <button
         type="button"
-        className={`chat-fab${open ? ' is-open' : ''}`}
+        className={`chat-fab${open ? ' is-open' : ''}${tucked && !open ? ' is-tucked' : ''}`}
         onClick={() => {
           setHint(false);
           setOpen((was) => !was);
