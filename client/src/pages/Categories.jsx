@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
+import { TagsArt } from '../components/Illustrations.jsx';
 import { Modal } from '../components/TransactionForm.jsx';
 import { api } from '../lib/api.js';
 import { slotColor } from '../lib/format.js';
@@ -140,6 +141,7 @@ export default function Categories() {
         <div className="panel-body">
           {mine.length === 0 ? (
             <div className="empty">
+              <TagsArt />
               <h3>You have not added any yet</h3>
               <p>
                 The shared categories below cover most student spending. Add your own when something does not fit -

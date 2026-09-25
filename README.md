@@ -202,6 +202,24 @@ only if `ANTHROPIC_API_KEY` is set, together with a sheet of already-computed
 facts and an instruction to use nothing else. The conversation is kept in the
 browser tab and is never stored on the server.
 
+**Scanning a receipt** is the SRS's optional OCR. In the add-transaction form
+a student takes or drops a photo of a receipt (or tries one of the two samples
+in `client/public/samples`). The photo is shrunk in the browser and read with
+Tesseract OCR, also in the browser - no API key and nothing is uploaded to be
+read. Plain rules in `client/src/lib/receipt.js` then pick out the amount paid
+(preferring "grand total", "net payable" and "total" lines and ignoring
+subtotal, tax, cash and change), the shop and the date, fill the form, and let
+the categoriser suggest the category. The student checks everything before
+saving. A compressed copy of the photo is kept with the transaction and is only
+fetched when someone opens it. The first scan on a device downloads the OCR
+engine and English data (about 3 MB) from a CDN, so it needs an internet
+connection once.
+
+**Profile photos** are uploaded from Settings, cropped square and shrunk to
+about 20 KB in the browser, and shown in the sidebar, the chat and the
+administrator's student list. The server accepts only JPEG, PNG or WebP and
+checks the size of every picture (`server/src/utils/images.js`).
+
 **The saving tips** are not AI at all. Each rule compares this month against the
 student's own three-month average and states how much money the advice is worth
 per month; the list is ranked by that figure. No tip is generic — every one
@@ -234,6 +252,11 @@ The interface is written rather than assembled. A few decisions worth naming:
   the same tokens, so the page you arrive on and the app you sign into are
   visibly one product. The layout was modelled on the style of the Hisab Kitab
   expense app; the code and all the copy are our own.
+- **Illustrations are drawn in code** (`client/src/components/Illustrations.jsx`):
+  a wallet, a budget gauge, a receipt being scanned, a chart, a coin sprout,
+  chat bubbles, tags and a megaphone. They are SVG built from the same colour
+  tokens as everything else, so they recolour with the theme, stay sharp at any
+  size and cost no downloads.
 - **Motion explains, it does not decorate** (`client/src/styles/motion.css`).
   Sections arrive top to bottom, charts draw themselves (the donut sweeps in
   ranked order, lines trace, bars grow), headline figures count up, and budget

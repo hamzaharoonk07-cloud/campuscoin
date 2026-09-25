@@ -222,3 +222,95 @@
   .photo-picker { flex-direction: column; text-align: center; }
   .photo-copy .row { justify-content: center; }
 }
+
+/* --- Illustrations -------------------------------------------------------- */
+
+.ill { display: block; width: 100%; max-width: 240px; height: auto; margin-inline: auto; overflow: visible; }
+.ill-sm { max-width: 150px; }
+
+.ill .ill-float { animation: ill-bob 5s ease-in-out infinite; }
+@keyframes ill-bob {
+  50% { translate: 0 -6px; }
+}
+.ill .ill-twinkle { transform-box: fill-box; transform-origin: center; animation: ill-twinkle 2.6s ease-in-out infinite; }
+@keyframes ill-twinkle {
+  0%, 100% { opacity: 0.25; scale: 0.7; }
+  50% { opacity: 1; scale: 1.1; }
+}
+.ill .ill-grow { transform-box: fill-box; transform-origin: bottom; animation: ill-grow 0.9s var(--ease-out) backwards; }
+@keyframes ill-grow {
+  from { scale: 1 0; }
+}
+.ill .ill-draw { stroke-dasharray: 1; animation: ill-draw 1.4s var(--ease-out) 0.3s backwards; }
+/* The gauge arc is only partly filled, so it grows to its own length. */
+.ill path.ill-draw[stroke-dasharray] { stroke-dasharray: 0.72 1; animation-name: ill-draw-partial; }
+@keyframes ill-draw {
+  from { stroke-dashoffset: 1; }
+}
+@keyframes ill-draw-partial {
+  from { stroke-dasharray: 0 1; }
+}
+.ill .ill-scan { animation: ill-scan 2.2s ease-in-out infinite; }
+@keyframes ill-scan {
+  0%, 100% { translate: 0 0; opacity: 0.9; }
+  50% { translate: 0 58px; opacity: 0.5; }
+}
+.ill .ill-pop { transform-box: fill-box; transform-origin: center; animation: ill-pop 2.8s var(--ease-out) infinite; }
+@keyframes ill-pop {
+  0% { scale: 0.4; opacity: 0; }
+  15%, 85% { scale: 1; opacity: 1; }
+  100% { scale: 1; opacity: 0; }
+}
+.ill .ill-sway { transform-box: fill-box; transform-origin: bottom center; animation: ill-sway 4s ease-in-out infinite; }
+@keyframes ill-sway {
+  50% { rotate: 5deg; }
+}
+.ill .ill-dot { animation: ill-dot 1.2s ease-in-out infinite; }
+@keyframes ill-dot {
+  50% { translate: 0 -4px; opacity: 0.6; }
+}
+.ill .ill-wave { animation: ill-wave 1.8s ease-out infinite; opacity: 0; }
+@keyframes ill-wave {
+  0% { opacity: 0; translate: -6px 0; }
+  40% { opacity: 1; }
+  100% { opacity: 0; translate: 8px 0; }
+}
+.ill .ill-needle { transform-box: view-box; transform-origin: 120px 128px; animation: ill-needle 3.5s ease-in-out infinite; }
+@keyframes ill-needle {
+  0%, 100% { rotate: -110deg; }
+  45%, 70% { rotate: 0deg; }
+}
+
+/* Empty states carry an illustration above their words. */
+.empty .ill { margin-bottom: 0.5rem; max-width: 190px; }
+
+/* A panel headed by an illustration. */
+.art-panel { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 1rem; align-items: center; }
+.art-panel .ill { max-width: 150px; }
+@media (max-width: 560px) {
+  .art-panel { grid-template-columns: minmax(0, 1fr); text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ill * { animation: none !important; }
+}
+
+/* The tips band carries its illustration on the right. */
+.band:has(.band-art) { grid-template-columns: minmax(0, auto) minmax(0, 1fr) 180px; }
+.band-art { order: 3; }
+.band-art .ill { max-width: 180px; }
+@media (max-width: 900px) {
+  .band-art { display: none; }
+  .band:has(.band-art) { grid-template-columns: minmax(0, 1fr); }
+}
+
+.receipt-promo { background: linear-gradient(135deg, var(--tile-in), var(--surface) 70%); }
+
+/* Landing: a picture above each of the three steps. */
+.lp-step-art {
+  margin: -0.5rem 0 1rem;
+  padding: 0.75rem;
+  border-radius: 20px;
+  background: linear-gradient(160deg, var(--tile-in), var(--raised));
+}
+.lp-step-art .ill { max-width: 200px; }

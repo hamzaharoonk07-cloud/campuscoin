@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import Chat from '../components/Chat.jsx';
+import { ChatArt } from '../components/Illustrations.jsx';
 import { CountNumber } from '../components/CountUp.jsx';
 import { api } from '../lib/api.js';
 import { slotColor } from '../lib/format.js';
@@ -135,6 +136,7 @@ export default function Assistant() {
               <h3>How it works</h3>
             </div>
             <div className="panel-body stack">
+              <ChatArt />
               <p className="muted small">
                 There are three separate pieces, and only one of them can involve a language model.
               </p>

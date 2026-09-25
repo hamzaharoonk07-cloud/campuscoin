@@ -4,6 +4,7 @@ import Icon from '../../components/Icon.jsx';
 import { api } from '../../lib/api.js';
 import { formatDate } from '../../lib/format.js';
 import { useToast } from '../../context/AppContext.jsx';
+import { MegaphoneArt } from '../../components/Illustrations.jsx';
 
 const BLANK = { title: '', body: '', kind: 'announcement' };
 
@@ -70,6 +71,7 @@ export default function AdminAnnouncements() {
           <div className="panel-body">
             {items.length === 0 ? (
               <div className="empty">
+                <MegaphoneArt />
                 <h3>Nothing posted yet</h3>
                 <p>Announcements reach every student&rsquo;s alerts. Tip templates sit alongside their own tips.</p>
               </div>

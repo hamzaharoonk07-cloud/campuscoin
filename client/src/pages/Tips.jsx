@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
+import { SproutArt } from '../components/Illustrations.jsx';
 import { api } from '../lib/api.js';
 import { money, monthKey } from '../lib/format.js';
 import { useAuth, useToast } from '../context/AppContext.jsx';
@@ -80,6 +81,9 @@ export default function Tips() {
             <div className="band-amount num">{money(total, currency)}</div>
             <div className="band-sub">a month, counting only the biggest tip per category</div>
           </div>
+          <div className="band-art">
+            <SproutArt />
+          </div>
           <p className="muted" style={{ maxWidth: '52ch' }}>
             Every tip is built from your own transactions and carries an estimate of what it is worth. They are
             ordered by that estimate, so the one at the top is the one that moves the most money - not the easiest
@@ -99,6 +103,7 @@ export default function Tips() {
         <div className="panel-body">
           {tips.length === 0 ? (
             <div className="empty">
+              <SproutArt />
               <h3>Nothing to suggest yet</h3>
               <p>
                 Campus Coin builds every tip by comparing this month against your own history, so it needs a couple

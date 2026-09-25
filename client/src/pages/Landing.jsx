@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon, { BrandMark } from '../components/Icon.jsx';
 import { SITEMAP } from './Sitemap.jsx';
+import { ChartArt, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
 import '../styles/landing.css';
 
 /* ---------------------------------------------------------------------------
@@ -199,6 +200,16 @@ const TABS = [
     alt: 'The Campus Coin monthly report',
   },
   {
+    key: 'receipts',
+    label: 'Receipts',
+    eyebrow: 'Snap it',
+    title: 'A photo of the receipt is enough.',
+    body: 'Take a picture and Campus Coin reads the total, the shop and the date, then suggests the category. It all happens on your device, and the photo stays with the transaction for later.',
+    points: ['Finds the real total, not the subtotal', 'Reads the shop and the date', 'Keeps the photo with the entry'],
+    shot: '/shots/receipt.png',
+    alt: 'A receipt being scanned in the Campus Coin add-transaction form',
+  },
+  {
     key: 'assistant',
     label: 'Assistant',
     eyebrow: 'Ask it anything',
@@ -212,7 +223,7 @@ const TABS = [
 
 const STEPS = [
   ['01', 'Make an account', 'Name, email and your monthly allowance. No bank details and no card, ever.'],
-  ['02', 'Log as you go', 'Type what you bought and the category fills itself in. Or bring last term in from a CSV.'],
+  ['02', 'Log as you go', 'Type what you bought, snap the receipt, or bring last term in from a CSV. The category fills itself in.'],
   ['03', 'Read your month', 'Budgets, reports, a plain-language summary and tips ranked by what they would save you.'],
 ];
 
@@ -594,8 +605,9 @@ export default function Landing() {
             </h2>
           </div>
           <ol className="lp-steps">
-            {STEPS.map(([n, title, body]) => (
+            {STEPS.map(([n, title, body], i) => (
               <li key={n} data-reveal>
+                <div className="lp-step-art">{[<WalletArt key="w" />, <ReceiptArt key="r" />, <ChartArt key="c" />][i]}</div>
                 <span>{n}</span>
                 <h3>{title}</h3>
                 <p>{body}</p>

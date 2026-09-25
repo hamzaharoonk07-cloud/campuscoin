@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout, { MonthPicker } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import CountUp, { CountNumber } from '../components/CountUp.jsx';
+import { GaugeArt } from '../components/Illustrations.jsx';
 import { BudgetMeter } from '../components/Charts.jsx';
 import { api } from '../lib/api.js';
 import { money, monthKey, shiftMonth, slotColor } from '../lib/format.js';
@@ -113,6 +114,7 @@ export default function Budgets() {
               <div className="skeleton" style={{ height: 160 }} />
             ) : data.budgets.length === 0 ? (
               <div className="empty">
+                <GaugeArt />
                 <h3>No caps set for this month</h3>
                 <p>
                   Start with one. A single cap on the category you spend most on is the change students actually keep
@@ -146,6 +148,7 @@ export default function Budgets() {
             <h3>Add a cap</h3>
           </div>
           <div className="panel-body">
+            <GaugeArt label="A budget gauge filling up" />
             {available.length === 0 ? (
               <p className="muted small">Every expense category already has a cap this month.</p>
             ) : (

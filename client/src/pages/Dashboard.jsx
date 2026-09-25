@@ -8,6 +8,7 @@ import { api } from '../lib/api.js';
 import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
 import { useCountUp } from '../lib/useCountUp.js';
 import CountUp from '../components/CountUp.jsx';
+import { ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /* ---------------------------------------------------------------------------
@@ -214,6 +215,7 @@ export default function Dashboard() {
         <div className="panel-body">
           {recent.length === 0 ? (
             <div className="empty">
+              <WalletArt />
               <h3>Nothing logged yet</h3>
               <p>Start with the thing you bought most recently &mdash; it takes about five seconds.</p>
               <button type="button" className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => setAdding(true)}>
@@ -304,6 +306,23 @@ export default function Dashboard() {
         </section>
 
         <div className="stack">
+          <section className="panel receipt-promo">
+            <div className="panel-body art-panel">
+              <ReceiptArt />
+              <div className="stack" style={{ gap: '0.5rem' }}>
+                <span className="eyebrow">New</span>
+                <h3>Snap a receipt</h3>
+                <p className="small muted" style={{ margin: 0 }}>
+                  Take a photo and Campus Coin reads the amount, the shop and the date for you, right on this device.
+                </p>
+                <button type="button" className="btn btn-primary btn-sm" style={{ justifySelf: 'start' }} onClick={() => setAdding(true)}>
+                  <Icon name="camera" size={14} />
+                  Scan a receipt
+                </button>
+              </div>
+            </div>
+          </section>
+
           <section className="panel kpi">
             <div className="kpi-head">
               <span>Budget health</span>

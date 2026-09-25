@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
+import { WalletArt } from '../components/Illustrations.jsx';
 import ImportWizard from '../components/ImportWizard.jsx';
 import { api } from '../lib/api.js';
 import { dayHeading, formatDate, money, slotColor } from '../lib/format.js';
@@ -182,6 +183,7 @@ export default function Transactions() {
             <div className="skeleton" style={{ height: 240 }} />
           ) : result.transactions.length === 0 ? (
             <div className="empty">
+              <WalletArt />
               <h3>{active ? 'Nothing matches those filters' : 'No transactions yet'}</h3>
               <p>
                 {active
