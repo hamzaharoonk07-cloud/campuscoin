@@ -65,6 +65,8 @@ export default function ResetPassword() {
             Back to sign in
           </Link>
         </AuthTop>
+        {/* On a phone this becomes the white sheet, as on sign-in. */}
+        <div className="auth-sheet">
         <form className="auth-form" onSubmit={submit}>
           <div className="auth-head">
             <span className="auth-mark">
@@ -120,6 +122,7 @@ export default function ResetPassword() {
             </>
           )}
         </form>
+        </div>
       </div>
     </div>
   );

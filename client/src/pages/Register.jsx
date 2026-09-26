@@ -71,6 +71,8 @@ export default function Register() {
             </Link>
           </span>
         </AuthTop>
+        {/* On a phone this becomes the white sheet, as on sign-in. */}
+        <div className="auth-sheet">
         <form className="auth-form" onSubmit={submit}>
           <div className="auth-head">
             <span className="auth-mark">
@@ -169,6 +171,7 @@ export default function Register() {
             Already have an account? <Link to="/login">Sign in</Link>
           </p>
         </form>
+        </div>
       </div>
     </div>
   );

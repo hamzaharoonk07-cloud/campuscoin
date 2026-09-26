@@ -2825,7 +2825,10 @@ table.data tbody tr:last-child td { border-bottom: 0; }
     padding: 1.9rem 1.25rem 1.25rem;
     gap: 1.1rem;
   }
-  .auth-form {
+  /* Scoped to the sheet: this used to match every .auth-form, so a page with no
+     sheet around it (create account, forgot, reset, admin) lost its white card and
+     ended up dark ink on the dark ground. */
+  .auth-sheet .auth-form {
     width: 100%;
     max-width: none;
     margin-block: 0;

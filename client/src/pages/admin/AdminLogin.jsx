@@ -45,6 +45,8 @@ export default function AdminLogin() {
             Student sign-in
           </Link>
         </AuthTop>
+        {/* On a phone this becomes the white sheet, as on sign-in. */}
+        <div className="auth-sheet">
         <form className="auth-form" onSubmit={submit}>
           <div className="auth-head">
             <span className="auth-mark">
@@ -86,6 +88,7 @@ export default function AdminLogin() {
 
           <p className="auth-alt">Demo administrator: admin@campuscoin.app / Admin@12345</p>
         </form>
+        </div>
       </div>
     </div>
   );

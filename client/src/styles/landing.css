@@ -2237,3 +2237,53 @@ body:has(.lp) { background: var(--surface); }
 .lp-duo-card.is-grey h3 { color: var(--text); }
 .lp-duo-card.is-blue p,
 .lp-duo-card.is-grey p { color: var(--muted); }
+
+/* ===========================================================================
+   The hero on a phone - this block has to stay LAST in the file.
+   ---------------------------------------------------------------------------
+   The split layout's laptop-width rules (max-width 85rem and 75rem) are written
+   later than the original 62rem single-column rule, and a max-width query is
+   true at every narrower width too, so they were winning on a phone: the grid
+   went back to two columns, the headline was squeezed into about 130px and the
+   badge wrapped one word to a line while the laptop sat beside it. Declared
+   after them, this wins.
+   =========================================================================== */
+@media (max-width: 62rem) {
+  .lp-hero-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+    padding-block: 1.25rem 0;
+  }
+  .lp-hero-split .lp-hero-copy { align-items: center; text-align: center; }
+  .lp-hero-split .lp-badge { max-width: 100%; text-align: left; }
+  .lp-hero-split h1 { font-size: clamp(2rem, 8.6vw, 2.75rem); }
+  .lp-hero-split .lp-lead { margin-inline: auto; max-width: 30rem; }
+  .lp-hero-split .lp-actions { justify-content: center; width: 100%; }
+
+  /* The stage: the laptop centred and full width, the phone standing in front of
+     its lower-left corner. The floating cards are dropped - there is no room. */
+  .lp-hero-split .lp-devices { height: clamp(15rem, 66vw, 24rem); margin-top: 0.5rem; }
+  .lp-hero-split .lp-laptop {
+    left: 50%;
+    right: auto;
+    top: 0;
+    width: 96%;
+    translate: -50% 0;
+    animation-name: lp-laptop-in-mid;
+  }
+  @keyframes lp-laptop-in-mid { from { opacity: 0; translate: -50% 34px; } }
+  .lp-hero-split .lp-handset {
+    left: 4%;
+    right: auto;
+    top: 22%;
+    width: clamp(6.25rem, 26vw, 9rem);
+  }
+  .lp-hero-split .lp-chip-in,
+  .lp-hero-split .lp-chip-ask { display: none; }
+}
+@media (max-width: 30rem) {
+  /* Below 480px the two buttons stack, full width, so neither wraps inside itself. */
+  .lp-hero-split .lp-actions { flex-direction: column; align-items: stretch; gap: 0.6rem; }
+  .lp-hero-split .lp-actions .lp-btn,
+  .lp-hero-split .lp-actions .lp-text-link { justify-content: center; }
+}

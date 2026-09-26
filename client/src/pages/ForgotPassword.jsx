@@ -36,6 +36,8 @@ export default function ForgotPassword() {
             Back to sign in
           </Link>
         </AuthTop>
+        {/* On a phone this becomes the white sheet, as on sign-in. */}
+        <div className="auth-sheet">
         <form className="auth-form" onSubmit={submit}>
           <div className="auth-head">
             <span className="auth-mark">
@@ -83,6 +85,7 @@ export default function ForgotPassword() {
             Remembered it? <Link to="/login">Sign in</Link>
           </p>
         </form>
+        </div>
       </div>
     </div>
   );
