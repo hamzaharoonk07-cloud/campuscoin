@@ -1371,3 +1371,63 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 /* Every row of cards matches heights, not only the two named above: Coming up
    beside Coin's insight and Worth doing left a short card with a hole under it. */
 .d9-row { align-items: stretch; }
+
+/* The two boxes in the accounts card open into a per-account list. They were
+   plain spans; as buttons they read as one, with a hint that says what a click
+   does and a marker that shows which side is open. */
+button.d9-acc-toggle {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  border: 1px solid transparent;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease), transform 0.18s var(--ease);
+}
+button.d9-acc-toggle:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+button.d9-acc-toggle:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+button.d9-acc-toggle.is-open { border-color: var(--accent); box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.45); }
+.d9-acc-hint {
+  margin-top: 0.35rem;
+  font-size: var(--step--2);
+  font-weight: 700;
+  color: var(--good);
+}
+.d9-acc-hint::after { content: ' \203A'; }
+button.d9-acc-toggle.is-open .d9-acc-hint::after { content: ' \2039'; }
+
+.d9-acc-panel {
+  margin: 0 0 0.9rem;
+  padding: 0.9rem 1rem 0.35rem;
+  border-radius: var(--r-control);
+  background: var(--raised);
+  animation: rise 0.35s var(--ease-out);
+}
+.d9-acc-panel .d9-methods-sub { margin-bottom: 0.2rem; }
+.d9-acc-list { list-style: none; margin: 0; padding: 0; }
+.d9-acc-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--line);
+}
+.d9-acc-list li:first-child { border-top: 0; }
+
+/* The boxes were spans with these rules; as buttons they need them too, or the
+   label, the figure and the note all run together on one line. */
+.d9-methods-split > button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--r-control);
+  background: var(--tile-out);
+  width: 100%;
+  min-width: 0;
+}
+.d9-methods-split > button.is-digital { background: var(--tile-in); }
+.d9-methods-split > button em { font-style: normal; font-size: var(--step--2); font-weight: 600; color: var(--muted); }
+.d9-methods-split > button strong { font-size: var(--step-1); font-weight: 700; letter-spacing: -0.03em; }
+.d9-methods-split > button small { font-size: var(--step--2); color: var(--muted); }

@@ -257,6 +257,9 @@ export default function Dashboard() {
   const [daily, setDaily] = useState([]);
   const [categories, setCategories] = useState([]);
   const [adding, setAdding] = useState(false);
+  // Which side of the accounts card is open into its per-account list: money in,
+  // money out, or neither.
+  const [openAccounts, setOpenAccounts] = useState(null);
   // A quick-add button opens the form already filled in.
   const [preset, setPreset] = useState(null);
   const [upcoming, setUpcoming] = useState([]);
@@ -315,7 +318,7 @@ export default function Dashboard() {
     );
   }
 
-  const { totals, spending, trend, tips, recent, insight, budgets, goal, announcements, methods, flow } = data;
+  const { totals, spending, trend, tips, recent, insight, budgets, goal, announcements, methods, flow, methodsIn } = data;
   // Last month, for the change chips: the trend ends with the month shown.
   const before = trend.length > 1 ? trend[trend.length - 2] : null;
   const [year, monthIndex] = month.split('-').map(Number);
@@ -562,21 +565,61 @@ export default function Dashboard() {
               <div className="d9-methods-body">
                 <div className="d9-methods-side">
                   <div className="d9-methods-split">
-                    <span className="is-digital">
+                    <button
+                      type="button"
+                      className={`is-digital d9-acc-toggle${openAccounts === 'in' ? ' is-open' : ''}`}
+                      aria-expanded={openAccounts === 'in'}
+                      onClick={() => setOpenAccounts((v) => (v === 'in' ? null : 'in'))}
+                    >
                       <em>Came in to accounts</em>
                       <strong className="num">{money(flow?.in?.account ?? 0, currency)}</strong>
                       <small>
                         {flow?.in?.cash ? `and ${money(flow.in.cash, currency)} as cash` : 'nothing arrived as cash'}
                       </small>
-                    </span>
-                    <span>
+                      <span className="d9-acc-hint">{openAccounts === 'in' ? 'Hide accounts' : 'Show accounts'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`d9-acc-toggle${openAccounts === 'out' ? ' is-open' : ''}`}
+                      aria-expanded={openAccounts === 'out'}
+                      onClick={() => setOpenAccounts((v) => (v === 'out' ? null : 'out'))}
+                    >
                       <em>Went out as cash</em>
                       <strong className="num">{money(flow?.out?.cash ?? 0, currency)}</strong>
                       <small>
                         {flow?.out?.account ? `and ${money(flow.out.account, currency)} from accounts` : 'nothing from accounts'}
                       </small>
-                    </span>
+                      <span className="d9-acc-hint">{openAccounts === 'out' ? 'Hide accounts' : 'Show accounts'}</span>
+                    </button>
                   </div>
+                  {openAccounts ? (
+                    <div className="d9-acc-panel" role="region" aria-live="polite">
+                      <h3 className="d9-methods-sub">
+                        {openAccounts === 'in' ? 'Money in, by account' : 'Money out, by account'}
+                      </h3>
+                      {(openAccounts === 'in' ? (methodsIn?.rows || []).filter((r) => r.method !== 'cash') : (methods?.rows || []).filter((r) => r.method !== 'cash')).length ? (
+                        <ul className="d9-acc-list">
+                          {(openAccounts === 'in' ? (methodsIn?.rows || []).filter((r) => r.method !== 'cash') : (methods?.rows || []).filter((r) => r.method !== 'cash')).map((row) => {
+                            const m = markFor(row.method, row.label);
+                            return (
+                              <li key={`${row.method}:${row.label || ''}`}>
+                                <span className="d9-method-mark" style={{ background: `#${m.hex}`, color: m.ink }}>
+                                  {m.letter}
+                                </span>
+                                <span className="d9-method-name">
+                                  {m.name}
+                                  <em>{row.count} {row.count === 1 ? 'entry' : 'entries'} &middot; {row.share}%</em>
+                                </span>
+                                <span className="num">{money(row.total, currency)}</span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      ) : (
+                        <p className="d9-muted">Nothing {openAccounts === 'in' ? 'came in to' : 'went out from'} an account this month.</p>
+                      )}
+                    </div>
+                  ) : null}
                   {flow?.out?.cashShare !== null && flow?.out?.cashShare !== undefined ? (
                     <div className="d9-methods-bar" aria-label={`${flow.out.cashShare}% of spending was cash`}>
                       <i style={{ width: `${flow.out.cashShare}%` }} />

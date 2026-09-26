@@ -37,7 +37,7 @@ router.get(
     // dashboard never shows a month that is missing this month's allowance.
     await runRecurring(req.user._id);
 
-    const [totals, spending, incomeSources, budgets, sixMonths, tips, announcements, insight, recent, methods, flow] = await Promise.all([
+    const [totals, spending, incomeSources, budgets, sixMonths, tips, announcements, insight, recent, methods, flow, methodsIn] = await Promise.all([
       monthTotals(req.user._id, month),
       byCategory(req.user._id, month, 'expense'),
       // Where the money came from, for the dashboard's monthly rhythm card.
@@ -56,6 +56,9 @@ router.get(
       // Cash against the wallets, for the dashboard's "money and cash" card.
       byMethod(req.user._id, month, 'expense'),
       moneyFlow(req.user._id, month),
+      // Where money came in, by account, so the card can open into it when the
+      // student has been paid into more than one.
+      byMethod(req.user._id, month, 'income'),
     ]);
 
     res.json({
@@ -72,6 +75,7 @@ router.get(
       recent,
       methods,
       flow,
+      methodsIn,
       goal: {
         target: req.user.savingsGoal || 0,
         kept: totals.balance,
