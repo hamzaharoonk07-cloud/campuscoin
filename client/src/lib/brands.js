@@ -116,9 +116,29 @@ export function brandFor(text) {
   return found;
 }
 
-/** Whether white or black reads better on a brand colour. */
+/**
+ * Whether white or near-black reads better on a brand colour.
+ *
+ * This measured perceived brightness with the old NTSC weighting and a
+ * threshold of 160, which is too lenient for saturated greens: Spotify's
+ * #1ED760 scores 146, so it took white text - at 1.92:1, effectively
+ * invisible. Easypaisa, Careem, SadaPay, Bykea and Zong all sat in the same
+ * gap. It now compares the two candidates by real WCAG contrast and takes
+ * whichever wins, which is the question actually being asked.
+ */
+function relativeLuminance(hex) {
+  const n = parseInt(hex.replace('#', ''), 16);
+  const channels = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+    .map((c) => c / 255)
+    .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+}
+
+function contrast(a, b) {
+  const [x, y] = [relativeLuminance(a), relativeLuminance(b)];
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
 export function inkOn(hex) {
-  const n = parseInt(hex, 16);
-  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  return 0.299 * r + 0.587 * g + 0.114 * b > 160 ? '#121214' : '#ffffff';
+  return contrast('#ffffff', hex) >= contrast('#121214', hex) ? '#ffffff' : '#121214';
 }

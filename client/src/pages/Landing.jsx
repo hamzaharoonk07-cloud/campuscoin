@@ -243,29 +243,14 @@ const HERO_SPLIT = [
   ['Transport', 4, 11, -49],
 ];
 
-// The ribbon: the places a student actually pays. Where Simple Icons carries
-// the mark it is the real logo on the real brand colour; Careem, Daraz and the
-// wallets get their own initials on their own colour rather than an imitation
-// logo (the rule lib/brands.js sets). The few that are not companies at all
-// take a line icon on a tint of their category colour.
-//   icon, label, category colour slot, and the brand to look up when there is one
+// The ribbon: every chip is a real logo on that brand's real colour, drawn
+// from Simple Icons (CC0, bundled - nothing is fetched). The ink on each mark
+// is chosen by measured WCAG contrast, not by a brightness guess, which is
+// what put white on Spotify green at 1.92:1.
 const RIBBON = [
-  ['repeat', 'Netflix', 5, 'Netflix'],
-  ['utensils', 'Foodpanda', 1, 'Foodpanda'],
-  ['home', 'Hostel rent', 2],
-  ['bus', 'Careem', 3, 'Careem'],
-  ['chat', 'Spotify', 7, 'Spotify'],
-  ['utensils', 'KFC', 1, 'KFC'],
-  ['book', 'Coursera', 4, 'Coursera'],
-  ['wallet', 'JazzCash', 3, 'JazzCash'],
-  ['film', 'YouTube', 5, 'YouTube'],
-  ['award', 'Scholarship', 2],
-  ['tag', 'Daraz', 6, 'Daraz'],
-  ['utensils', 'Starbucks', 1, 'Starbucks'],
-  ['wallet', 'Easypaisa', 3, 'Easypaisa'],
-  ['book', 'Udemy', 4, 'Udemy'],
-  ['gift', 'Eidi', 6],
-  ['repeat', 'Telenor', 2, 'Telenor'],
+  ['Netflix'], ['foodpanda'], ['Spotify'], ['KFC'], ['Coursera'], ['YouTube'],
+  ['Starbucks'], ['Uber'], ['Udemy'], ['Duolingo'], ['McDonalds'],
+  ['Instagram'], ['Steam'], ['Zoom'], ['PayPal'], ['TikTok'],
 ];
 
 // The places students actually pay, in two rows that slide opposite ways.
@@ -559,29 +544,21 @@ export default function Landing() {
           The list is written twice so the loop has no visible seam. */}
       <section className="lp-ribbon" aria-label="Things students log with Campus Coin">
         <div className="lp-ribbon-track">
-          {[...RIBBON, ...RIBBON].map(([icon, label, slot, brand], i) => {
-            const mark = brand ? brandFor(brand) : null;
+          {[...RIBBON, ...RIBBON].map(([name], i) => {
+            const mark = brandFor(name);
+            if (!mark) return null;
             return (
-              <span className="lp-ribbon-chip" key={`${label}-${i}`} aria-hidden={i >= RIBBON.length}>
-                <span
-                  className="lp-ribbon-mark"
-                  data-slot={mark ? undefined : slot}
-                  style={mark ? { background: `#${mark.hex}`, color: inkOn(mark.hex) } : undefined}
-                >
-                  {/* A real logo where Simple Icons carries one; the brand's own
-                      initials on its own colour where it does not (Careem,
-                      Daraz, the Pakistani wallets); a line icon otherwise. */}
-                  {mark?.path ? (
+              <span className="lp-ribbon-chip" key={name + i} aria-hidden={i >= RIBBON.length}>
+                <span className="lp-ribbon-mark" style={{ background: '#' + mark.hex, color: inkOn(mark.hex) }}>
+                  {mark.path ? (
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                       <path d={mark.path} />
                     </svg>
-                  ) : mark ? (
-                    <b className="lp-ribbon-letter">{mark.letter}</b>
                   ) : (
-                    <Icon name={icon} size={16} />
+                    <b className="lp-ribbon-letter">{mark.letter}</b>
                   )}
                 </span>
-                {label}
+                {mark.name || name}
               </span>
             );
           })}
