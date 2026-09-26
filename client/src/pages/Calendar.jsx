@@ -6,6 +6,7 @@ import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
 import { artUrl, CategoryIcon } from '../components/Illustrations.jsx';
 import { api } from '../lib/api.js';
 import { compactMoney, money, monthKey } from '../lib/format.js';
+import { markFor } from '../lib/methods.js';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /* ---------------------------------------------------------------------------
@@ -101,6 +102,14 @@ export default function Calendar() {
           <span>
             <small>Spent this month</small>
             <strong className="num">{money(data?.totals.expense || 0, currency)}</strong>
+            {/* Cash leaves no record of its own, so it is worth seeing on its
+                own rather than folded into the total. */}
+            {data?.totals.expense ? (
+              <em className="cal-split">
+                <i>{money(data.totals.cash || 0, currency)} cash</i>
+                <i>{money(data.totals.digital || 0, currency)} online</i>
+              </em>
+            ) : null}
           </span>
         </div>
         <div className="cal-fact">
@@ -203,6 +212,14 @@ export default function Calendar() {
                   <strong className="num">{money(day.expense, currency)}</strong>
                 </span>
                 <span>
+                  <small>In cash</small>
+                  <strong className="num">{money(day.cash || 0, currency)}</strong>
+                </span>
+                <span>
+                  <small>Online</small>
+                  <strong className="num">{money(day.digital || 0, currency)}</strong>
+                </span>
+                <span>
                   <small>Came in</small>
                   <strong className="num is-in">{money(day.income, currency)}</strong>
                 </span>
@@ -215,7 +232,14 @@ export default function Calendar() {
                       <CategoryIcon icon={t.category?.icon} slot={t.category?.slot} size={36} text={t.description} />
                       <span className="cal-list-main">
                         <strong>{t.description || t.category?.name}</strong>
-                        <small>{t.category?.name}</small>
+                        <small>
+                          {t.category?.name}
+                          {/* Where the money moved, on the row itself. */}
+                          <em className="cal-method">
+                            <i style={{ background: `#${markFor(t.method, t.methodLabel).hex}` }} />
+                            {markFor(t.method, t.methodLabel).name}
+                          </em>
+                        </small>
                       </span>
                       <span className={`num cal-list-amt${t.type === 'income' ? ' is-in' : ''}`}>
                         {t.type === 'income' ? '+' : '−'}

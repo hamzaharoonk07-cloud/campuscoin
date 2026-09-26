@@ -103,16 +103,21 @@ router.get(
 
     const days = {};
     const dayOf = (d) => new Date(d).toISOString().slice(0, 10);
-    const bucket = (key) => (days[key] ||= { date: key, income: 0, expense: 0, transactions: [], upcoming: [] });
+    // cash / digital is carried per day as well as per transaction, so the grid
+    // can show the split without walking each day's rows.
+    const bucket = (key) => (days[key] ||= { date: key, income: 0, expense: 0, cash: 0, digital: 0, transactions: [], upcoming: [] });
     for (const t of rows) {
       const day = bucket(dayOf(t.date));
       day[t.type === 'income' ? 'income' : 'expense'] += t.amount;
+      if (t.type === 'expense') day[(t.method || 'cash') === 'cash' ? 'cash' : 'digital'] += t.amount;
       day.transactions.push({
         _id: t._id,
         type: t.type,
         amount: t.amount,
         description: t.description,
         category: t.category,
+        method: t.method || 'cash',
+        methodLabel: t.methodLabel || '',
         flags: t.flags,
       });
     }
@@ -129,13 +134,24 @@ router.get(
     for (const day of Object.values(days)) {
       day.income = round2(day.income);
       day.expense = round2(day.expense);
+      day.cash = round2(day.cash);
+      day.digital = round2(day.digital);
     }
 
     const totals = Object.values(days).reduce(
-      (acc, d) => ({ income: acc.income + d.income, expense: acc.expense + d.expense }),
-      { income: 0, expense: 0 }
+      (acc, d) => ({ income: acc.income + d.income, expense: acc.expense + d.expense, cash: acc.cash + d.cash, digital: acc.digital + d.digital }),
+      { income: 0, expense: 0, cash: 0, digital: 0 }
     );
-    res.json({ month: monthKey(month), days, totals: { income: round2(totals.income), expense: round2(totals.expense) } });
+    res.json({
+      month: monthKey(month),
+      days,
+      totals: {
+        income: round2(totals.income),
+        expense: round2(totals.expense),
+        cash: round2(totals.cash),
+        digital: round2(totals.digital),
+      },
+    });
   })
 );
 

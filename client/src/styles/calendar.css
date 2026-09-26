@@ -174,3 +174,25 @@
 @media (prefers-reduced-motion: reduce) {
   .main::before, .main::after { animation: none; }
 }
+
+/* Cash against online, on the month summary and on each day's rows. Cash is
+   listed first because it is the half with no record of its own to check. */
+.cal-split { display: flex; flex-wrap: wrap; gap: 0.15rem 0.7rem; margin-top: 0.25rem; font-style: normal; }
+.cal-split i {
+  font-style: normal;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--step--2);
+  color: var(--muted);
+}
+.cal-split i::before { content: ''; width: 6px; height: 6px; border-radius: 2px; background: var(--series-out); }
+.cal-split i:last-child::before { background: var(--series-in); }
+
+.cal-method { display: inline-flex; align-items: center; gap: 0.3rem; font-style: normal; margin-left: 0.5rem; }
+.cal-method::before { content: '·'; margin-right: 0.2rem; color: var(--faint); }
+.cal-method i { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+
+@media (max-width: 40rem) {
+  .cal-day-totals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
