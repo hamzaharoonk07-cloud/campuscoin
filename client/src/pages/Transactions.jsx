@@ -7,6 +7,7 @@ import { CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
 import ImportWizard from '../components/ImportWizard.jsx';
 import { api } from '../lib/api.js';
 import { dayHeading, formatDate, money, slotColor } from '../lib/format.js';
+import { markFor } from '../lib/methods.js';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 const EMPTY_FILTERS = { q: '', type: '', category: '', from: '', to: '', flagged: '' };
@@ -222,6 +223,21 @@ export default function Transactions() {
                         <span className="ledger-title">{row.description || row.category?.name}</span>
                         <span className="ledger-sub">
                           {row.category?.name}
+                          {/* Which account it moved through, or cash. Every row says
+                              so, because "cash" is as much an answer as "Easypaisa". */}
+                          <span className="ledger-method">
+                            <i
+                              className="ledger-method-mark"
+                              style={{
+                                background: `#${markFor(row.method, row.methodLabel).hex}`,
+                                color: markFor(row.method, row.methodLabel).ink,
+                              }}
+                              aria-hidden="true"
+                            >
+                              {markFor(row.method, row.methodLabel).letter}
+                            </i>
+                            {markFor(row.method, row.methodLabel).name}
+                          </span>
                           {row.recurring?.enabled ? (
                             <span className="pill">
                               <Icon name="repeat" size={11} /> repeats

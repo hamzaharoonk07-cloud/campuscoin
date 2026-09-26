@@ -1262,3 +1262,28 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
   background: var(--series-in);
 }
 .d9-stat-split em:last-child::before { background: var(--series-out); }
+
+/* Which account a transaction moved through, or cash, on every ledger row. The
+   mark is that provider's own colour, the same one the dashboard card and the
+   calendar use, so a JazzCash row looks like JazzCash wherever it appears. */
+.ledger-method {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: 0.6rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.ledger-method::before { content: '·'; margin-right: 0.25rem; color: var(--faint); font-weight: 400; }
+.ledger-method-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex: none;
+  font-style: normal;
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
