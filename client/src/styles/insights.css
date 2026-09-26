@@ -128,7 +128,7 @@
 .in-ring-fill { stroke-linecap: round; animation: in-ring 1.2s var(--ease-out) 0.2s backwards; }
 @keyframes in-ring { from { stroke-dashoffset: var(--c); } }
 .in-ring.is-great .in-ring-fill { stroke: var(--blue); }
-.in-ring.is-good .in-ring-fill { stroke: #7aa2ff; }
+.in-ring.is-good .in-ring-fill { stroke: #4ade80; }
 .in-ring.is-fair .in-ring-fill { stroke: #f5a524; }
 .in-ring.is-low .in-ring-fill { stroke: var(--bad); }
 .in-ring > span { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }

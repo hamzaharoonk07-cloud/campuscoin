@@ -38,7 +38,7 @@
   height: 460px;
   right: -140px;
   bottom: -160px;
-  background: radial-gradient(circle, rgba(141, 179, 255, 0.45), transparent 65%);
+  background: radial-gradient(circle, rgba(110, 231, 183, 0.45), transparent 65%);
   animation: glow-b 32s ease-in-out infinite alternate;
 }
 .app-glow i:nth-child(3) {

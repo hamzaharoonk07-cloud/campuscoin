@@ -235,7 +235,7 @@
 }
 .tone-mint .scene-glow { background: radial-gradient(circle, color-mix(in srgb, var(--sky) 70%, transparent), transparent 70%); }
 .tone-gold .scene-glow { background: radial-gradient(circle, rgba(251, 191, 36, 0.45), transparent 70%); }
-.tone-sky .scene-glow { background: radial-gradient(circle, rgba(56, 189, 248, 0.4), transparent 70%); }
+.tone-sky .scene-glow { background: radial-gradient(circle, rgba(52, 211, 153, 0.4), transparent 70%); }
 .scene-ring {
   position: absolute;
   inset: 4% 16% 6%;

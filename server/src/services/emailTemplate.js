@@ -63,7 +63,7 @@ export function emailLayout({ heading, paragraphs = [], button = null, stats = n
 
   const buttonHtml = button
     ? `<tr><td style="padding:12px 40px 8px">
-        <a href="${esc(button.url)}" style="display:inline-block;background:#5b91ff;color:#ffffff;text-decoration:none;font:700 16px ${FONT};padding:15px 28px;border-radius:999px">${esc(button.label)} &rarr;</a>
+        <a href="${esc(button.url)}" style="display:inline-block;background:#15803d;color:#ffffff;text-decoration:none;font:700 16px ${FONT};padding:15px 28px;border-radius:999px">${esc(button.label)} &rarr;</a>
       </td></tr>
       <tr><td style="padding:10px 40px 0;font:12px/1.6 ${FONT};color:#8e8e98">If the button does not work, paste this into your browser:<br><a href="${esc(button.url)}" style="color:#3f74e6;word-break:break-all">${esc(button.url)}</a></td></tr>`
     : '';

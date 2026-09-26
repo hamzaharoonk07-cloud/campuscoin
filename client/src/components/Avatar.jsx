@@ -1,6 +1,6 @@
 // Default colours from earlier versions of the design, now shown as the
 // current default (black) so older accounts match the rest of the app.
-const LEGACY = ['#047857', '#2f64f0', '#3d5243'];
+const LEGACY = ['#047857', '#15803d', '#3d5243'];
 
 /**
  * A person's picture: their profile photo when they have uploaded one, and

@@ -924,28 +924,28 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 .d9-greet.is-afternoon {
   --g-ink: #fff;
   --g-soft: rgba(255, 255, 255, 0.82);
-  --g-bg: linear-gradient(120deg, #15803d 0%, #22c55e 55%, #8db3ff 100%);
+  --g-bg: linear-gradient(120deg, #15803d 0%, #22c55e 55%, #6ee7b7 100%);
   --g-chip: rgba(255, 255, 255, 0.18);
   --g-glow: rgba(255, 236, 160, 0.6);
 }
 .d9-greet.is-evening {
   --g-ink: #fff;
   --g-soft: rgba(255, 255, 255, 0.72);
-  --g-bg: radial-gradient(120% 140% at 85% 20%, #2c3a6e 0%, #18203f 45%, #121214 100%);
+  --g-bg: radial-gradient(120% 140% at 85% 20%, #1d4b34 0%, #142b1e 45%, #121214 100%);
   --g-chip: rgba(255, 255, 255, 0.12);
-  --g-glow: rgba(141, 179, 255, 0.45);
+  --g-glow: rgba(110, 231, 183, 0.45);
 }
 .d9-greet.is-night {
   --g-ink: #fff;
   --g-soft: rgba(255, 255, 255, 0.65);
   --g-bg: radial-gradient(120% 140% at 85% 20%, #1d1d2b 0%, #0c0c10 60%);
   --g-chip: rgba(255, 255, 255, 0.1);
-  --g-glow: rgba(141, 179, 255, 0.3);
+  --g-glow: rgba(110, 231, 183, 0.3);
 }
 :root[data-theme='dark'] .d9-greet.is-morning {
   --g-ink: #fff;
   --g-soft: rgba(255, 255, 255, 0.72);
-  --g-bg: linear-gradient(120deg, #1d2742 0%, #19191f 60%, #2b2418 100%);
+  --g-bg: linear-gradient(120deg, #15301f 0%, #19191f 60%, #2b2418 100%);
   --g-chip: rgba(255, 255, 255, 0.1);
 }
 @keyframes d9-greet-in { from { opacity: 0; transform: translateY(10px); } }

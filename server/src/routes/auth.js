@@ -30,7 +30,7 @@ const publicUser = (user) => ({
   createdAt: user.createdAt,
 });
 
-const PALETTE = ['#121214', '#5b91ff', '#60a5fa', '#f472b6', '#a78bfa', '#fb923c'];
+const PALETTE = ['#121214', '#22c55e', '#4ade80', '#f472b6', '#a78bfa', '#fb923c'];
 
 /** Tells the account holder their password changed, in case it was not them. */
 const notifyPasswordChanged = (user) =>

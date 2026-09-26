@@ -14,9 +14,9 @@ export function BrandMark({ size = 30 }) {
     <svg className="brand-mark" width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
       <defs>
         <linearGradient id={`${id}-disc`} x1="0.15" y1="0" x2="0.85" y2="1">
-          <stop offset="0" stopColor="#8db3ff" />
+          <stop offset="0" stopColor="#6ee7b7" />
           <stop offset="0.5" stopColor="#22c55e" />
-          <stop offset="1" stopColor="#3566dc" />
+          <stop offset="1" stopColor="#15803d" />
         </linearGradient>
         <radialGradient id={`${id}-light`} cx="0.35" cy="0.2" r="0.75">
           <stop offset="0" stopColor="#fff" stopOpacity="0.45" />

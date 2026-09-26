@@ -1783,7 +1783,7 @@ body:has(.lp) { background: var(--surface); }
 .lp-bento-section .lp-h2 em,
 .lp-logos .lp-h2 em {
   font-style: normal;
-  background: linear-gradient(90deg, #15803d, #8db3ff 45%, #a78bfa 70%, #15803d);
+  background: linear-gradient(90deg, #15803d, #6ee7b7 45%, #a7f3d0 70%, #15803d);
   background-size: 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;

@@ -21,13 +21,13 @@ export default function CoinBot({ size = 40, bubble = true, talking = false, cla
     >
       <defs>
         <linearGradient id={`${id}-face`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#d6e4ff" />
-          <stop offset="0.3" stopColor="#8db3ff" />
+          <stop offset="0" stopColor="#d1fae5" />
+          <stop offset="0.3" stopColor="#6ee7b7" />
           <stop offset="1" stopColor="#15803d" />
         </linearGradient>
         <linearGradient id={`${id}-rim`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3566dc" />
-          <stop offset="1" stopColor="#1e3f96" />
+          <stop offset="0" stopColor="#15803d" />
+          <stop offset="1" stopColor="#14532d" />
         </linearGradient>
         <linearGradient id={`${id}-bubble`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#2a2a30" />
@@ -40,7 +40,7 @@ export default function CoinBot({ size = 40, bubble = true, talking = false, cla
       </defs>
 
       {/* the coin: its edge, its face, the engraved ring and a lit top */}
-      <ellipse cx="29" cy="37.5" rx="24" ry="23" fill="#1e3f96" opacity="0.3" />
+      <ellipse cx="29" cy="37.5" rx="24" ry="23" fill="#14532d" opacity="0.3" />
       <circle cx="29" cy="35" r="24" fill={`url(#${id}-rim)`} />
       <circle cx="29" cy="33" r="22.6" fill={`url(#${id}-face)`} />
       <circle cx="29" cy="33" r="22.6" fill={`url(#${id}-shine)`} />
