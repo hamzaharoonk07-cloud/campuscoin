@@ -175,7 +175,7 @@ export default function Calendar() {
                       {d?.expense ? <b className="num">−{compactMoney(d.expense, currency)}</b> : null}
                       {d?.income ? <i className="num">+{compactMoney(d.income, currency)}</i> : null}
                     </span>
-                    {d?.upcoming?.length ? <span className="cal-due" title="A repeating payment is due" /> : null}
+                    {d?.upcoming?.length ? <span className="cal-due" title="A repeating entry will be added on this day" /> : null}
                   </button>
                 );
               })}
@@ -189,7 +189,7 @@ export default function Calendar() {
             <i className="cal-swatch is-3" />
             <span>More</span>
             <span className="cal-legend-due">
-              <i className="cal-due" /> Payment due
+              <i className="cal-due" /> Repeating entry
             </span>
           </div>
         </section>
@@ -268,7 +268,7 @@ export default function Calendar() {
 
               {day.upcoming?.length ? (
                 <>
-                  <span className="cal-sub">Due this day</span>
+                  <span className="cal-sub">Repeats on this day</span>
                   <ul className="cal-list is-upcoming">
                     {day.upcoming.map((t) => (
                       <li key={t._id}>

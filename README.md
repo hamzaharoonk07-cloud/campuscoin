@@ -298,11 +298,11 @@ The interface is written rather than assembled. A few decisions worth naming:
   surface rather than one being an inversion of the other. The choice is saved
   to the device *and* the account, so it follows the student to another machine.
   Settings also offers "match my device", which follows the operating system live.
-- **Black, white and one blue.** The app follows design 9, a fintech
+- **Black, white and one green.** The app follows design 9, a fintech
   dashboard on Dribbble: the app sits in a black frame with a slim rail of
   round icon buttons that slides open on hover to show each page's name, the content is one white
-  panel with large rounded corners, buttons are black pills, and one blue
-  (`#5b91ff`) carries the figures. Categories take shades of blue and grey.
+  panel with large rounded corners, buttons are black pills, and one green
+  (`#22c55e`) carries the figures. Categories take shades of green and grey.
   Text is set in Plus Jakarta Sans. The dashboard opens on three figures beside a tall
   "my month" card, the cash flow on a black card with In / Out / Kept tabs,
   then the month's spending as a calendar of squares, dark quick-add tiles and

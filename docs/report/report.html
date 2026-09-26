@@ -9,8 +9,8 @@
 <style>
 /* ===========================================================================
    Campus Coin project report.
-   The app's own design language on paper: black, white and one blue
-   (#5b91ff), set in Plus Jakarta Sans, with code in JetBrains Mono.
+   The app's own design language on paper: black, white and one green
+   (#22c55e), set in Plus Jakarta Sans, with code in JetBrains Mono.
    Built to PDF by scripts/build-report.mjs.
    Ink is darkened against the screen palette: --muted here is #43434e rather
    than the app's #5c5c66, because toner on paper loses contrast that a
@@ -21,8 +21,8 @@
   --ink: #121214;
   --muted: #43434e;
   --faint: #6a6a75;
-  --blue: #5b91ff;
-  --blue-deep: #2f5fd0;
+  --blue: #22c55e;
+  --blue-deep: #047857;
   --rule: #e2e2e7;
   --rule-soft: #f0f0f3;
   --wash: #f6f7f9;
@@ -69,7 +69,7 @@ body {
   width: 150mm;
   height: 150mm;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(91, 145, 255, 0.30), rgba(91, 145, 255, 0));
+  background: radial-gradient(closest-side, rgba(34, 197, 94, 0.30), rgba(34, 197, 94, 0));
 }
 .cover > * { position: relative; z-index: 1; }
 
@@ -94,7 +94,7 @@ body {
   font-weight: 800;
   letter-spacing: -0.045em;
 }
-.cover h1 span { color: #8ab0ff; }
+.cover h1 span { color: #6ee7b7; }
 .cover-lead {
   margin: 8mm 0 0;
   font-size: 12pt;
@@ -116,7 +116,7 @@ body {
   color: #7e7e8c; margin-bottom: 1.6mm;
 }
 .cover-meta dd { margin: 0; font-size: 10pt; font-weight: 600; }
-.cover-meta dd a { color: #8ab0ff; text-decoration: none; word-break: break-all; }
+.cover-meta dd a { color: #6ee7b7; text-decoration: none; word-break: break-all; }
 
 /* --- Contents ------------------------------------------------------------- */
 
@@ -758,12 +758,12 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
     "match my device", which follows the operating system live.
   </p>
 
-  <h4>Black, white and one blue</h4>
+  <h4>Black, white and one green</h4>
   <p>
     The application sits in a black frame with a slim rail of round icon buttons
     that slides open on hover to show each page's name; the content is one white
-    panel with large rounded corners, buttons are black pills, and one blue
-    (<code>#5b91ff</code>) carries the figures. Categories take shades of blue
+    panel with large rounded corners, buttons are black pills, and one green
+    (<code>#22c55e</code>) carries the figures. Categories take shades of blue
     and grey. Text is set in Plus Jakarta Sans. The styles live in
     <code>client/src/styles/design9.css</code>; the code and all the copy are
     our own.
