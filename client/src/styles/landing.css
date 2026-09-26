@@ -2200,3 +2200,40 @@ body:has(.lp) { background: var(--surface); }
 .lp-ribbon-mark[data-slot='7'] { background: color-mix(in srgb, var(--cat-7) 14%, var(--surface)); color: var(--cat-7); }
 .lp-ribbon-chip:hover .lp-ribbon-mark { transform: scale(1.08); }
 .lp-ribbon-letter { font-size: 0.68rem; font-weight: 800; letter-spacing: -0.02em; }
+
+/* These two cards carry hardcoded light gradients, so they are pale in BOTH
+   themes - but everything inside took its colour from the theme tokens, which
+   are near-white ink and dark surfaces under the dark theme. The heading came
+   out white on pale blue and the inner tiles came out dark on pale.
+
+   Rather than re-colour each descendant, the card redeclares the tokens for
+   its own subtree: it is a light-theme island, and anything added inside it
+   later is correct without further thought. */
+.lp-duo-card.is-blue,
+.lp-duo-card.is-grey {
+  --text: #121214;
+  --muted: #4b5563;
+  --faint: #686872;
+  --surface: #ffffff;
+  --raised: #f2f4f8;
+  --sunken: #e8eaf0;
+  --line: #e2e5ec;
+  --line-strong: #cfd4de;
+  --input-bg: #ffffff;
+  --accent: #121214;
+  --accent-text: #121214;
+  --on-accent: #ffffff;
+  --accent-soft: rgba(18, 18, 20, 0.06);
+  /* The money tiles inside read these, and they are dark under the dark theme.
+     Tinted a shade further than the light theme so they still separate from
+     the card, which is itself pale. */
+  --tile-out: #eceef4;
+  --tile-in: #e2ebff;
+  --tile-budget: #eff0f4;
+  --tile-goal: #e2ebff;
+  color: var(--text);
+}
+.lp-duo-card.is-blue h3,
+.lp-duo-card.is-grey h3 { color: var(--text); }
+.lp-duo-card.is-blue p,
+.lp-duo-card.is-grey p { color: var(--muted); }
