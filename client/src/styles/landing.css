@@ -2126,3 +2126,53 @@ body:has(.lp) { background: var(--surface); }
   box-shadow: none;
 }
 .lp-badge:hover { background: rgba(255, 255, 255, 0.13); box-shadow: none; }
+
+/* The stage's bleed is a percentage of its own column, so on a laptop it threw
+   far more of the laptop off the right edge than it does at 1440 - the frame
+   was sliced through its own content and the card was clipped with it. The
+   bleed tightens as the column narrows. */
+@media (max-width: 85rem) {
+  .lp-hero-split .lp-laptop { right: -6%; width: 100%; }
+  .lp-hero-split .lp-chip-in { right: 1%; top: -9%; }
+  .lp-hero-split .lp-handset { left: 0; width: clamp(7.5rem, 11vw, 10.5rem); }
+}
+@media (max-width: 75rem) {
+  .lp-hero-split { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
+  .lp-hero-split .lp-laptop { right: 0; width: 98%; }
+  .lp-hero-split .lp-chip-in { right: 0; top: -11%; }
+  .lp-hero-split .lp-chip-ask { left: -4%; bottom: -10%; }
+}
+
+/* .lp-line carries overflow:hidden for its own entrance, which clipped the
+   headline instead of wrapping it once the column narrowed. In the split
+   layout it wraps and is never clipped, and the copy sits above the stage so
+   a long line can never end up underneath the laptop. */
+.lp-hero-split h1 .lp-line { white-space: normal; overflow: visible; }
+.lp-hero-split h1 { font-size: clamp(1.8rem, 2.9vw, 2.7rem); }
+.lp-hero-split .lp-hero-copy { position: relative; z-index: 2; }
+
+/* No pill at all: a blue NEW chip and a line of text. The container was the
+   thing that read as a stray control floating above the headline. */
+.lp-hero-split .lp-badge {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 0;
+  gap: 0.6rem;
+  color: #aeb4c6;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+.lp-hero-split .lp-badge:hover { background: none; box-shadow: none; color: #ffffff; }
+.lp-hero-split .lp-badge svg { color: #6f7488; }
+.lp-hero-split .lp-badge-tag {
+  background: #5b91ff;
+  color: #ffffff;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.24rem 0.5rem;
+  border-radius: 5px;
+}

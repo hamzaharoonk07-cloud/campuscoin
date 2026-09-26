@@ -2859,3 +2859,12 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   .auth-points span { display: flex; flex-direction: column; gap: 0.1rem; font-size: var(--step--2); color: var(--muted); }
   .auth-points strong { font-size: var(--step--1); font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
 }
+
+/* The preview is deliberately oversized so it bleeds past the panel, but on a
+   laptop - narrower, and only 720px tall - the panel's overflow:hidden sliced
+   it through its own content on the right as well as the bottom. It sits
+   inside the column below that size and is cropped only by the fold. */
+@media (max-width: 85rem), (max-height: 820px) {
+  .auth-preview { margin-right: 0; }
+  .auth-preview img { width: 100%; border-radius: 16px 16px 0 0; }
+}
