@@ -2176,3 +2176,26 @@ body:has(.lp) { background: var(--surface); }
   padding: 0.24rem 0.5rem;
   border-radius: 5px;
 }
+
+/* The ribbon mark: a line icon on a tint of its category colour, or a real
+   brand logo on that brand's own colour. Replaces the Fluent Emoji artwork,
+   which was the loudest thing on the page and the one place four off-system
+   colours got in. */
+.lp-ribbon-mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex: none;
+  transition: transform 0.3s var(--ease-out);
+}
+.lp-ribbon-mark svg { width: 15px; height: 15px; display: block; }
+.lp-ribbon-mark[data-slot='1'] { background: color-mix(in srgb, var(--cat-1) 16%, var(--surface)); color: var(--cat-1); }
+.lp-ribbon-mark[data-slot='2'] { background: color-mix(in srgb, var(--cat-2) 12%, var(--surface)); color: var(--cat-2); }
+.lp-ribbon-mark[data-slot='3'] { background: color-mix(in srgb, var(--cat-3) 22%, var(--surface)); color: var(--cat-5); }
+.lp-ribbon-mark[data-slot='4'] { background: color-mix(in srgb, var(--cat-4) 16%, var(--surface)); color: var(--cat-4); }
+.lp-ribbon-mark[data-slot='5'] { background: color-mix(in srgb, var(--cat-5) 14%, var(--surface)); color: var(--cat-5); }
+.lp-ribbon-mark[data-slot='6'] { background: color-mix(in srgb, var(--cat-6) 30%, var(--surface)); color: var(--cat-7); }
+.lp-ribbon-mark[data-slot='7'] { background: color-mix(in srgb, var(--cat-7) 14%, var(--surface)); color: var(--cat-7); }
+.lp-ribbon-chip:hover .lp-ribbon-mark { transform: scale(1.08); }

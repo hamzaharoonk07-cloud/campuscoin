@@ -243,19 +243,24 @@ const HERO_SPLIT = [
   ['Transport', 4, 11, -49],
 ];
 
+// The ribbon: a line icon in a tint of its category's colour, or, where the
+// entry names a company, that company's real logo on its own brand colour
+// (lib/brands.js). The emoji artwork this replaced was the loudest thing on
+// the page and brought four colours the design system does not have.
+//   icon, label, category colour slot, and the brand to look up when there is one
 const RIBBON = [
-  ['hot_beverage', 'Canteen chai'],
-  ['house', 'Hostel rent'],
-  ['bus', 'Rickshaw fare'],
-  ['books', 'Textbooks'],
-  ['mobile_phone', 'Netflix'],
-  ['hamburger', 'Biryani'],
-  ['receipt', 'Photocopies'],
-  ['wrapped_gift', 'Eidi'],
-  ['graduation_cap', 'Scholarship'],
-  ['popcorn', 'Cinema night'],
-  ['dollar_banknote', 'Allowance'],
-  ['pizza', 'Pizza Friday'],
+  ['utensils', 'Canteen chai', 1],
+  ['home', 'Hostel rent', 2],
+  ['bus', 'Rickshaw fare', 3],
+  ['book', 'Textbooks', 4],
+  ['repeat', 'Netflix', 5, 'Netflix'],
+  ['utensils', 'Biryani', 1],
+  ['receipt', 'Photocopies', 4],
+  ['gift', 'Eidi', 6],
+  ['award', 'Scholarship', 2],
+  ['film', 'Cinema night', 5],
+  ['wallet', 'Allowance', 3],
+  ['chat', 'Spotify', 7, 'Spotify'],
 ];
 
 // The places students actually pay, in two rows that slide opposite ways.
@@ -549,12 +554,27 @@ export default function Landing() {
           The list is written twice so the loop has no visible seam. */}
       <section className="lp-ribbon" aria-label="Things students log with Campus Coin">
         <div className="lp-ribbon-track">
-          {[...RIBBON, ...RIBBON].map(([art, label], i) => (
-            <span className="lp-ribbon-chip" key={`${label}-${i}`} aria-hidden={i >= RIBBON.length}>
-              <ArtIcon name={art} size={34} />
-              {label}
-            </span>
-          ))}
+          {[...RIBBON, ...RIBBON].map(([icon, label, slot, brand], i) => {
+            const mark = brand ? brandFor(brand) : null;
+            return (
+              <span className="lp-ribbon-chip" key={`${label}-${i}`} aria-hidden={i >= RIBBON.length}>
+                <span
+                  className="lp-ribbon-mark"
+                  data-slot={mark ? undefined : slot}
+                  style={mark ? { background: `#${mark.hex}`, color: inkOn(mark.hex) } : undefined}
+                >
+                  {mark?.path ? (
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d={mark.path} />
+                    </svg>
+                  ) : (
+                    <Icon name={icon} size={16} />
+                  )}
+                </span>
+                {label}
+              </span>
+            );
+          })}
         </div>
       </section>
 
