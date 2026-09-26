@@ -2844,25 +2844,6 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   .auth-fine a:hover { color: var(--text); }
 }
 
-/* The three points only exist on a phone, where the navy panel is hidden. */
-.auth-points { display: none; }
-
-@media (max-width: 48rem) {
-  .auth-points {
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-    list-style: none;
-    margin: 1.6rem 0 0;
-    padding: 1.5rem 0 0;
-    border-top: 1px solid var(--line);
-  }
-  .auth-points li { display: flex; align-items: flex-start; gap: 0.8rem; }
-  .auth-points svg { color: var(--good); flex: none; margin-top: 0.15rem; }
-  .auth-points span { display: flex; flex-direction: column; gap: 0.1rem; font-size: var(--step--2); color: var(--muted); }
-  .auth-points strong { font-size: var(--step--1); font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
-}
-
 /* The preview is deliberately oversized so it bleeds past the panel, but on a
    laptop - narrower, and only 720px tall - the panel's overflow:hidden sliced
    it through its own content on the right as well as the bottom. It sits
@@ -2887,4 +2868,153 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 }
 @media (max-height: 700px) {
   .auth-aside .auth-preview { display: none; }
+}
+
+/* ===========================================================================
+   The sign-in fill: a reel of example activity under a short form, and two slow
+   glows behind it, so the dark ground around a five-element card is not empty.
+   =========================================================================== */
+
+.auth-form.has-feed { margin-block: auto 0; }
+.auth-feed { width: min(440px, 100%); margin-bottom: auto; }
+
+.auth-feed {
+  --feed-bg: rgba(255, 255, 255, 0.05);
+  --feed-line: rgba(255, 255, 255, 0.09);
+  --feed-ink: #f4f4f6;
+  --feed-muted: #a1a1aa;
+  --feed-in: #6ee7b7;
+}
+.auth-feed-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0.15rem 0.7rem;
+  font-size: var(--step--2);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--feed-muted);
+}
+.auth-feed-head em {
+  margin-left: auto;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.85;
+}
+.auth-feed-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex: none;
+  animation: auth-live 1.8s ease-in-out infinite;
+}
+@keyframes auth-live {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+}
+
+/* The window is a fixed height and cut off top and bottom by a fade, so the rows
+   seem to arrive out of the dark and leave into it. */
+.auth-feed-window {
+  height: 150px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+}
+@media (min-height: 860px) { .auth-feed-window { height: 200px; } }
+
+.auth-feed-track { list-style: none; margin: 0; padding: 0; animation: auth-feed-scroll 30s linear infinite; }
+.auth-feed-window:hover .auth-feed-track { animation-play-state: paused; }
+/* The list is written twice, so half its height is exactly one full loop. */
+@keyframes auth-feed-scroll { to { transform: translateY(-50%); } }
+
+.auth-feed-track li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 52px;
+  margin-bottom: 8px;
+  padding: 0 0.85rem;
+  border-radius: var(--r-control);
+  background: var(--feed-bg);
+  border: 1px solid var(--feed-line);
+  color: var(--feed-ink);
+}
+.auth-feed-mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex: none;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.auth-feed-text {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--step--1);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.auth-feed-text em { font-style: normal; font-size: var(--step--2); font-weight: 500; color: var(--feed-muted); }
+.auth-feed-amt { font-size: var(--step--1); font-weight: 700; letter-spacing: -0.02em; flex: none; }
+.auth-feed-amt.is-in { color: var(--feed-in); }
+
+/* Two glows drifting behind everything on the dark side. */
+.auth-form-side { position: relative; overflow: hidden; }
+.auth-form-side > * { position: relative; z-index: 1; }
+.auth-form-side::before,
+.auth-form-side::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+}
+.auth-form-side::before {
+  width: 420px; height: 420px; left: -140px; bottom: -120px;
+  background: rgba(34, 197, 94, 0.16);
+  animation: auth-drift-a 20s ease-in-out infinite alternate;
+}
+.auth-form-side::after {
+  width: 320px; height: 320px; right: -90px; top: 22%;
+  background: rgba(110, 231, 183, 0.10);
+  animation: auth-drift-b 24s ease-in-out infinite alternate;
+}
+@keyframes auth-drift-a { to { transform: translate(90px, -70px) scale(1.15); } }
+@keyframes auth-drift-b { to { transform: translate(-70px, 80px) scale(0.9); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-feed-track, .auth-feed-live, .auth-form-side::before, .auth-form-side::after { animation: none; }
+}
+
+/* On a phone the reel sits inside the white sheet, so it takes the sheet's ink,
+   and the glows are hidden - the sheet covers them anyway. */
+@media (max-width: 48rem) {
+  .auth-sheet .auth-form.has-feed { margin-block: 0; }
+  .auth-feed { margin-bottom: 0; width: 100%; margin-top: 1.1rem;
+    --feed-bg: var(--raised); --feed-line: var(--line); --feed-ink: var(--text); --feed-muted: var(--muted); --feed-in: var(--good); }
+  .auth-feed-window { height: 150px; }
+  .auth-feed-head em { display: none; }
+  .auth-form-side::before, .auth-form-side::after { display: none; }
+}
+
+/* Short laptop screens (720-780px): the card, the reel and the fine print all
+   have to share the height, so the reel gives up some of its own. Above 780px
+   there is room for the full one. */
+@media (min-width: 48.01rem) and (max-height: 780px) {
+  .auth-form-side { gap: 1rem; padding-bottom: 1.25rem; }
+  .auth-feed-window { height: 92px; }
+  .auth-feed-head { margin-bottom: 0.45rem; }
 }

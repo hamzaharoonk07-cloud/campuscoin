@@ -2,6 +2,57 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon, { Wordmark } from '../components/Icon.jsx';
 import { useAuth } from '../context/AppContext.jsx';
+import { markFor } from '../lib/methods.js';
+
+// What a week of a student's money looks like, as a slow reel under the form.
+// These are examples and say so: nothing here comes from an account.
+const FEED = [
+  ['Allowance received', 'jazzcash', '+Rs 20,000', true],
+  ['Canteen chai and paratha', 'cash', '−Rs 120', false],
+  ['Rickshaw to campus', 'easypaisa', '−Rs 180', false],
+  ['Photocopies for the exam', 'cash', '−Rs 60', false],
+  ['Scholarship instalment', 'bank', '+Rs 15,000', true],
+  ['Hostel rent', 'bank', '−Rs 12,000', false],
+  ['Gym membership', 'card', '−Rs 654', false],
+  ['Textbooks', 'cash', '−Rs 2,400', false],
+];
+
+/**
+ * A moving column of example transactions that fills the space around a short
+ * form. The list is written twice so the loop has no visible seam, the copy is
+ * hidden from screen readers, and with reduced motion it stops and shows the
+ * first few rows still.
+ */
+export function AuthFeed() {
+  return (
+    <section className="auth-feed" aria-label="Example activity">
+      <header className="auth-feed-head">
+        <span className="auth-feed-live" aria-hidden="true" />
+        Example activity
+        <em>yours appears here once you log it</em>
+      </header>
+      <div className="auth-feed-window" aria-hidden="true">
+        <ul className="auth-feed-track">
+          {[...FEED, ...FEED].map(([title, method, amount, incoming], i) => {
+            const m = markFor(method);
+            return (
+              <li key={`${title}-${i}`}>
+                <span className="auth-feed-mark" style={{ background: `#${m.hex}`, color: m.ink }}>
+                  {m.letter}
+                </span>
+                <span className="auth-feed-text">
+                  {title}
+                  <em>{m.name}</em>
+                </span>
+                <span className={`auth-feed-amt num${incoming ? ' is-in' : ''}`}>{amount}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  );
+}
 
 /**
  * The navy half of every sign-in page: the promise, and the real dashboard
@@ -134,7 +185,7 @@ export default function Login() {
         {/* On a phone this wrapper becomes the sheet, so the fine print sits on
             it rather than stranded on the dark below a card that stops short. */}
         <div className="auth-sheet">
-        <form className="auth-form" onSubmit={submit}>
+        <form className="auth-form has-feed" onSubmit={submit}>
           {/* The aside already carries the brand and the promise, so the card
               only has to ask for two things. */}
           <div className="auth-head">
@@ -184,32 +235,8 @@ export default function Login() {
           </button>
         </form>
 
-        {/* The navy panel is hidden on a phone, which leaves the sheet with a
-            band of empty white and the page with no reason to sign up. These
-            three carry it on small screens only. */}
-        <ul className="auth-points">
-          <li>
-            <Icon name="shield" size={17} />
-            <span>
-              <strong>No bank link</strong>
-              Nothing to connect, ever
-            </span>
-          </li>
-          <li>
-            <Icon name="spark" size={17} />
-            <span>
-              <strong>Seven saving rules</strong>
-              Built from your own history
-            </span>
-          </li>
-          <li>
-            <Icon name="chart" size={17} />
-            <span>
-              <strong>Six months</strong>
-              Side by side, from day one
-            </span>
-          </li>
-        </ul>
+        {/* Fills what was empty dark ground above and below a card this short. */}
+        <AuthFeed />
 
         {/* Out of the card: neither is part of signing in. */}
         <p className="auth-fine">
