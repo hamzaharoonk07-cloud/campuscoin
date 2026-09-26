@@ -478,7 +478,7 @@ export default function Landing() {
           centred, and below it one wide board of the demo student's real
           figures runs off the fold. No device chrome, nothing floating. */}
       <header className="lp-hero" ref={hero}>
-        <div className="lp-wrap lp-hero-head">
+        <div className="lp-wrap lp-hero-split">
           <div className="lp-hero-copy">
             <a href="#features" className="lp-badge">
               <span className="lp-badge-tag">New</span>
@@ -507,13 +507,11 @@ export default function Landing() {
               </a>
             </div>
           </div>
-        </div>
 
-        {/* The app itself, on the two screens a student actually uses it on.
-            The laptop sits back, the phone stands in front of it, and two live
-            cards float clear of both. Each layer carries its own --depth, so
-            they separate as the pointer moves (usePointerDepth). */}
-        <div className="lp-wrap">
+          {/* The app itself, on the two screens a student actually uses it on.
+              The laptop sits back, the phone stands in front of it, and two live
+              cards float clear of both. Each layer carries its own --depth, so
+              they separate as the pointer moves (usePointerDepth). */}
           <div className="lp-devices" aria-hidden="true">
             <figure className="lp-laptop lp-depth" style={{ '--depth': 0.4 }}>
               <div className="lp-frame-bar">

@@ -2063,3 +2063,93 @@ body:has(.lp) { background: var(--surface); }
   .lp-laptop, .lp-handset, .lp-chip { animation: none; }
   .lp-depth { transform: none; transition: none; }
 }
+
+/* ===========================================================================
+   Hero, split: the promise on the left, the devices on the right
+   =========================================================================== */
+
+.lp-hero-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: clamp(1.5rem, 3.5vw, 3.5rem);
+  align-items: center;
+  padding-block: clamp(1rem, 3vw, 3rem);
+}
+/* The copy is left-aligned again now that it shares the row. */
+.lp-hero-split .lp-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  max-width: 100%;
+}
+.lp-hero-split .lp-hero-copy > * { max-width: 100%; }
+.lp-hero-split .lp-lead { max-width: min(30rem, 100%); margin-inline: 0; }
+.lp-hero-split .lp-actions { justify-content: flex-start; }
+.lp-hero-split h1 { font-size: clamp(2.1rem, 3.9vw, 3.5rem); }
+
+/* The stage fills the right column and runs off the right edge of the page. */
+.lp-hero-split .lp-devices {
+  height: clamp(19rem, 30vw, 27rem);
+  margin-top: 0;
+}
+.lp-hero-split .lp-laptop {
+  left: auto;
+  right: -14%;
+  top: 6%;
+  width: 104%;
+  translate: 0 0;
+}
+@keyframes lp-laptop-in-right {
+  from { opacity: 0; translate: 46px 26px; }
+}
+.lp-hero-split .lp-laptop { animation-name: lp-laptop-in-right; }
+.lp-hero-split .lp-handset { right: auto; left: -6%; top: 20%; width: clamp(8rem, 12vw, 11.5rem); }
+.lp-hero-split .lp-chip-in { left: auto; right: 6%; top: -8%; }
+.lp-hero-split .lp-chip-ask { left: -10%; bottom: -4%; }
+
+@media (max-width: 62rem) {
+  .lp-hero-split { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .lp-hero-split .lp-hero-copy { align-items: center; text-align: center; }
+  .lp-hero-split .lp-lead { margin-inline: auto; }
+  .lp-hero-split .lp-actions { justify-content: center; }
+  .lp-hero-split .lp-devices { height: clamp(14rem, 46vw, 20rem); }
+  .lp-hero-split .lp-laptop { right: auto; left: 50%; translate: -50% 0; width: 96%; }
+  @keyframes lp-laptop-in-right { from { opacity: 0; translate: -50% 26px; } }
+  .lp-hero-split .lp-handset { left: auto; right: 0; top: 22%; }
+}
+
+/* The badge reads as a label, not a control: no outline, just a soft tint. */
+.lp-badge {
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+.lp-badge:hover { background: rgba(255, 255, 255, 0.13); box-shadow: none; }
+
+/* --- Sign-in on a phone: the card owns the screen ------------------------- */
+
+@media (max-width: 48rem) {
+  .auth-form-side { padding: 0; justify-content: stretch; }
+  .auth-top { padding: 1rem 1.25rem 0; }
+  .auth-form {
+    width: 100%;
+    max-width: none;
+    margin-block: 0;
+    flex-grow: 1;
+    border-radius: 22px 22px 0 0;
+    padding: 1.75rem 1.25rem 2rem;
+    justify-content: center;
+  }
+  .auth-fine { padding: 1rem 1.25rem 1.25rem; }
+}
+
+/* In the split layout the copy column is about 600px, which a nowrap headline
+   at 3.9vw overruns - it ran straight under the phone. It wraps here and sits
+   a size down. */
+.lp-hero-split h1 { font-size: clamp(1.95rem, 3.2vw, 2.95rem); }
+.lp-hero-split .lp-line { white-space: normal; }
+.lp-hero-split .lp-lead { max-width: min(27rem, 100%); }
+/* And the stage is pushed clear of the copy. */
+.lp-hero-split .lp-handset { left: 2%; top: 24%; }
+.lp-hero-split .lp-chip-ask { left: 0; bottom: -8%; }
