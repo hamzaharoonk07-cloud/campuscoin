@@ -1387,19 +1387,22 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   gap: 1rem;
   flex-wrap: wrap;
 }
+/* This half sits on --bg, which is near-black in BOTH themes, so the ink here
+   comes from the on-navy pair. --muted and --accent-text are for light cards
+   and measured under 2:1 against this ground. */
 .auth-back {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: var(--muted);
+  color: var(--on-navy-muted);
   font-weight: 600;
   font-size: var(--step--1);
   text-decoration: none;
 }
-.auth-back:hover { color: var(--accent-text); }
+.auth-back:hover { color: var(--on-navy); }
 .auth-back svg { transition: transform 0.2s var(--ease-out); }
 .auth-back:hover svg { transform: translateX(-3px); }
-.auth-top-note { color: var(--muted); font-size: var(--step--1); display: inline-flex; align-items: center; gap: 0.6rem; }
+.auth-top-note { color: var(--on-navy-muted); font-size: var(--step--1); display: inline-flex; align-items: center; gap: 0.6rem; }
 
 .auth-form {
   width: min(440px, 100%);
@@ -1518,7 +1521,19 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 .auth-alt a { color: var(--accent-text); font-weight: 600; text-decoration: none; }
 .auth-alt a:hover { text-decoration: underline; }
 
-.auth-fine { margin: 0; color: var(--faint); font-size: var(--step--2); text-align: center; }
+.auth-fine {
+  margin: 0;
+  color: var(--on-navy-muted);
+  font-size: var(--step--2);
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 1rem;
+}
+.auth-fine a { color: var(--on-navy-muted); text-decoration: underline; text-underline-offset: 3px; }
+.auth-fine a:hover { color: var(--on-navy); }
 
 @media (max-width: 960px) {
   .auth { grid-template-columns: minmax(0, 1fr); }

@@ -62,6 +62,24 @@ const SPEND_PROFILE = {
   Miscellaneous: { times: [2, 5], amount: [200, 1800] },
 };
 
+/* How each kind of spending tends to be paid for here. The lists are weighted
+   by repetition rather than by probabilities, so `pick` alone produces a
+   believable mix: a canteen is notes, rent is a bank transfer, a subscription
+   needs a card, and a rickshaw is increasingly a wallet. This is what gives
+   the dashboard's cash/digital split something honest to show on first run. */
+const SPEND_METHODS = {
+  Food: ['cash', 'cash', 'cash', 'cash', 'easypaisa', 'jazzcash'],
+  Transport: ['cash', 'cash', 'cash', 'easypaisa', 'jazzcash'],
+  'Hostel/Rent': ['bank'],
+  Academics: ['cash', 'cash', 'easypaisa'],
+  Subscriptions: ['card', 'card', 'sadapay'],
+  Entertainment: ['cash', 'cash', 'jazzcash', 'card'],
+  Miscellaneous: ['cash', 'cash', 'easypaisa', 'nayapay'],
+  default: ['cash', 'cash', 'easypaisa'],
+};
+
+const INCOME_METHODS = ['bank', 'bank', 'easypaisa', 'jazzcash', 'cash'];
+
 async function seedCategories() {
   const existing = await Category.countDocuments({ owner: null });
   if (existing >= DEFAULT_CATEGORIES.length) {
@@ -138,6 +156,9 @@ async function seedHistory(user, categories, seed) {
         description: pick(random, DESCRIPTIONS[entry.name]),
         date: dayIn(month, entry.day),
         month,
+        // Money coming in mostly arrives digitally - an allowance transfer, a
+        // wallet top-up - with the occasional envelope of notes.
+        method: pick(random, INCOME_METHODS),
         source: 'manual',
       });
     }
@@ -162,6 +183,7 @@ async function seedHistory(user, categories, seed) {
           description: pick(random, DESCRIPTIONS[name]),
           date: dayIn(month, day),
           month,
+          method: pick(random, SPEND_METHODS[name] || SPEND_METHODS.default),
           source: 'manual',
         });
       }

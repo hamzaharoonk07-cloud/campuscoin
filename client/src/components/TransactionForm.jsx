@@ -3,6 +3,7 @@ import Icon from './Icon.jsx';
 import ReceiptScanner from './ReceiptScanner.jsx';
 import { api } from '../lib/api.js';
 import { slotColor, todayInput } from '../lib/format.js';
+import { METHODS, markFor } from '../lib/methods.js';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
 /**
@@ -23,6 +24,9 @@ export default function TransactionForm({ categories, existing, preset, onSaved,
     // A preset can carry a date (the calendar adds on the day that was tapped).
     date: existing ? new Date(existing.date).toISOString().slice(0, 10) : preset?.date || todayInput(),
     categoryId: existing?.category?._id || existing?.category || '',
+    // Most student spending is still notes, so cash is the resting choice.
+    method: existing?.method || preset?.method || 'cash',
+    methodLabel: existing?.methodLabel || '',
     recurringEnabled: existing?.recurring?.enabled || false,
     recurringFrequency: existing?.recurring?.frequency || 'monthly',
   }));
@@ -100,6 +104,8 @@ export default function TransactionForm({ categories, existing, preset, onSaved,
       note: form.note.trim(),
       date: form.date,
       categoryId: form.categoryId,
+      method: form.method,
+      methodLabel: form.method === 'other' ? form.methodLabel.trim() : '',
       recurring: { enabled: form.recurringEnabled, frequency: form.recurringFrequency },
     };
     if (receipt !== undefined) payload.receipt = receipt;
@@ -214,6 +220,45 @@ export default function TransactionForm({ categories, existing, preset, onSaved,
           ))}
         </select>
       </div>
+
+      {/* Cash or a wallet. Radios rather than a select, because this is the one
+          field worth answering without opening anything. */}
+      <fieldset className="field method-field">
+        <legend>{form.type === 'income' ? 'Received in' : 'Paid with'}</legend>
+        <div className="method-pills">
+          {METHODS.map((m) => (
+            <label key={m.id} className="method-pill" data-on={form.method === m.id || undefined}>
+              <input
+                type="radio"
+                name="method"
+                value={m.id}
+                checked={form.method === m.id}
+                onChange={set('method')}
+              />
+              <span className="method-mark" style={{ background: `#${markFor(m.id, form.methodLabel).hex}`, color: markFor(m.id, form.methodLabel).ink }}>
+                {markFor(m.id, form.methodLabel).letter}
+              </span>
+              {m.id === 'other' && form.methodLabel.trim() ? form.methodLabel.trim() : m.short}
+            </label>
+          ))}
+        </div>
+
+        {/* A wallet Campus Coin has not heard of still gets to be itself: the
+            name drives the logo through the same brand table the rows use. */}
+        {form.method === 'other' ? (
+          <div className="method-other">
+            <label htmlFor="methodLabel">Which one?</label>
+            <input
+              id="methodLabel"
+              value={form.methodLabel}
+              onChange={set('methodLabel')}
+              placeholder="UBL Omni, Keenu, a friend..."
+              maxLength={40}
+              autoComplete="off"
+            />
+          </div>
+        ) : null}
+      </fieldset>
 
       <div className="field">
         <label htmlFor="note">Note (optional)</label>

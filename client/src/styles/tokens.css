@@ -27,8 +27,8 @@
   --shadow-3: 0 4px 8px -2px rgba(10, 10, 11, 0.06), 0 16px 32px -12px rgba(10, 10, 11, 0.18);
   --shadow-2: 0 1px 3px rgba(10, 10, 11, 0.06), 0 6px 16px -8px rgba(10, 10, 11, 0.1);
   --shadow-1: 0 1px 2px rgba(10, 10, 11, 0.04);
-  --bad-soft: rgba(229, 72, 77, 0.1);
-  --bad: #e5484d;
+  --bad-soft: rgba(198, 47, 53, 0.1);
+  --bad: #c62f35;
   --good-soft: rgba(91, 145, 255, 0.14);
   --good: #2f5fd0;
   --tile-goal: #eaf1ff;
@@ -49,7 +49,7 @@
   --accent-soft: rgba(18, 18, 20, 0.06);
   --accent-deep: #000000;
   --accent: #121214;
-  --faint: #8e8e98;
+  --faint: #686872;
   --muted: #5c5c66;
   --text: #121214;
   --input-bg: #f5f5f6;
@@ -79,8 +79,8 @@
   --cat-6: #c4c9d4;
   --cat-7: #3d3d45;
 
-  --warn: #a9690a;
-  --warn-soft: rgba(169, 105, 10, 0.1);
+  --warn: #955c08;
+  --warn-soft: rgba(149, 92, 8, 0.1);
 
   /* Soft and low: the cards are separated by space more than by shadow. */
 
@@ -141,7 +141,7 @@
   --accent-soft: rgba(244, 244, 246, 0.08);
   --accent-deep: #ffffff;
   --accent: #f4f4f6;
-  --faint: #80808a;
+  --faint: #8e8e98;
   --muted: #b0b0ba;
   --text: #f4f4f6;
   --input-bg: #1e1e23;

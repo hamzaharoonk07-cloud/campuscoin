@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 import { startOfMonth } from '../utils/dates.js';
 
+/** Where money moved, in the order the form offers them. `cash` is notes in
+ *  hand; every other value is digital, which is the split the dashboard draws. */
+export const PAYMENT_METHODS = ['cash', 'bank', 'easypaisa', 'jazzcash', 'sadapay', 'nayapay', 'card', 'other'];
+export const isDigital = (method) => method !== 'cash';
+
 const transactionSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
@@ -12,6 +17,17 @@ const transactionSchema = new mongoose.Schema(
     date: { type: Date, required: true, index: true },
     // Denormalised month key so reports can group without a date pipeline.
     month: { type: Date, index: true },
+
+    // Where the money actually moved. Students here are paid in a mix of notes
+    // and wallets, and the two behave differently: cash leaves no trace and is
+    // the part that goes missing at the end of the month, so the split is worth
+    // carrying on every row rather than inferring it later. `cash` is notes in
+    // hand; every other value is digital.
+    method: { type: String, enum: PAYMENT_METHODS, default: 'cash', index: true },
+    // Only meaningful when `method` is 'other': the name the student typed, so
+    // a wallet Campus Coin has never heard of still shows as itself rather than
+    // as "Something else". The logo is derived from the name (lib/brands.js).
+    methodLabel: { type: String, trim: true, maxlength: 40, default: '' },
 
     // Set when the categorisation assistant proposed a category. Comparing this
     // with `category` is what tells the assistant it guessed wrong and should learn.

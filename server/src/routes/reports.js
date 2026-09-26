@@ -6,6 +6,8 @@ import Insight from '../models/Insight.js';
 import { protect, wrap } from '../middleware/auth.js';
 import {
   byCategory,
+  byMethod,
+  moneyFlow,
   budgetProgress,
   dailySeries,
   monthTotals,
@@ -35,7 +37,7 @@ router.get(
     // dashboard never shows a month that is missing this month's allowance.
     await runRecurring(req.user._id);
 
-    const [totals, spending, incomeSources, budgets, sixMonths, tips, announcements, insight, recent] = await Promise.all([
+    const [totals, spending, incomeSources, budgets, sixMonths, tips, announcements, insight, recent, methods, flow] = await Promise.all([
       monthTotals(req.user._id, month),
       byCategory(req.user._id, month, 'expense'),
       // Where the money came from, for the dashboard's monthly rhythm card.
@@ -51,6 +53,9 @@ router.get(
         .populate('category', 'name slot icon')
         .sort({ date: -1, createdAt: -1 })
         .limit(6),
+      // Cash against the wallets, for the dashboard's "money and cash" card.
+      byMethod(req.user._id, month, 'expense'),
+      moneyFlow(req.user._id, month),
     ]);
 
     res.json({
@@ -65,6 +70,8 @@ router.get(
       announcements,
       insight,
       recent,
+      methods,
+      flow,
       goal: {
         target: req.user.savingsGoal || 0,
         kept: totals.balance,

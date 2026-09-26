@@ -1,0 +1,373 @@
+/* ===========================================================================
+   The scroll story (components/ScrollStory.jsx)
+
+   Three acts, each a tall track with a stage pinned inside it. Scrolling the
+   track scrubs the beats: the track carries a named view timeline and every
+   beat binds to it with its own animation-range, so there is no scroll
+   listener and no JavaScript involved at all.
+
+   Ranges are expressed against `cover`, which runs from the moment the track
+   first appears to the moment it has fully left. With a 260vh track in a 100vh
+   viewport the stage is pinned between roughly 28% and 72% of that, so every
+   beat below sits inside that window.
+
+   Where scroll-driven timelines are unsupported, or the reader has asked for
+   reduced motion, the whole thing degrades to the three finished states
+   stacked down the page - the same rule the rest of the site follows.
+   =========================================================================== */
+
+.lp-story { background: var(--raised); }
+
+.story-track {
+  height: 260vh;
+  view-timeline-name: --act;
+  view-timeline-axis: block;
+}
+
+.story-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  width: min(1200px, 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+.story-side { max-width: 26rem; }
+.story-num {
+  display: block;
+  font-size: var(--step--2);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--good);
+  margin-bottom: 1.1rem;
+}
+.story-side h3 {
+  margin: 0;
+  font-size: clamp(1.9rem, 3.2vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.06;
+}
+.story-side p {
+  margin: 1.1rem 0 0;
+  color: var(--muted);
+  font-size: var(--step-0);
+  line-height: 1.65;
+}
+
+/* The panel is the app's own surface, not a picture of it. */
+.story-panel {
+  position: relative;
+  min-height: 27rem;
+  padding: clamp(1.25rem, 2.2vw, 1.9rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel-lg);
+  box-shadow: 0 1px 2px rgba(10, 10, 11, 0.04), 0 30px 60px -34px rgba(10, 10, 11, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* --- Pieces shared by the acts --------------------------------------------- */
+
+.story-compose,
+.story-ask {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-control);
+  background: var(--input-bg);
+  font-size: var(--step-0);
+}
+.story-compose svg { color: var(--faint); flex: none; }
+
+/* Typed text is revealed rather than animated per character, so it stays
+   selectable and screen readers get the whole string at once. */
+.story-typed {
+  position: relative;
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  clip-path: inset(0 100% 0 0);
+}
+.story-typed::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0.1em;
+  width: 2px;
+  height: 1.05em;
+  background: var(--sky);
+}
+.story-amount {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.story-chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--r-pill);
+  background: var(--good-soft);
+  color: var(--good);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+.story-chip-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.story-chip em { font-style: normal; font-weight: 500; opacity: 0.8; }
+
+.story-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.15rem;
+  border-top: 1px solid var(--line);
+}
+.story-rows .story-row:first-child,
+.story-reads .story-row:first-child { border-top: 0; }
+.story-row-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--muted);
+  flex: none;
+}
+.story-row-name {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+.story-row-name em { font-style: normal; font-size: var(--step--2); font-weight: 500; color: var(--muted); }
+.story-row-amt { font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.story-row.is-quiet { opacity: 0.55; }
+.story-row.is-more .story-row-name { color: var(--muted); font-weight: 500; }
+
+.story-budget { display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto; }
+.story-budget-top { display: flex; align-items: center; gap: 0.6rem; font-size: var(--step--1); font-weight: 600; }
+.story-budget-top em {
+  font-style: normal;
+  margin-left: auto;
+  font-size: var(--step--2);
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--r-pill);
+  background: var(--bad-soft);
+  color: var(--bad);
+  opacity: 0;
+}
+.story-budget-bar { height: 7px; border-radius: var(--r-pill); background: var(--sunken); overflow: hidden; }
+.story-budget-bar i { display: block; height: 100%; width: 0; background: var(--sky); border-radius: var(--r-pill); }
+.story-budget-fig { font-size: var(--step-1); font-weight: 700; letter-spacing: -0.03em; }
+.story-budget-fig small { font-size: var(--step--2); font-weight: 500; color: var(--muted); }
+
+.story-coin {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.8rem 1rem;
+  border-radius: 16px 16px 16px 4px;
+  background: var(--tile-in);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+.story-coin-face {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--sky);
+  flex: none;
+  margin-top: 0.1rem;
+}
+
+/* --- Act II ---------------------------------------------------------------- */
+
+.story-cal {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+.story-cal i { aspect-ratio: 1; border-radius: 5px; background: var(--sunken); opacity: 0; }
+.story-cal i.lvl-1 { background: color-mix(in srgb, var(--sky) 28%, var(--sunken)); }
+.story-cal i.lvl-2 { background: color-mix(in srgb, var(--sky) 58%, var(--sunken)); }
+.story-cal i.lvl-3 { background: var(--sky); }
+
+.story-months {
+  position: absolute;
+  inset: clamp(1.25rem, 2.2vw, 1.9rem);
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  opacity: 0;
+}
+.story-months span { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; height: var(--h); }
+.story-months i { width: 100%; flex-grow: 1; background: var(--sunken); border-radius: 6px 6px 0 0; }
+.story-months span.is-now i { background: var(--sky); }
+.story-months b { font-size: var(--step--2); font-weight: 500; color: var(--muted); }
+.story-months span.is-now b { color: var(--text); font-weight: 700; }
+
+.story-split {
+  position: absolute;
+  inset: clamp(1.25rem, 2.2vw, 1.9rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  opacity: 0;
+}
+.story-split svg { width: 11rem; height: 11rem; flex: none; }
+.story-split circle { fill: none; stroke-width: 7; }
+.story-split .t { stroke: var(--sunken); }
+.story-split .a1 { stroke: var(--cat-2); stroke-dasharray: var(--d); stroke-dashoffset: var(--o); }
+.story-split .a2 { stroke: var(--cat-1); stroke-dasharray: var(--d); stroke-dashoffset: var(--o); }
+.story-split .a3 { stroke: var(--cat-3); stroke-dasharray: var(--d); stroke-dashoffset: var(--o); }
+.story-split .a4 { stroke: var(--cat-6); stroke-dasharray: var(--d); stroke-dashoffset: var(--o); }
+.story-total { display: flex; flex-direction: column; gap: 0.35rem; }
+.story-total em { font-style: normal; font-size: var(--step--2); color: var(--muted); font-weight: 500; }
+.story-total b { font-size: var(--step-3); font-weight: 700; letter-spacing: -0.04em; }
+
+/* --- Act III --------------------------------------------------------------- */
+
+.story-reads { display: flex; flex-direction: column; }
+.story-reads .story-row { opacity: 0; }
+.story-sum {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--r-control);
+  background: var(--raised);
+  opacity: 0;
+}
+.story-sum span { font-size: var(--step--1); color: var(--muted); font-weight: 600; }
+.story-sum b { margin-left: auto; font-size: var(--step-2); font-weight: 700; letter-spacing: -0.035em; }
+.story-avg {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: var(--step--2);
+  color: var(--muted);
+  opacity: 0;
+}
+.story-avg b { margin-left: auto; color: var(--text); font-weight: 700; }
+
+/* ===========================================================================
+   The beats
+   =========================================================================== */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Everything that plays starts hidden; without timeline support the
+       declarations above leave each act in its finished state instead. */
+    .b-compose, .b-chip, .b-drop, .b-shift, .b-budget, .b-coin,
+    .b-ask, .b-sum, .b-answer, .b-avg { opacity: 0; }
+    .b-amount { opacity: 0; }
+
+    .lp-story [class*='b-'] {
+      animation-timeline: --act;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+    }
+
+    /* --- Act I --- */
+    .b-compose { animation-name: story-in; animation-range: cover 29% cover 35%; }
+    .story-typed { animation: story-type linear both; animation-timeline: --act; animation-range: cover 33% cover 43%; }
+    .b-amount { animation-name: story-in; animation-range: cover 42% cover 46%; }
+    .b-chip { animation-name: story-in; animation-range: cover 45% cover 51%; }
+    .b-drop { animation-name: story-drop; animation-range: cover 50% cover 57%; }
+    .b-shift { animation-name: story-in; animation-range: cover 52% cover 58%; }
+    .b-budget { animation-name: story-in; animation-range: cover 56% cover 61%; }
+    .story-budget-bar i { animation: story-fill linear both; animation-timeline: --act; animation-range: cover 58% cover 66%; }
+    .b-over { animation: story-in linear both; animation-timeline: --act; animation-range: cover 64% cover 67%; }
+    .b-coin { animation-name: story-in; animation-range: cover 65% cover 71%; }
+
+    /* --- Act II --- */
+    .b-cal { animation-name: story-hold; animation-range: cover 29% cover 52%; }
+    .story-cal i {
+      animation: story-pop linear both;
+      animation-timeline: --act;
+      animation-range: cover calc(29% + var(--i) * 0.4%) cover calc(33% + var(--i) * 0.4%);
+    }
+    .b-cal { animation-name: story-cal-out; animation-range: cover 29% cover 54%; }
+    .b-months { animation-name: story-swap; animation-range: cover 48% cover 64%; }
+    .story-months span i {
+      animation: story-grow linear both;
+      animation-timeline: --act;
+      animation-range: cover calc(50% + var(--i) * 0.8%) cover calc(56% + var(--i) * 0.8%);
+    }
+    .b-split { animation-name: story-in; animation-range: cover 63% cover 70%; }
+    .story-split .a1, .story-split .a2, .story-split .a3, .story-split .a4 {
+      animation: story-sweep linear both;
+      animation-timeline: --act;
+      animation-range: cover 64% cover 71%;
+    }
+
+    /* --- Act III --- */
+    .b-ask { animation-name: story-in; animation-range: cover 29% cover 34%; }
+    .story-typed.is-ask { animation-range: cover 32% cover 40%; }
+    .story-reads .story-row {
+      animation: story-in linear both;
+      animation-timeline: --act;
+      animation-range: cover calc(40% + var(--i, 0) * 2.5%) cover calc(46% + var(--i, 0) * 2.5%);
+    }
+    .b-sum { animation-name: story-in; animation-range: cover 53% cover 59%; }
+    .b-answer { animation-name: story-in; animation-range: cover 59% cover 66%; }
+    .b-avg { animation-name: story-in; animation-range: cover 65% cover 70%; }
+  }
+}
+
+@keyframes story-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes story-hold { from { opacity: 1; } to { opacity: 1; } }
+@keyframes story-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes story-drop { from { opacity: 0; transform: translateY(-26px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes story-fill { from { width: 0; } 70% { width: 82%; background: var(--sky); } to { width: 100%; background: var(--bad); } }
+@keyframes story-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
+@keyframes story-grow { from { transform: scaleY(0); transform-origin: bottom; } to { transform: none; transform-origin: bottom; } }
+@keyframes story-sweep { from { stroke-dasharray: 0 100; } to { stroke-dasharray: var(--d); } }
+@keyframes story-cal-out { 0%, 74% { opacity: 1; transform: none; } 100% { opacity: 0; transform: scale(0.9); } }
+@keyframes story-swap { 0% { opacity: 0; } 22%, 72% { opacity: 1; } 100% { opacity: 0; } }
+
+/* --- Without scroll timelines, or with reduced motion ---------------------- */
+
+@supports not (animation-timeline: view()) {
+  .story-track { height: auto; }
+  .story-stage { position: static; height: auto; padding-block: clamp(3rem, 7vw, 6rem); }
+  /* The two overlaid panels of act II have nothing to scrub them, so only the
+     one that the act resolves to is kept. */
+  .story-cal, .story-months { display: none; }
+  .story-split { position: static; inset: auto; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-track { height: auto; }
+  .story-stage { position: static; height: auto; padding-block: clamp(3rem, 7vw, 6rem); }
+  .story-cal, .story-months { display: none; }
+  .story-split { position: static; inset: auto; opacity: 1; }
+  .story-typed { clip-path: none; }
+  .story-typed::after { display: none; }
+  .story-budget-bar i { width: 100%; background: var(--bad); }
+  .story-budget-top em { opacity: 1; }
+}
+
+@media (max-width: 62rem) {
+  .story-stage { grid-template-columns: minmax(0, 1fr); gap: 2rem; align-content: center; }
+  .story-side { max-width: none; }
+  .story-panel { min-height: 22rem; }
+  .story-track { height: 220vh; }
+}

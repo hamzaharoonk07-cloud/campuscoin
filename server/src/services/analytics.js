@@ -50,6 +50,85 @@ export async function byCategory(userId, month, type = 'expense') {
   return rows.map((row) => ({ ...row, share: grand ? Math.round((row.total / grand) * 100) : 0 }));
 }
 
+/**
+ * Spending for one month split by where the money moved, largest first, with
+ * the cash / digital totals alongside. Cash leaves no trace of its own, so
+ * seeing it as its own figure is the point: it is the part that goes missing.
+ */
+export async function byMethod(userId, month, type = 'expense') {
+  const rows = await Transaction.aggregate([
+    { $match: { user: oid(userId), month: startOfMonth(month), type } },
+    {
+      $group: {
+        _id: {
+          method: { $ifNull: ['$method', 'cash'] },
+          // Two different wallets both filed under "other" are two different
+          // places, so the typed name is part of the grouping key.
+          label: {
+            $cond: [{ $eq: [{ $ifNull: ['$method', 'cash'] }, 'other'] }, { $ifNull: ['$methodLabel', ''] }, ''],
+          },
+        },
+        total: { $sum: '$amount' },
+        count: { $sum: 1 },
+      },
+    },
+    { $project: { _id: 0, method: '$_id.method', label: '$_id.label', total: { $round: ['$total', 2] }, count: 1 } },
+    { $sort: { total: -1 } },
+  ]);
+
+  const grand = rows.reduce((acc, r) => acc + r.total, 0);
+  const cash = rows.find((r) => r.method === 'cash')?.total || 0;
+  return {
+    rows: rows.map((row) => ({ ...row, share: grand ? Math.round((row.total / grand) * 100) : 0 })),
+    total: round2(grand),
+    cash: round2(cash),
+    digital: round2(grand - cash),
+    cashShare: grand ? Math.round((cash / grand) * 100) : 0,
+  };
+}
+
+/**
+ * Money arriving against money leaving, each split between accounts and cash.
+ *
+ * Note what this deliberately is NOT: a balance. Campus Coin has no concept of
+ * moving money between places, so it never sees a withdrawal - an allowance
+ * that lands in a bank account and is then spent as notes looks like money
+ * that entered the account and left as cash, and a running per-place total
+ * would drive cash steadily negative. Reporting the two flows is the honest
+ * version of the same question, and it is the more interesting one anyway:
+ * for most students money arrives digitally and leaves as notes.
+ */
+export async function moneyFlow(userId, month) {
+  const rows = await Transaction.aggregate([
+    { $match: { user: oid(userId), month: startOfMonth(month) } },
+    {
+      $group: {
+        _id: { method: { $ifNull: ['$method', 'cash'] }, type: '$type' },
+        total: { $sum: '$amount' },
+      },
+    },
+  ]);
+
+  const side = (type) => {
+    let cash = 0;
+    let account = 0;
+    for (const row of rows) {
+      if (row._id.type !== type) continue;
+      if (row._id.method === 'cash') cash += row.total;
+      else account += row.total;
+    }
+    const total = cash + account;
+    return {
+      cash: round2(cash),
+      account: round2(account),
+      total: round2(total),
+      cashShare: total > 0 ? Math.round((cash / total) * 100) : null,
+    };
+  };
+
+  return { in: side('income'), out: side('expense') };
+}
+
 /** Income vs expense for the last `count` months, oldest first. */
 export async function trend(userId, endMonthDate, count = 6) {
   const months = monthRange(endMonthDate, count);

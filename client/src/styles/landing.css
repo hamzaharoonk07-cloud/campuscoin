@@ -467,6 +467,14 @@
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 3rem;
+  align-items: start;
+}
+.lp-faq-aside {
+  margin: 1.5rem 0 1.6rem;
+  max-width: 22rem;
+  color: var(--muted);
+  font-size: var(--step-0);
+  line-height: 1.7;
 }
 .lp-faq details { border-bottom: 1px solid var(--line); }
 .lp-faq summary {
@@ -815,7 +823,8 @@
 
 .lp-faq details[open] p { animation: lp-rise 0.45s var(--ease-out); }
 .lp-faq summary { transition: color 0.2s var(--ease); }
-.lp-faq summary:hover { color: var(--accent-text); }
+/* --accent-text is the same ink as --text, so a colour hover here changed
+   nothing; the card border carries the hover instead (see .lp-faq details). */
 
 
 @media (prefers-reduced-motion: reduce) {
@@ -1194,13 +1203,212 @@
    the hero, and turns light once the page scrolls.
    =========================================================================== */
 
+/* Direction C: the data is the hero. A quiet neutral ground, short centred
+   copy, and one wide board of real figures running off the fold. */
+/* The ground is a deliberate dark band in both themes, the way the CTA and the
+   Meet Coin sections are. The white data board sitting on it is what gives the
+   hero its depth: on a light grey ground the same board had nothing to lift
+   off, which read as flat and empty. */
 .lp-hero {
-  --hero-top: #0c0c0e;
+  --hero-top: #0a0a0c;
+  padding: clamp(1.5rem, 3vw, 2.5rem) 0 0;
   background:
-    radial-gradient(80% 70% at 85% 10%, rgba(91, 145, 255, 0.18) 0%, transparent 60%),
-    linear-gradient(160deg, var(--hero-top) 0%, #121214 60%, #17171c 100%);
-  color: #fff;
+    radial-gradient(70% 55% at 50% 4%, rgba(91, 145, 255, 0.26) 0%, transparent 62%),
+    radial-gradient(45% 40% at 88% 78%, rgba(91, 145, 255, 0.14) 0%, transparent 70%),
+    linear-gradient(176deg, #0a0a0c 0%, #101018 58%, #14141d 100%);
+  color: #ffffff;
   border-bottom: 0;
+}
+/* A grid, faded out at the edges, gives the band a floor to sit on. */
+.lp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 68px 68px;
+  mask-image: radial-gradient(72% 62% at 50% 34%, #000 0%, transparent 78%);
+}
+.lp-hero > * { position: relative; z-index: 1; }
+/* The copy is tightened here rather than globally: these margins are tuned for
+   a left-aligned column elsewhere on the page and read as slack when the same
+   block is centred and has to sit above the board. */
+.lp-hero-head h1 { margin: 1.1rem 0 1.1rem; }
+.lp-hero-head .lp-actions { margin-top: 1.6rem; }
+.lp-hero-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.lp-hero-head .lp-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* A column flex box with centred items lets a child with a larger max-width
+     grow past the container, which overflowed the whole hero on a phone. */
+  max-width: min(54rem, 100%);
+  width: 100%;
+}
+.lp-hero-head .lp-hero-copy > * { max-width: 100%; }
+.lp-hero-head .lp-lead { max-width: min(34rem, 100%); margin-inline: auto; }
+/* This wins over the nowrap in .lp-line, which is declared later in the file
+   and so beat the earlier max-width: 560px override that was meant to undo it. */
+@media (max-width: 62rem) {
+  .lp-hero h1 .lp-line { white-space: normal; }
+  .lp-hero h1 em { white-space: normal; }
+}
+.lp-hero-head .lp-actions { justify-content: center; }
+
+/* The board is deliberately taller than the space left below the fold, so it
+   is cut by it: that is what says there is more underneath. */
+.lp-board {
+  /* The hero band sets white ink for the dark ground; the board is a light
+     panel sitting on it and has to set its own, or every heading, label and
+     figure inside it inherits white onto white. */
+  color: var(--text);
+  margin-top: clamp(1.4rem, 2.5vw, 2rem);
+  /* Taller than the space left below it on a laptop, so the fold cuts it.
+     A board that ends just above the fold reads as a small floating card;
+     one the fold cuts reads as a page that continues. */
+  min-height: 26rem;
+  padding: clamp(1.4rem, 2.4vw, 2rem) clamp(1.4rem, 2.4vw, 2.2rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel-lg) var(--r-panel-lg) 0 0;
+  border-bottom: 0;
+  box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.10), 0 -30px 70px -30px rgba(0, 0, 0, 0.85);
+  display: grid;
+  grid-template-columns: 1.55fr 1fr 1fr;
+  gap: clamp(1.5rem, 2.6vw, 2.2rem);
+}
+.lp-board-col { display: flex; flex-direction: column; min-width: 0; }
+.lp-board-col + .lp-board-col { border-left: 1px solid var(--line); padding-left: clamp(1.5rem, 2.6vw, 2.2rem); }
+.lp-board-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.lp-board-head strong { font-size: var(--step--1); font-weight: 700; letter-spacing: -0.01em; }
+.lp-board-head span { margin-left: auto; font-size: var(--step--2); color: var(--muted); }
+
+/* Six months, one accent, the current month solid. */
+.lp-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0.15rem;
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(0.7rem, 1.4vw, 1.25rem);
+  height: 13rem;
+  border-bottom: 1px solid var(--line);
+}
+.lp-bars li {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  height: var(--h);
+}
+.lp-bar-figure { font-size: var(--step--2); font-weight: 600; color: var(--muted); }
+.lp-bar {
+  width: 100%;
+  flex-grow: 1;
+  background: #ebedf1;
+  border-radius: 6px 6px 0 0;
+}
+/* The month sits below the rule the bars stand on, so it never rides up the
+   column with a short bar. */
+.lp-bars li { position: relative; }
+.lp-bar-month {
+  position: absolute;
+  top: 100%;
+  margin-top: 0.55rem;
+  font-size: var(--step--2);
+  color: var(--muted);
+  font-weight: 500;
+}
+.lp-bars { margin-bottom: 2.1rem; }
+.lp-bars li.is-now .lp-bar { background: var(--sky); }
+.lp-bars li.is-now .lp-bar-figure,
+.lp-bars li.is-now .lp-bar-month { color: var(--text); font-weight: 700; }
+
+.lp-split { display: flex; align-items: center; gap: 1.25rem; }
+.lp-donut { width: 6.5rem; height: 6.5rem; flex: none; }
+.lp-donut-track { fill: none; stroke: var(--sunken); stroke-width: 7; }
+.lp-donut-arc { fill: none; stroke-width: 7; }
+.lp-donut-arc:nth-of-type(2) { stroke: var(--cat-2); }
+.lp-donut-arc:nth-of-type(3) { stroke: var(--cat-1); }
+.lp-donut-arc:nth-of-type(4) { stroke: var(--cat-3); }
+.lp-donut-arc:nth-of-type(5) { stroke: var(--cat-6); }
+
+.lp-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.65rem; min-width: 0; }
+.lp-legend li { display: flex; align-items: center; gap: 0.55rem; font-size: var(--step--2); font-weight: 600; }
+.lp-legend b { margin-left: auto; font-weight: 500; color: var(--muted); }
+.lp-legend i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.lp-legend li:nth-child(1) i { background: var(--cat-2); }
+.lp-legend li:nth-child(2) i { background: var(--cat-1); }
+.lp-legend li:nth-child(3) i { background: var(--cat-3); }
+.lp-legend li:nth-child(4) i { background: var(--cat-6); }
+
+.lp-board-stat {
+  margin-top: 1.6rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.lp-board-stat span { font-size: var(--step--2); color: var(--muted); font-weight: 500; }
+.lp-board-stat strong { font-size: var(--step-2); font-weight: 700; letter-spacing: -0.035em; }
+.lp-board-stat small { font-size: var(--step--2); font-weight: 500; color: var(--muted); }
+
+.lp-board-chat { display: flex; flex-direction: column; gap: 0.7rem; }
+.lp-board-chat .lp-chat-q {
+  align-self: flex-end;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--step--2);
+  font-weight: 500;
+  padding: 0.6rem 0.85rem;
+  border-radius: 14px 14px 4px 14px;
+  max-width: 13rem;
+}
+.lp-board-chat .lp-chat-a {
+  align-self: flex-start;
+  background: var(--raised);
+  color: var(--text);
+  font-size: var(--step--2);
+  line-height: 1.5;
+  padding: 0.65rem 0.85rem;
+  border-radius: 14px 14px 14px 4px;
+}
+.lp-board-facts {
+  list-style: none;
+  margin: auto 0 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.lp-board-facts li { display: flex; align-items: center; gap: 0.7rem; font-size: var(--step--2); font-weight: 600; }
+.lp-board-facts svg { color: var(--muted); flex: none; }
+
+@media (max-width: 62rem) {
+  .lp-board { grid-template-columns: minmax(0, 1fr); }
+  .lp-board-col + .lp-board-col {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+  }
 }
 
 .lp-mesh-a { background: #5b91ff; opacity: 0.12; animation: none; }
@@ -1210,76 +1418,62 @@
     linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
 }
 
-/* --- Text on the dark ------------------------------------------------------ */
+/* --- Text in the hero ------------------------------------------------------ */
 
-.lp-hero h1 { color: #fff; }
-.lp-hero h1 em { color: #5b91ff; }
-.lp-underline path { stroke: #5b91ff; opacity: 0.7; }
-.lp-hero .lp-lead { color: #b8bcc8; }
+/* Ink for the dark band. Every value is fixed rather than tokenised, because
+   this band is dark in both themes. */
+.lp-hero h1 { color: #ffffff; }
+.lp-hero h1 em { color: #8ab0ff; }
+.lp-hero .lp-lead { color: #c2c5d2; }
 
 .lp-badge {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.16);
-  color: #eef0f5;
+  color: #e8eaf2;
   backdrop-filter: blur(8px);
   box-shadow: none;
 }
-.lp-badge:hover { border-color: rgba(91, 145, 255, 0.6); box-shadow: 0 0 0 4px rgba(91, 145, 255, 0.12); }
-.lp-badge svg { color: #5b91ff; }
+.lp-badge:hover { border-color: rgba(91, 145, 255, 0.65); box-shadow: 0 0 0 4px rgba(91, 145, 255, 0.14); }
+.lp-badge svg { color: #8ab0ff; }
 .lp-badge-tag { background: #5b91ff; color: #ffffff; }
 
+/* A white pill on the dark reads as the one thing to press. */
 .lp-hero .lp-btn-solid {
-  background: #5b91ff;
-  border-color: #5b91ff;
-  color: #ffffff;
-  box-shadow: 0 14px 30px -12px rgba(91, 145, 255, 0.6);
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #121214;
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.9);
 }
-.lp-hero .lp-btn-solid:hover { background: #fff; border-color: #fff; }
-.lp-hero .lp-text-link { color: #fff; }
+.lp-hero .lp-btn-solid:hover { background: #e8eaf2; border-color: #e8eaf2; }
+.lp-hero .lp-text-link { color: #ffffff; }
 
-.lp-facts { border-top-color: rgba(255, 255, 255, 0.14); }
-.lp-facts strong { color: #fff; }
-.lp-facts li > span:last-child { color: #9ea3b0; }
-.lp-fact-icon,
-.lp-fact-icon.is-mint,
-.lp-fact-icon.is-cream {
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-}
-.lp-fact-icon { color: #5b91ff; }
-.lp-fact-icon.is-mint { color: #5b91ff; }
-.lp-fact-icon.is-cream { color: #ffffff; }
-
-.lp-orbit { border-color: rgba(255, 255, 255, 0.16); }
-.lp-orbit-coin { box-shadow: 0 0 18px 2px rgba(91, 145, 255, 0.6); }
-.lp-orbit-coin.is-small { background: #5b91ff; box-shadow: 0 0 14px 2px rgba(91, 145, 255, 0.6); }
-
-/* The desktop frame gets a thin light rim so it separates from the navy. */
-.lp-frame {
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-.lp-phone { box-shadow: 0 40px 80px -24px rgba(0, 0, 0, 0.7), inset 0 0 0 2px #34343c; }
+/* The layered stage this styled - the mesh, the orbits, the desktop frame, the
+   phone, the floating cards and the fact row - was replaced by the data board.
+   Its white-on-navy rules are gone with it; left in place over the light hero
+   they painted white text on a white ground. */
 /* Cards are light surfaces on the dark hero, so they set their own text colour
    rather than inheriting the hero's white. */
 .lp-card { color: var(--text); border-color: transparent; box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.55); }
 
 /* --- Navigation while it sits over the hero ------------------------------- */
 
+/* Named outright rather than through --hero-top: that custom property is
+   declared on .lp-hero, which is this element's sibling, so it never resolved
+   here and the fallback had silently been doing all the work. */
 .lp-nav.is-top {
-  background: var(--hero-top, #0b0d10);
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: #0a0a0c;
+  border-bottom-color: transparent;
   backdrop-filter: none;
 }
 .lp-nav.is-top .lp-brand,
-.lp-nav.is-top .lp-nav-links a { color: #fff; }
-.lp-nav.is-top .lp-nav-links a:hover { color: #5b91ff; }
-.lp-nav.is-top .lp-nav-links a::after { background: #5b91ff; }
+.lp-nav.is-top .lp-nav-links a { color: #ffffff; }
+.lp-nav.is-top .lp-nav-links a:hover { color: #8ab0ff; }
+.lp-nav.is-top .lp-nav-links a::after { background: #8ab0ff; }
 .lp-nav.is-top .lp-nav-cta {
   background: #5b91ff;
   border-color: #5b91ff;
   color: #ffffff;
-  box-shadow: none;
+  box-shadow: 0 14px 30px -14px rgba(91, 145, 255, 0.8);
 }
 .lp-nav { transition: background 0.35s var(--ease), box-shadow 0.3s var(--ease), border-color 0.35s var(--ease); }
 .lp-nav .lp-brand,
@@ -1450,7 +1644,7 @@
     text-decoration: none;
     color: inherit;
   }
-  .lp-nav.is-top .lp-nav-signin { color: #fff; background: rgba(255, 255, 255, 0.1); }
+  .lp-nav.is-top .lp-nav-signin { color: #ffffff; background: rgba(255, 255, 255, 0.12); }
   .lp-nav.is-scrolled .lp-nav-signin { background: var(--raised); }
 }
 @media (max-width: 520px) {
@@ -1650,19 +1844,26 @@ body:has(.lp) { background: var(--surface); }
 .lp-step-art { transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1); }
 .lp-steps li:hover .lp-step-art { transform: translateY(-6px); }
 
-/* Questions as cards. */
+/* Questions as cards. The card follows the theme: a hardcoded white here left
+   near-white question text on a white card in the dark theme, invisible. */
 .lp-faq details {
   margin-bottom: 0.6rem;
   padding: 0 1.2rem;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: #fff;
+  background: var(--surface);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.lp-faq details[open] { border-color: #a9c5ff; box-shadow: 0 16px 36px -22px rgba(63, 116, 230, 0.5); }
+.lp-faq details:hover { border-color: var(--line-strong); }
+.lp-faq details[open] {
+  border-color: color-mix(in srgb, var(--sky) 45%, var(--line));
+  box-shadow: 0 16px 36px -22px rgba(63, 116, 230, 0.5);
+}
 .lp-faq summary { font-weight: 600; }
-.lp-faq details[open] summary svg { transform: rotate(45deg); color: #3f74e6; }
+.lp-faq details[open] summary svg { transform: rotate(45deg); color: var(--sky); }
 .lp-faq summary svg { transition: transform 0.25s ease; }
+/* Keyboard users get no marker to follow, so the ring has to be explicit. */
+.lp-faq summary:focus-visible { outline: 2px solid var(--sky); outline-offset: 3px; border-radius: 10px; }
 
 /* Revealing sections rise a little further and faster. */
 [data-reveal] { transition-duration: 0.8s; }
@@ -1727,4 +1928,138 @@ body:has(.lp) { background: var(--surface); }
 }
 @media (prefers-reduced-motion: reduce) {
   .lp-logos-track { animation: none; }
+}
+
+/* ===========================================================================
+   The hero devices
+   ---------------------------------------------------------------------------
+   The laptop sits back and slightly left, the phone stands in front of it on
+   the right, and two live cards float clear of both. The stage is taller than
+   the space below the fold, so it is cut by it.
+
+   Three kinds of motion, kept on separate properties so they never fight:
+     translate  - the entrance (each layer arrives from a different direction)
+     transform  - the pointer parallax on .lp-depth
+     the float  - a slow drift, applied to an inner wrapper on the cards
+   =========================================================================== */
+
+.lp-devices {
+  position: relative;
+  margin-top: clamp(1.4rem, 2.5vw, 2.25rem);
+  height: clamp(20rem, 34vw, 30rem);
+  perspective: 1400px;
+}
+
+.lp-laptop {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(78%, 62rem);
+  margin: 0;
+  translate: -54% 0;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  animation: lp-laptop-in 1.1s var(--ease-out) 0.25s backwards;
+}
+@keyframes lp-laptop-in {
+  from { opacity: 0; translate: -54% 46px; }
+}
+.lp-laptop img { display: block; width: 100%; height: auto; }
+
+.lp-handset {
+  position: absolute;
+  right: 4%;
+  top: 12%;
+  width: clamp(9rem, 15vw, 13.5rem);
+  margin: 0;
+  border-radius: 30px;
+  background: #121214;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 50px 90px -26px rgba(0, 0, 0, 0.9), inset 0 0 0 2px #2a2a33;
+  padding: 7px;
+  overflow: hidden;
+  animation: lp-handset-in 1.1s var(--ease-out) 0.45s backwards;
+}
+@keyframes lp-handset-in {
+  from { opacity: 0; translate: 0 64px; rotate: 4deg; }
+}
+.lp-handset img { display: block; width: 100%; height: auto; border-radius: 24px; }
+.lp-handset-notch {
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  translate: -50% 0;
+  width: 34%;
+  height: 14px;
+  border-radius: 0 0 10px 10px;
+  background: #121214;
+  z-index: 2;
+}
+
+/* The two cards that carry real figures. */
+.lp-chip {
+  position: absolute;
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  box-shadow: 0 26px 50px -22px rgba(0, 0, 0, 0.8);
+  font-size: 0.82rem;
+  animation: lp-chip-in 0.8s var(--ease-out) backwards;
+}
+@keyframes lp-chip-in {
+  from { opacity: 0; translate: 0 18px; scale: 0.94; }
+}
+.lp-chip-in { left: 1%; top: -4%; align-items: center; animation-delay: 0.85s; }
+.lp-chip-ask { left: 8%; bottom: 8%; flex-direction: column; gap: 0.45rem; max-width: 16rem; animation-delay: 1s; }
+.lp-chip-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--tile-in);
+  color: var(--good);
+  flex: none;
+}
+.lp-chip em { font-style: normal; display: block; color: var(--muted); font-size: 0.74rem; }
+.lp-chip strong { display: block; font-size: 0.98rem; letter-spacing: -0.02em; }
+.lp-chip-q {
+  align-self: flex-start;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.35rem 0.7rem;
+  border-radius: 12px 12px 12px 3px;
+  font-weight: 600;
+}
+.lp-chip-a { color: var(--muted); line-height: 1.45; }
+
+/* The slow drift, on `translate` so the parallax `transform` is untouched. */
+@media (prefers-reduced-motion: no-preference) {
+  .lp-chip-in { animation: lp-chip-in 0.8s var(--ease-out) 0.85s backwards, lp-drift 7s ease-in-out 1.7s infinite; }
+  .lp-chip-ask { animation: lp-chip-in 0.8s var(--ease-out) 1s backwards, lp-drift 9s ease-in-out 2s infinite reverse; }
+  .lp-handset { animation: lp-handset-in 1.1s var(--ease-out) 0.45s backwards, lp-drift 11s ease-in-out 1.6s infinite; }
+}
+@keyframes lp-drift {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -9px; }
+}
+
+@media (max-width: 62rem) {
+  .lp-devices { height: clamp(16rem, 52vw, 24rem); }
+  .lp-laptop { width: 92%; translate: -50% 0; }
+  @keyframes lp-laptop-in { from { opacity: 0; translate: -50% 46px; } }
+  .lp-handset { right: 0; top: 18%; }
+  .lp-chip-in, .lp-chip-ask { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-laptop, .lp-handset, .lp-chip { animation: none; }
+  .lp-depth { transform: none; transition: none; }
 }

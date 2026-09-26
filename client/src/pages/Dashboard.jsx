@@ -5,6 +5,7 @@ import Icon from '../components/Icon.jsx';
 import TransactionForm, { Modal } from '../components/TransactionForm.jsx';
 import { api } from '../lib/api.js';
 import { formatDate, money, monthKey, slotColor } from '../lib/format.js';
+import { markFor } from '../lib/methods.js';
 import CountUp from '../components/CountUp.jsx';
 import { DonutChart, MonthBars } from '../components/DashCharts.jsx';
 import { artUrl, categoryArt, CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
@@ -314,7 +315,7 @@ export default function Dashboard() {
     );
   }
 
-  const { totals, spending, trend, tips, recent, insight, budgets, goal, announcements } = data;
+  const { totals, spending, trend, tips, recent, insight, budgets, goal, announcements, methods, flow } = data;
   // Last month, for the change chips: the trend ends with the month shown.
   const before = trend.length > 1 ? trend[trend.length - 2] : null;
   const [year, monthIndex] = month.split('-').map(Number);
@@ -369,6 +370,13 @@ export default function Dashboard() {
               </strong>
               <Chip pct={change(totals.income, before?.income)} />
             </span>
+            {/* Where it landed. Money mostly arrives digitally, so accounts lead. */}
+            {flow?.in?.total ? (
+              <span className="d9-stat-split">
+                <em>{money(flow.in.account, currency)} accounts</em>
+                <em>{money(flow.in.cash, currency)} cash</em>
+              </span>
+            ) : null}
           </Link>
           <Link to="/transactions" className="d9-card d9-stat">
             <span className="d9-stat-head">
@@ -381,6 +389,13 @@ export default function Dashboard() {
               </strong>
               <Chip pct={change(totals.expense, before?.expense)} />
             </span>
+            {/* And where it left from. Cash leads here, which is the whole point. */}
+            {flow?.out?.total ? (
+              <span className="d9-stat-split">
+                <em>{money(flow.out.cash, currency)} cash</em>
+                <em>{money(flow.out.account, currency)} accounts</em>
+              </span>
+            ) : null}
           </Link>
           <Link to="/insights" className="d9-card d9-stat">
             <span className="d9-stat-head">
@@ -466,6 +481,65 @@ export default function Dashboard() {
             )}
           </section>
   
+          {/* Cash against the wallets. Cash is shown first and on its own line
+              because it is the half of a month with no record to check against. */}
+          <section className="d9-card d9-methods">
+            <div className="d9-head">
+              <h2>In account and in cash</h2>
+              <Link to="/transactions" className="d9-link">
+                All
+              </Link>
+            </div>
+            {methods?.total ? (
+              <>
+                <div className="d9-methods-split">
+                  <span className="is-digital">
+                    <em>Came in to accounts</em>
+                    <strong className="num">{money(flow?.in?.account ?? 0, currency)}</strong>
+                    <small>
+                      {flow?.in?.cash ? `and ${money(flow.in.cash, currency)} as cash` : 'nothing arrived as cash'}
+                    </small>
+                  </span>
+                  <span>
+                    <em>Went out as cash</em>
+                    <strong className="num">{money(flow?.out?.cash ?? 0, currency)}</strong>
+                    <small>
+                      {flow?.out?.account ? `and ${money(flow.out.account, currency)} from accounts` : 'nothing from accounts'}
+                    </small>
+                  </span>
+                </div>
+                {flow?.out?.cashShare !== null && flow?.out?.cashShare !== undefined ? (
+                  <div className="d9-methods-bar" aria-label={`${flow.out.cashShare}% of spending was cash`}>
+                    <i style={{ width: `${flow.out.cashShare}%` }} />
+                  </div>
+                ) : null}
+                <p className="d9-methods-note">
+                  Money reaches you digitally and leaves as notes. Withdrawals are not logged, so no balance is
+                  guessed. Spent this month:
+                </p>
+                <ul className="d9-methods-list">
+                  {methods.rows.map((row) => {
+                    const m = markFor(row.method, row.label);
+                    return (
+                      <li key={`${row.method}:${row.label || ''}`}>
+                        <span className="d9-method-mark" style={{ background: `#${m.hex}`, color: m.ink }}>
+                          {m.letter}
+                        </span>
+                        <span className="d9-method-name">
+                          {m.name}
+                          <em>{row.count} {row.count === 1 ? 'entry' : 'entries'}</em>
+                        </span>
+                        <span className="num">{money(row.total, currency)}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            ) : (
+              <p className="d9-muted">Nothing spent yet this month.</p>
+            )}
+          </section>
+
           <section className="d9-card d9-bva">
             <div className="d9-head">
               <h2>Budget vs. actual</h2>

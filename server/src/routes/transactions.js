@@ -1,6 +1,6 @@
 import express from 'express';
 import Category from '../models/Category.js';
-import Transaction from '../models/Transaction.js';
+import Transaction, { PAYMENT_METHODS } from '../models/Transaction.js';
 import { protect, wrap } from '../middleware/auth.js';
 import { learn, suggestBatch } from '../services/categorizer.js';
 import { detectFlags, describeFlag } from '../services/anomaly.js';
@@ -96,7 +96,7 @@ router.get(
 router.post(
   '/',
   wrap(async (req, res) => {
-    const { categoryId, type, amount, description, note, date, recurring, aiSuggestedCategory, receipt } = req.body;
+    const { categoryId, type, amount, description, note, date, recurring, aiSuggestedCategory, receipt, method, methodLabel } = req.body;
 
     const category = await resolveCategory(req.user, categoryId);
     if (!category) return res.status(400).json({ message: 'Choose a category from your list' });
@@ -115,6 +115,11 @@ router.post(
       description: description || '',
       note: note || '',
       date: when,
+      // An unknown value would fail schema validation with a raw Mongoose
+      // message, so it falls back to cash rather than rejecting the save.
+      method: PAYMENT_METHODS.includes(method) ? method : 'cash',
+      // Kept only for 'other'; a name on a known method would never be shown.
+      methodLabel: method === 'other' ? String(methodLabel || '').slice(0, 40) : '',
       aiSuggestedCategory: aiSuggestedCategory || null,
       // Recorded so the AI page can report how often its guesses were kept.
       aiAccepted: aiSuggestedCategory ? String(aiSuggestedCategory) === String(category._id) : null,
@@ -181,6 +186,11 @@ router.patch(
 
     for (const field of ['amount', 'description', 'note']) {
       if (req.body[field] !== undefined) transaction[field] = req.body[field];
+    }
+    if (PAYMENT_METHODS.includes(req.body.method)) transaction.method = req.body.method;
+    if (req.body.methodLabel !== undefined || req.body.method) {
+      transaction.methodLabel =
+        transaction.method === 'other' ? String(req.body.methodLabel || transaction.methodLabel || '').slice(0, 40) : '';
     }
     if (req.body.date) transaction.date = new Date(req.body.date);
     if (req.body.receipt !== undefined) {
@@ -313,6 +323,7 @@ router.post(
         description: row.description || '',
         date: when,
         month: startOfMonth(when),
+        method: PAYMENT_METHODS.includes(row.method) ? row.method : 'cash',
         source: 'csv',
       });
     }

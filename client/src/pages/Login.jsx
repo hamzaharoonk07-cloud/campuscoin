@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import Icon, { BrandMark, Wordmark } from '../components/Icon.jsx';
+import Icon, { Wordmark } from '../components/Icon.jsx';
 import { useAuth } from '../context/AppContext.jsx';
 
 /**
@@ -132,13 +132,10 @@ export default function Login() {
         </AuthTop>
 
         <form className="auth-form" onSubmit={submit}>
+          {/* The aside already carries the brand and the promise, so the card
+              only has to ask for two things. */}
           <div className="auth-head">
-            <span className="auth-mark">
-              <BrandMark size={36} />
-            </span>
-            <span className="eyebrow">Welcome back</span>
-            <h1>Sign in to Campus Coin</h1>
-            <p>Pick up where you left off: your month, your budgets and your tips.</p>
+            <h1>Sign in</h1>
           </div>
 
           {error ? <div className="form-error">{error}</div> : null}
@@ -178,21 +175,17 @@ export default function Login() {
             {busy ? null : <Icon name="arrow-ne" size={16} />}
           </button>
 
-          <div className="auth-divider">
-            <span>or explore first</span>
-          </div>
-
           <button type="button" className="btn btn-block auth-demo" onClick={signInAsDemo} disabled={busy}>
             <Icon name="user" size={16} />
-            Use the demo student account
+            Use the demo account
           </button>
-
-          <p className="auth-alt">
-            Running the app? <Link to="/admin/login">Administrator sign-in</Link>
-          </p>
         </form>
 
-        <p className="auth-fine">No bank connection, no card details, no subscription.</p>
+        {/* Out of the card: neither is part of signing in. */}
+        <p className="auth-fine">
+          No bank connection, no card details, no subscription.
+          <Link to="/admin/login">Administrator sign-in</Link>
+        </p>
       </div>
     </div>
   );

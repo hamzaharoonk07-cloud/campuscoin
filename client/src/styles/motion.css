@@ -318,3 +318,87 @@
   .route-progress { transition: none; animation: none; }
   .route-progress { display: none; }
 }
+
+/* --- The sign-in pages ----------------------------------------------------
+   Two columns arriving together: the promise on the left reads top to bottom
+   while the form on the right settles into place, so the eye lands on the
+   first field about when it becomes usable. Nothing loops and nothing waits
+   on a scroll position - these pages are above the fold by definition.
+
+   Every entrance ends at the element's own resting style, so with reduced
+   motion the pages simply appear complete. Shared by Login, Register, Forgot
+   password and Reset password, which all use this markup. */
+
+.auth-aside > *,
+.auth-aside .auth-preview { animation: rise 0.7s var(--ease-out) backwards; }
+.auth-aside > :nth-child(1) { animation-delay: 0.05s; }
+.auth-aside > :nth-child(2) { animation-delay: 0.14s; }
+.auth-aside > :nth-child(3) { animation-delay: 0.22s; }
+
+/* The headline's two lines, then the paragraph under them. */
+.auth-title,
+.auth-lead { animation: rise 0.7s var(--ease-out) backwards; }
+.auth-title { animation-delay: 0.20s; }
+.auth-lead { animation-delay: 0.30s; }
+
+/* The rule beside the eyebrow draws itself rather than fading. */
+.auth-aside .eyebrow.has-rule::before {
+  animation: auth-rule 0.55s var(--ease-out) 0.16s backwards;
+}
+@keyframes auth-rule {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* The dashboard behind the glass lifts in, and its tip card arrives last so
+   it reads as something the app did rather than part of the picture. */
+.auth-preview img { animation: auth-shot 0.9s var(--ease-out) 0.34s backwards; }
+@keyframes auth-shot {
+  from { opacity: 0; transform: translateY(26px) scale(0.975); }
+}
+.auth-preview-card { animation: auth-card 0.7s var(--ease-out) 0.72s backwards; }
+@keyframes auth-card {
+  from { opacity: 0; transform: translate(-14px, 10px) scale(0.94); }
+}
+
+/* The form side: the strip above, then the card, then its contents in the
+   order they are filled in. */
+.auth-top { animation: rise 0.6s var(--ease-out) 0.08s backwards; }
+.auth-form { animation: enter 0.7s var(--ease-out) 0.16s backwards; }
+.auth-form > * { animation: rise 0.55s var(--ease-out) backwards; }
+.auth-form > :nth-child(1) { animation-delay: 0.30s; }
+.auth-form > :nth-child(2) { animation-delay: 0.38s; }
+.auth-form > :nth-child(3) { animation-delay: 0.46s; }
+.auth-form > :nth-child(4) { animation-delay: 0.54s; }
+.auth-form > :nth-child(5) { animation-delay: 0.62s; }
+.auth-form > :nth-child(6) { animation-delay: 0.70s; }
+.auth-fine { animation: rise 0.6s var(--ease-out) 0.78s backwards; }
+
+/* An error is the one thing here that must not feel gradual. */
+.auth-form .form-error { animation: auth-shake 0.4s var(--ease) 1; }
+@keyframes auth-shake {
+  0%, 100% { transform: none; }
+  20% { transform: translateX(-5px); }
+  45% { transform: translateX(4px); }
+  70% { transform: translateX(-2px); }
+}
+
+/* The field the student is typing in lifts very slightly out of the card. */
+.auth-form .input-icon { transition: transform 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out); }
+.auth-form .field:focus-within .input-icon { transform: translateY(-1px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-aside > *,
+  .auth-aside .auth-preview,
+  .auth-title,
+  .auth-lead,
+  .auth-preview img,
+  .auth-preview-card,
+  .auth-top,
+  .auth-form,
+  .auth-form > *,
+  .auth-fine,
+  .auth-form .form-error,
+  .auth-aside .eyebrow.has-rule::before { animation: none; }
+  .auth-form .field:focus-within .input-icon { transform: none; }
+}

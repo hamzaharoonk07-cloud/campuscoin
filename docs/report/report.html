@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Campus Coin — Project Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ===========================================================================
+   Campus Coin project report.
+   The app's own design language on paper: black, white and one blue
+   (#5b91ff), set in Plus Jakarta Sans, with code in JetBrains Mono.
+   Built to PDF by scripts/build-report.mjs.
+   Ink is darkened against the screen palette: --muted here is #43434e rather
+   than the app's #5c5c66, because toner on paper loses contrast that a
+   backlit panel keeps.
+   =========================================================================== */
+
+:root {
+  --ink: #121214;
+  --muted: #43434e;
+  --faint: #6a6a75;
+  --blue: #5b91ff;
+  --blue-deep: #2f5fd0;
+  --rule: #e2e2e7;
+  --rule-soft: #f0f0f3;
+  --wash: #f6f7f9;
+}
+
+@page {
+  size: A4;
+  margin: 19mm 17mm 20mm;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 10.2pt;
+  line-height: 1.62;
+  color: var(--ink);
+  background: #ffffff;
+}
+
+/* --- Cover ---------------------------------------------------------------- */
+
+.cover {
+  position: relative;
+  /* Bleeds past the page margin so the black reaches every edge. */
+  margin: -19mm -17mm 0;
+  padding: 34mm 22mm 24mm;
+  min-height: 297mm;
+  background: #0b0b0d;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  break-after: page;
+  overflow: hidden;
+}
+.cover::after {
+  content: '';
+  position: absolute;
+  right: -40mm;
+  top: 46mm;
+  width: 150mm;
+  height: 150mm;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(91, 145, 255, 0.30), rgba(91, 145, 255, 0));
+}
+.cover > * { position: relative; z-index: 1; }
+
+.cover-brand { display: flex; align-items: center; gap: 9pt; }
+.cover-mark {
+  width: 22pt; height: 22pt; border-radius: 50%;
+  background: var(--blue); color: #0b0b0d;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12pt; font-weight: 800; letter-spacing: -0.03em;
+}
+.cover-word { font-size: 13pt; font-weight: 700; letter-spacing: -0.02em; }
+
+.cover-eyebrow {
+  margin-top: auto;
+  font-size: 8pt; font-weight: 700; letter-spacing: 0.18em;
+  color: var(--blue);
+}
+.cover h1 {
+  margin: 7mm 0 0;
+  font-size: 40pt;
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+.cover h1 span { color: #8ab0ff; }
+.cover-lead {
+  margin: 8mm 0 0;
+  font-size: 12pt;
+  line-height: 1.55;
+  color: #b9b9c4;
+  max-width: 108mm;
+}
+.cover-meta {
+  margin-top: 16mm;
+  padding-top: 7mm;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6mm 10mm;
+  max-width: 130mm;
+}
+.cover-meta dt {
+  font-size: 7.6pt; font-weight: 700; letter-spacing: 0.12em;
+  color: #7e7e8c; margin-bottom: 1.6mm;
+}
+.cover-meta dd { margin: 0; font-size: 10pt; font-weight: 600; }
+.cover-meta dd a { color: #8ab0ff; text-decoration: none; word-break: break-all; }
+
+/* --- Contents ------------------------------------------------------------- */
+
+.contents { break-after: page; }
+.contents ol { margin: 0; padding: 0; list-style: none; counter-reset: toc; }
+.contents li {
+  counter-increment: toc;
+  display: flex;
+  align-items: baseline;
+  gap: 4mm;
+  padding: 3.1mm 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 10.4pt;
+}
+.contents li::before {
+  content: counter(toc, decimal-leading-zero);
+  font-size: 8.4pt; font-weight: 700; color: var(--blue-deep);
+  font-variant-numeric: tabular-nums;
+  flex: none; width: 9mm;
+}
+.contents li b { font-weight: 600; }
+.contents li span { margin-left: auto; color: var(--faint); font-size: 9pt; }
+
+/* --- Section furniture ---------------------------------------------------- */
+
+section { break-before: page; }
+section.runs-on { break-before: auto; }
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 5mm;
+  padding-bottom: 4mm;
+  margin-bottom: 7mm;
+  border-bottom: 2px solid var(--ink);
+}
+.sec-num {
+  font-size: 9pt; font-weight: 800; letter-spacing: 0.1em;
+  color: var(--blue-deep); flex: none;
+}
+h2 {
+  margin: 0;
+  font-size: 19pt;
+  font-weight: 700;
+  letter-spacing: -0.032em;
+  line-height: 1.12;
+}
+h3 {
+  margin: 8mm 0 3mm;
+  font-size: 12pt;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  break-after: avoid;
+}
+h4 {
+  margin: 6mm 0 2mm;
+  font-size: 10.4pt;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  break-after: avoid;
+}
+p { margin: 0 0 3.4mm; }
+p.lead { font-size: 11.4pt; line-height: 1.6; color: var(--muted); margin-bottom: 6mm; }
+strong { font-weight: 700; }
+a { color: var(--blue-deep); }
+
+ul { margin: 0 0 4mm; padding-left: 5.4mm; }
+li { margin-bottom: 2.2mm; }
+li::marker { color: var(--blue); }
+
+/* --- Tables --------------------------------------------------------------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 4mm 0 6mm;
+  font-size: 9.2pt;
+  break-inside: avoid;
+}
+thead th {
+  text-align: left;
+  padding: 2.8mm 3mm;
+  border-bottom: 1.5px solid var(--ink);
+  font-size: 7.8pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+tbody td {
+  padding: 2.9mm 3mm;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top;
+  line-height: 1.5;
+}
+tbody tr:last-child td { border-bottom: 1px solid var(--rule); }
+td code, th code { white-space: nowrap; }
+
+/* --- Code ----------------------------------------------------------------- */
+
+pre {
+  margin: 4mm 0 5mm;
+  padding: 4.5mm 5mm;
+  background: #0f0f12;
+  color: #e8e8ee;
+  border-radius: 3mm;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 8.2pt;
+  line-height: 1.6;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  break-inside: avoid;
+}
+pre .c { color: #7f8a9e; }
+code {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 0.88em;
+  background: var(--wash);
+  border: 1px solid var(--rule-soft);
+  border-radius: 1.4mm;
+  padding: 0.3mm 1.2mm;
+}
+pre code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit; }
+
+/* --- Callout -------------------------------------------------------------- */
+
+.note {
+  margin: 5mm 0;
+  padding: 4mm 5mm;
+  background: var(--wash);
+  border-left: 2.4pt solid var(--blue);
+  border-radius: 0 2mm 2mm 0;
+  font-size: 9.4pt;
+  break-inside: avoid;
+}
+.note b { display: block; margin-bottom: 1.4mm; font-size: 8pt; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-deep); }
+.note p:last-child { margin-bottom: 0; }
+
+/* --- Tree ----------------------------------------------------------------- */
+
+.tree {
+  margin: 4mm 0 6mm;
+  padding: 5mm;
+  border: 1px solid var(--rule);
+  border-radius: 3mm;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 8pt;
+  line-height: 1.72;
+  white-space: pre;
+  break-inside: avoid;
+}
+.tree i { font-style: normal; color: var(--faint); }
+
+/* --- Figures -------------------------------------------------------------- */
+
+figure {
+  margin: 0 0 7mm;
+  break-inside: avoid;
+}
+figure img {
+  width: 100%;
+  display: block;
+  border: 1px solid var(--rule);
+  border-radius: 2.5mm;
+}
+figcaption {
+  margin-top: 2.4mm;
+  font-size: 8.4pt;
+  color: var(--faint);
+  display: flex;
+  gap: 2.5mm;
+}
+figcaption b { color: var(--ink); font-weight: 700; flex: none; }
+
+.fig-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6mm; }
+
+/* --- Checklist ------------------------------------------------------------ */
+
+.check { list-style: none; padding: 0; margin: 4mm 0; }
+.check li {
+  display: flex; gap: 3mm; align-items: flex-start;
+  padding: 2.6mm 0; border-bottom: 1px solid var(--rule-soft);
+  margin: 0;
+}
+.check i {
+  font-style: normal; flex: none;
+  width: 4.6mm; height: 4.6mm; border-radius: 1mm;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 7pt; font-weight: 800; margin-top: 0.8mm;
+}
+.check .yes { background: var(--ink); color: #fff; }
+.check .no { background: #fff; border: 1px solid var(--rule); color: var(--faint); }
+</style>
+</head>
+<body>
+
+<!-- ============================ COVER ============================ -->
+<div class="cover">
+  <div class="cover-brand">
+    <span class="cover-mark">C</span>
+    <span class="cover-word">Campus Coin</span>
+  </div>
+
+  <span class="cover-eyebrow">PROJECT REPORT</span>
+  <h1>Smart spending,<br><span>student style.</span></h1>
+  <p class="cover-lead">
+    A budget and expense tracker built for an allowance that lands when it
+    lands — not for a salary and a bank feed.
+  </p>
+
+  <dl class="cover-meta">
+    <div><dt>THEME</dt><dd>NextGen BudgetBee</dd></div>
+    <div><dt>CATEGORY</dt><dd>End-to-End Web Solutions</dd></div>
+    <div><dt>VERSION</dt><dd>1.0</dd></div>
+    <div><dt>STACK</dt><dd>MongoDB · Express · React · Node</dd></div>
+    <div><dt>LIVE SITE</dt><dd><a href="https://campuscoin-sable.vercel.app">campuscoin-sable.vercel.app</a></dd></div>
+    <div><dt>SOURCE</dt><dd><a href="https://github.com/hamzaharoonk07-cloud/campuscoin">github.com/hamzaharoonk07-cloud/campuscoin</a></dd></div>
+  </dl>
+</div>
+
+<!-- ============================ CONTENTS ============================ -->
+<div class="contents">
+  <div class="sec-head">
+    <span class="sec-num">CONTENTS</span>
+    <h2>What is in this report</h2>
+  </div>
+  <ol>
+    <li><b>The problem, and the shape of the answer</b></li>
+    <li><b>Installation</b> <span>Requirements, first run, development, tests</span></li>
+    <li><b>User credentials</b> <span>Every role, and how the two doors differ</span></li>
+    <li><b>Passwords and sessions</b> <span>Hashing, recovery, lockout, revocation</span></li>
+    <li><b>Configuration</b> <span>Every variable, and the behaviour without it</span></li>
+    <li><b>Technology</b></li>
+    <li><b>How the application is put together</b> <span>Layout and the engines</span></li>
+    <li><b>The parts that make judgements</b> <span>Where a model is used, and where it is not</span></li>
+    <li><b>Design and accessibility</b></li>
+    <li><b>Deploying to Vercel</b></li>
+    <li><b>Deliverables checklist</b></li>
+    <li><b>The interface</b> <span>Screens, in order of use</span></li>
+  </ol>
+</div>
+
+<!-- ============================ 1 ============================ -->
+<section class="runs-on">
+  <div class="sec-head"><span class="sec-num">01</span><h2>The problem, and the shape of the answer</h2></div>
+
+  <p class="lead">
+    Students are paid irregularly — an allowance when it arrives, a bit of
+    tutoring money, a scholarship instalment — and general personal-finance
+    apps assume a salary and a bank feed. Campus Coin assumes neither.
+  </p>
+
+  <p>
+    Everything is entered by hand or imported from a CSV, and every piece of
+    advice the application gives is built from the student's own transactions.
+    Nothing is generic: a saving tip quotes real figures from that student's
+    history, and the chat assistant answers from the same aggregations the
+    reports are drawn from, so the two can never disagree.
+  </p>
+
+  <div class="note">
+    <b>Runs on a fresh machine</b>
+    <p>
+      A MongoDB server is <em>optional</em>. With no connection string
+      configured the application starts its own embedded MongoDB and stores it
+      in <code>server/data/db</code>, so it installs and demonstrates every
+      feature with an empty configuration file.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ 2 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">02</span><h2>Installation</h2></div>
+
+  <p><strong>Requirements:</strong> Node.js 18 or newer.</p>
+
+<pre><span class="c"># 1. Install both halves</span>
+npm run setup
+
+<span class="c"># 2. Copy the environment template (all values are optional for a local run)</span>
+cp server/.env.example server/.env
+
+<span class="c"># 3. Build the React front end</span>
+npm run build
+
+<span class="c"># 4. Start it</span>
+npm start</pre>
+
+  <p>
+    Open <strong>http://localhost:5000</strong>. The first start seeds the
+    default categories, the administrator and two demo students with six months
+    of history, so every chart, budget and tip has real data behind it
+    immediately.
+  </p>
+
+  <h3>Running in development</h3>
+  <p>Two terminals, so the front end hot-reloads:</p>
+<pre>npm run dev          <span class="c"># API on http://localhost:5000</span>
+npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /api to the API)</span></pre>
+
+  <h3>Testing every feature</h3>
+  <p>With the server running (<code>npm start</code>), in a second terminal:</p>
+<pre>npm run test:e2e --prefix server</pre>
+  <p>
+    It registers a throwaway student and works through every functional
+    requirement in the SRS — sign-up, login, password rules, reset, lockout and
+    sessions, profile, categories, income and expenses, recurring entries, CSV
+    import and export, the categoriser learning from corrections, anomaly
+    flags, budgets and alerts, reports and filters, insights, tips, sharing,
+    the chat assistant and every administrator control — then deletes the
+    account. It prints PASS or FAIL for each of its <strong>62 checks</strong>.
+  </p>
+
+  <h3>Reseeding</h3>
+<pre>npm run seed</pre>
+  <p>
+    Seeding only fills what is missing; it never overwrites existing data. To
+    start completely fresh, delete <code>server/data/</code> first.
+  </p>
+</section>
+
+<!-- ============================ 3 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">03</span><h2>User credentials</h2></div>
+
+  <table>
+    <thead><tr><th style="width:28%">Role</th><th style="width:40%">Email</th><th>Password</th></tr></thead>
+    <tbody>
+      <tr><td>Administrator</td><td><code>admin@campuscoin.app</code></td><td><code>Admin@12345</code></td></tr>
+      <tr><td>Student</td><td><code>student@campuscoin.app</code></td><td><code>Student@12345</code></td></tr>
+      <tr><td>Student</td><td><code>bilal@campuscoin.app</code></td><td><code>Student@12345</code></td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Students sign in at <code>/login</code>. The administrator has a
+    <strong>separate, direct-access sign-in at <code>/admin/login</code></strong>,
+    which posts to its own endpoint and refuses any account that is not an
+    administrator — a student's password is useless there even with the URL.
+  </p>
+
+  <div class="note">
+    <b>Why these three cannot be locked out</b>
+    <p>
+      The demo accounts are shared, so their passwords are fixed: they cannot be
+      changed, reset or locked out, and anyone evaluating the application can
+      always sign in with the table above. Register a new account to exercise
+      the password features.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ 4 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">04</span><h2>Passwords and sessions</h2></div>
+
+  <p class="lead">
+    The SRS asks for secure sessions, hashed passwords, and recovery through a
+    tokenised link. How Campus Coin does each.
+  </p>
+
+  <h4>Stored as hashes</h4>
+  <p>
+    Passwords are hashed with bcrypt (cost 10, a salt per password) and never
+    stored or logged in readable form (<code>server/src/models/User.js</code>).
+  </p>
+
+  <h4>Rules everyone can see</h4>
+  <p>
+    At least 8 characters, letters and numbers, not one of the most common
+    passwords and not built from the account's own name or email
+    (<code>server/src/utils/passwords.js</code>). The sign-up, reset and change
+    forms show the same rules as a live checklist with a strength meter.
+  </p>
+
+  <h4>Recovery by tokenised link</h4>
+  <p>
+    "Forgot password" emails a random 64-character token that works once, for
+    one hour; only its SHA-256 hash is stored. The reset page checks the link
+    before showing the form and says so plainly when it has expired. The live
+    site sends real email through Gmail (SMTP with an app password, kept in
+    Vercel's encrypted settings, never in the code), and there the link is
+    <strong>only</strong> ever emailed — showing it on screen would let anyone
+    who knows an address reset that account. On a development machine with no
+    email set up, the link is shown on screen instead so the flow can still be
+    demonstrated. The reply is the same whether or not the email has an
+    account, so the form cannot be used to find accounts.
+  </p>
+
+  <h4>A password only changes through an emailed link</h4>
+  <p>
+    There is no form that sets a new password directly: "Change password" in
+    Settings emails a one-time, one-hour link to the account's own address, and
+    the new password is chosen from that link — so a stolen, still-signed-in
+    session is not enough to take over an account. The old in-place endpoint
+    answers <code>410 Gone</code>.
+  </p>
+
+  <h4>Sessions end when they should</h4>
+  <p>
+    Every sign-in token carries the account's session version. Changing or
+    resetting the password raises it, which signs out every other device at
+    once; Settings also has <strong>Sign out everywhere</strong>. A disabled
+    account loses access immediately.
+  </p>
+
+  <h4>Guessing is impractical</h4>
+  <p>
+    Five wrong passwords in a row lock sign-in for 15 minutes; a password reset
+    lifts the lock.
+  </p>
+
+  <h4>Administrator resets</h4>
+  <p>
+    The administrator can issue a temporary password (random, from the crypto
+    module, shown once). It signs the student out everywhere, and every page
+    asks them to choose their own until they do.
+  </p>
+
+  <h4>Told when it changes</h4>
+  <p>
+    A password change or reset sends a "your password was changed" email, so an
+    account holder notices one they did not make. Welcome, password-link,
+    "password changed" and monthly summary emails share one HTML layout
+    (<code>server/src/services/emailTemplate.js</code>): a PNG banner (Gmail
+    does not show SVG), a 600px table with inline styles, one button, and a
+    plain-text version alongside.
+  </p>
+</section>
+
+<!-- ============================ 5 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">05</span><h2>Configuration</h2></div>
+
+  <p class="lead">
+    Everything in <code>server/.env</code> is optional. The application is
+    designed to run and demonstrate every feature with an empty file.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:24%">Variable</th><th style="width:38%">What it does when set</th><th>What happens when it is not</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>MONGO_URI</code></td>
+        <td>Uses that MongoDB (local or Atlas)</td>
+        <td>Starts an embedded MongoDB in <code>server/data/db</code></td>
+      </tr>
+      <tr>
+        <td><code>JWT_SECRET</code></td>
+        <td>Signs session tokens</td>
+        <td>A development default is used</td>
+      </tr>
+      <tr>
+        <td><code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_USER</code>, <code>SMTP_PASS</code>, <code>MAIL_FROM</code></td>
+        <td>Sends password-reset links, "password changed" alerts and shared reports. For Gmail: <code>smtp.gmail.com</code>, port <code>465</code>, the address, and a 16-character app password</td>
+        <td>On a development machine the reset link is shown on screen instead; on a live deployment nothing is sent and no link is shown</td>
+      </tr>
+      <tr>
+        <td><code>ANTHROPIC_API_KEY</code></td>
+        <td>Monthly summaries are rewritten by Claude</td>
+        <td>Summaries come from the built-in statistical engine</td>
+      </tr>
+      <tr>
+        <td><code>CRON_SECRET</code></td>
+        <td>Protects the daily recurring-transaction endpoint</td>
+        <td>The endpoint refuses all callers; the local server runs the job on a timer anyway</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ 6 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">06</span><h2>Technology</h2></div>
+
+  <table>
+    <thead><tr><th style="width:24%">Layer</th><th>What was used, and what was not</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Front end</strong></td>
+        <td>React 18 with React Router, built by Vite. <strong>No UI framework and no component library</strong>: the design system, the layout and all four chart types are written from scratch in CSS and SVG (<code>client/src/styles/</code>, <code>client/src/components/Charts.jsx</code>).</td>
+      </tr>
+      <tr><td><strong>Back end</strong></td><td>Node.js with Express 5 and Mongoose.</td></tr>
+      <tr><td><strong>Database</strong></td><td>MongoDB, with an embedded instance as the zero-configuration fallback.</td></tr>
+      <tr>
+        <td><strong>Deployment</strong></td>
+        <td>Configured for Vercel (<code>vercel.json</code> + <code>api/index.mjs</code>), with the API as a serverless function and the built client served as static files.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ 7 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">07</span><h2>How the application is put together</h2></div>
+
+<div class="tree">CampusCoin/
+├── api/index.mjs              <i>Vercel serverless entry point</i>
+├── vercel.json                <i>Build, routing and cron configuration</i>
+├── server/
+│   └── src/
+│       ├── app.js             <i>Express app, routes and error handling</i>
+│       ├── index.js           <i>Local server entry point</i>
+│       ├── config/db.js       <i>Connection, including the embedded fallback</i>
+│       ├── models/            <i>User, Category, Transaction, Budget,</i>
+│       │                      <i>Insight, Tip, Notification, Announcement,</i>
+│       │                      <i>CategoryHint</i>
+│       ├── middleware/auth.js <i>JWT verification and role gates</i>
+│       ├── routes/            <i>One file per area of the API</i>
+│       ├── services/          <i>The engines — see below</i>
+│       └── seed/              <i>Default categories and demo data</i>
+└── client/
+    └── src/
+        ├── pages/             <i>One file per screen</i>
+        ├── components/        <i>Layout, charts, forms, import wizard</i>
+        ├── context/           <i>Auth, theme and toasts</i>
+        ├── lib/               <i>API client and formatting</i>
+        └── styles/            <i>Design tokens and the stylesheet</i></div>
+
+  <h3>The engines</h3>
+  <p>
+    Everything that makes a judgement lives in <code>server/src/services/</code>,
+    separately from the routes that serve it.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:26%">File</th><th>What it decides</th></tr></thead>
+    <tbody>
+      <tr><td><code>analytics.js</code></td><td>The shared aggregations. Reports, tips, insights and the forecast all read their numbers from here, so they can never disagree with each other.</td></tr>
+      <tr><td><code>categorizer.js</code></td><td>Suggests a category from a description.</td></tr>
+      <tr><td><code>tips.js</code></td><td>Builds the saving tips and estimates what each is worth.</td></tr>
+      <tr><td><code>insights.js</code></td><td>Writes the monthly summary.</td></tr>
+      <tr><td><code>anomaly.js</code></td><td>Flags unusually large and duplicate transactions.</td></tr>
+      <tr><td><code>forecast.js</code></td><td>Projects next month.</td></tr>
+      <tr><td><code>recurring.js</code></td><td>Writes recurring entries when they come due.</td></tr>
+      <tr><td><code>alerts.js</code></td><td>Raises budget warnings.</td></tr>
+      <tr><td><code>csv.js</code></td><td>Imports and exports transaction files.</td></tr>
+      <tr><td><code>chat.js</code></td><td>Works out what a chat question is asking and answers it from the figures above.</td></tr>
+      <tr><td><code>llm.js</code></td><td>Optional: rewrites an already-computed summary in warmer language, and answers chat questions the rules did not recognise.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ 8 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">08</span><h2>The parts that make judgements</h2></div>
+
+  <p class="lead">
+    The SRS asks for AI assistance in two places, and for a chatbot. They are
+    separate features, and a language model is only ever an optional finishing
+    step: every figure is calculated by Campus Coin itself.
+  </p>
+
+  <h4>Categorising a description</h4>
+  <p>
+    Runs entirely on Campus Coin's own server. Each word of a description is
+    counted against the category the student actually chose, building a
+    per-student word-to-category frequency table (<code>CategoryHint</code>).
+    Correcting a suggestion is what teaches it: the correction records a
+    different pairing than the one that was proposed, so the next guess leans
+    the other way. A new account starts from seed keywords on the default
+    categories until it has a history of its own. Every suggestion shows its
+    confidence and its reason, and can always be overridden.
+  </p>
+
+  <h4>Writing the monthly summary</h4>
+  <p>
+    Computes every figure from the database first, then — only if
+    <code>ANTHROPIC_API_KEY</code> is set — asks Claude to rewrite those
+    already-computed facts in friendlier language. The model is never asked to
+    do arithmetic, so a summary cannot contradict the report it came from.
+    Without a key the built-in statistical writer produces the summary instead,
+    and the feature reports which one wrote it.
+  </p>
+
+  <h4>The chat assistant</h4>
+  <p>
+    The SRS's "AI ChatBot" lives in the bubble in the corner of every student
+    page; what it has learned, and a button to make it forget, are in Settings.
+    It is built in rather than embedded from tawk.to or Tidio, because a
+    third-party widget cannot see the student's data. A rule-based router in
+    <code>chat.js</code> recognises the kind of question being asked (balance,
+    one category, the category breakdown, budgets, the forecast, the largest
+    expense, saving tips, "can I afford 2,500?", "which category is chai at the
+    canteen?", this month against last) and answers from the same aggregations
+    the reports use. Only a question no rule recognises is passed to Claude, and
+    only if a key is set, together with a sheet of already-computed facts and an
+    instruction to use nothing else. The conversation is kept in the browser tab
+    and is never stored on the server.
+  </p>
+
+  <h4>Scanning a receipt</h4>
+  <p>
+    The SRS's optional OCR. In the add-transaction form a student takes or drops
+    a photo of a receipt (or tries one of the two samples in
+    <code>client/public/samples</code>). The photo is shrunk in the browser and
+    read with Tesseract OCR, also in the browser — no API key and nothing is
+    uploaded to be read. Plain rules in <code>client/src/lib/receipt.js</code>
+    then pick out the amount paid (preferring "grand total", "net payable" and
+    "total" lines and ignoring subtotal, tax, cash and change), the shop and the
+    date, fill the form, and let the categoriser suggest the category. The
+    student checks everything before saving.
+  </p>
+
+  <h4>The saving tips</h4>
+  <p>
+    Not AI at all. Each rule compares this month against the student's own
+    three-month average and states how much money the advice is worth per
+    month; the list is ranked by that figure. No tip is generic — every one
+    quotes real numbers from that student's history.
+  </p>
+
+  <h4>The forecast</h4>
+  <p>
+    A least-squares line through the last six months. It refuses to answer with
+    fewer than three months of data and reports how far the line typically sits
+    from the actual points, rather than implying precision it does not have.
+  </p>
+
+  <div class="note">
+    <b>Stated plainly in the interface</b>
+    <p>None of this is financial advice, and the interface says so where it matters.</p>
+  </div>
+</section>
+
+<!-- ============================ 9 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">09</span><h2>Design and accessibility</h2></div>
+
+  <p class="lead">The interface is written rather than assembled. A few decisions worth naming.</p>
+
+  <h4>Light by default, with a dark theme</h4>
+  <p>
+    Both are designed against their own surface rather than one being an
+    inversion of the other. The choice is saved to the device <em>and</em> the
+    account, so it follows the student to another machine. Settings also offers
+    "match my device", which follows the operating system live.
+  </p>
+
+  <h4>Black, white and one blue</h4>
+  <p>
+    The application sits in a black frame with a slim rail of round icon buttons
+    that slides open on hover to show each page's name; the content is one white
+    panel with large rounded corners, buttons are black pills, and one blue
+    (<code>#5b91ff</code>) carries the figures. Categories take shades of blue
+    and grey. Text is set in Plus Jakarta Sans. The styles live in
+    <code>client/src/styles/design9.css</code>; the code and all the copy are
+    our own.
+  </p>
+
+  <h4>Real SVG pictures</h4>
+  <p>
+    Every category has its own object — a burger for Food, a bus for Transport,
+    a house for Hostel/Rent — drawn from Microsoft's <strong>Fluent Emoji</strong>
+    in the flat style (MIT licence). Only the 49 SVGs the application uses are
+    copied into <code>client/src/assets/emoji</code>, with the licence beside
+    them, so nothing is fetched from outside. Menu and button icons stay as
+    clean line icons (<code>Icon.jsx</code>), drawn on one 24px grid following
+    the Lucide conventions.
+  </p>
+
+  <h4>Real brand logos</h4>
+  <p>
+    When a transaction names a company — "Netflix share", "Foodpanda dinner",
+    "Spotify Premium", "Daraz", "JazzCash", "PTCL" — the list shows that
+    company's logo on its brand colour instead of the category picture
+    (<code>client/src/lib/brands.js</code>). The logos come from
+    <strong>Simple Icons</strong> (CC0), bundled with the application. Careem
+    and inDrive are not in that set, so they get a tile in their brand colour
+    with their initial rather than an imitation logo. The logos only identify
+    the merchant; Campus Coin is not affiliated with them.
+  </p>
+
+  <h4>Charts that read on a phone</h4>
+  <p>
+    Money in against money out is drawn as paired bars built from HTML
+    (<code>MonthBars</code> in <code>DashCharts.jsx</code>), so the scale,
+    months and figures stay full size on any screen instead of shrinking with an
+    SVG. Tapping a month shows its three figures. The trend lines on the report
+    cards are labelled with their first and last month.
+  </p>
+
+  <h4>The dashboard, against SRS 1.6 "Personalized Dashboard"</h4>
+  <p>
+    A personal greeting; the month's balance as money in against money out;
+    quick-add buttons (chai, rickshaw, printing, allowance) that open the form
+    already filled in; saving tips and Coin's insight built from the student's
+    own history; and the two named widgets — <strong>This Month's Top
+    Category</strong> (its picture, amount and share) and <strong>Budget vs.
+    Actual</strong> (each budget's cap against what was spent, with a status).
+    Categories has a <strong>Manage Own Categories</strong> section for adding,
+    editing and deleting personal income and expense categories beside the
+    defaults.
+  </p>
+
+  <h4>Motion explains, it does not decorate</h4>
+  <p>
+    Sections arrive top to bottom, charts draw themselves (the donut sweeps in
+    ranked order, lines trace, bars grow), headline figures count up, and budget
+    bars fill — the SRS's "smooth transitions while charts and insights are
+    generated". Every entrance ends at the element's normal resting style, so
+    with the system's reduced-motion setting on, pages simply appear complete.
+  </p>
+
+  <div class="note">
+    <b>Accessibility</b>
+    <p>
+      Text size is adjustable from Settings and scales the whole interface,
+      charts included. Keyboard focus is always visible,
+      <code>prefers-reduced-motion</code> is respected, the layout works down to
+      360px, and every chart is backed by a table of the same numbers.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ 10 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">10</span><h2>Deploying to Vercel</h2></div>
+
+  <ol>
+    <li>Push the repository to GitHub and import it into Vercel.</li>
+    <li>
+      Add a MongoDB Atlas connection string as <code>MONGO_URI</code> (or connect
+      the Atlas integration, which provides <code>MONGODB_URI</code>).
+      <strong>This is required</strong> — the embedded database cannot run in a
+      serverless function.
+    </li>
+    <li>Set <code>JWT_SECRET</code> and <code>CRON_SECRET</code>.</li>
+    <li>
+      Deploy. <code>vercel.json</code> handles the build, the API routing and the
+      daily cron that writes recurring transactions.
+    </li>
+  </ol>
+</section>
+
+<!-- ============================ 11 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">11</span><h2>Deliverables checklist</h2></div>
+
+  <ul class="check">
+    <li><i class="yes">✓</i><span>Problem definition, design specification and database design — see this report</span></li>
+    <li><i class="yes">✓</i><span>Installation instructions — section 02</span></li>
+    <li><i class="yes">✓</i><span>User credentials for all user types — section 03</span></li>
+    <li><i class="yes">✓</i><span>Test data — seeded automatically on first run (<code>server/src/seed/</code>)</span></li>
+    <li><i class="yes">✓</i><span>Sitemap on the home page — <code>/</code> and <code>/sitemap</code></span></li>
+    <li><i class="no">—</i><span>Demonstration video (.mp4) — to record</span></li>
+    <li><i class="yes">✓</i><span>Project report with flowcharts, DFDs, ER diagram, test data, installation and credentials</span></li>
+  </ul>
+</section>
+
+<!-- ============================ 12 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">12</span><h2>The interface</h2></div>
+
+  <p class="lead">The screens a student meets, in the order they meet them.</p>
+
+  <figure>
+    <img src="../../client/public/shots/dashboard.png" alt="The Campus Coin dashboard">
+    <figcaption><b>Figure 1</b><span>The dashboard: the month's figures, the cash flow card, the spending calendar and the latest transactions.</span></figcaption>
+  </figure>
+
+  <figure>
+    <img src="../../client/public/shots/reports.png" alt="The reports page">
+    <figcaption><b>Figure 2</b><span>Reports: six months side by side, the category breakdown, and the trend cards.</span></figcaption>
+  </figure>
+
+  <div class="fig-grid">
+    <figure>
+      <img src="../../client/public/shots/budgets.png" alt="The budgets page">
+      <figcaption><b>Figure 3</b><span>Budgets, each cap against what was spent.</span></figcaption>
+    </figure>
+    <figure>
+      <img src="../../client/public/shots/assistant.png" alt="The chat assistant">
+      <figcaption><b>Figure 4</b><span>Coin, answering from the student's own figures.</span></figcaption>
+    </figure>
+    <figure>
+      <img src="../../client/public/shots/receipt.png" alt="Scanning a receipt">
+      <figcaption><b>Figure 5</b><span>A receipt read in the browser by Tesseract OCR.</span></figcaption>
+    </figure>
+    <figure>
+      <img src="../../client/public/shots/phone.png" alt="Campus Coin on a phone">
+      <figcaption><b>Figure 6</b><span>The same interface at 390px.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+</body>
+</html>

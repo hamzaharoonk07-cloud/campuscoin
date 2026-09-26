@@ -4,6 +4,7 @@ import Icon, { BrandMark, Wordmark } from '../components/Icon.jsx';
 import { SITEMAP } from './Sitemap.jsx';
 import { ArtIcon, artUrl, ChartArt, ChatArt, ReceiptArt, WalletArt } from '../components/Illustrations.jsx';
 import CoinBot from '../components/CoinBot.jsx';
+import ScrollStory from '../components/ScrollStory.jsx';
 import { brandFor, inkOn } from '../lib/brands.js';
 import '../styles/landing.css';
 
@@ -223,6 +224,25 @@ const TABS = [
 ];
 
 // The ribbon under the hero: the everyday things students actually log.
+// The hero board, from the demo student's six months. Height is a percentage
+// of July, the tallest; the last entry is the month the page is "in".
+const HERO_MONTHS = [
+  ['Apr', '32.1k', 67, false],
+  ['May', '41.8k', 87, false],
+  ['Jun', '36.4k', 76, false],
+  ['Jul', '48.2k', 100, false],
+  ['Aug', '37.9k', 79, false],
+  ['Sep', '39.5k', 82, true],
+];
+
+// name, colour slot, share, and the dash offset that rotates each arc into place.
+const HERO_SPLIT = [
+  ['Rent', 1, 30, 25],
+  ['Food', 2, 28, -5],
+  ['Academics', 3, 16, -33],
+  ['Transport', 4, 11, -49],
+];
+
 const RIBBON = [
   ['hot_beverage', 'Canteen chai'],
   ['house', 'Hostel rent'],
@@ -454,14 +474,11 @@ export default function Landing() {
         </div>
       </nav>
 
+      {/* The hero is the data, not a picture of the app: the copy sits short and
+          centred, and below it one wide board of the demo student's real
+          figures runs off the fold. No device chrome, nothing floating. */}
       <header className="lp-hero" ref={hero}>
-        {/* Scenery: a soft colour mesh, a faint grid and two slow orbits. */}
-        <div className="lp-hero-bg" aria-hidden="true">
-          <span className="lp-mesh lp-mesh-a" />
-          <span className="lp-grid" />
-        </div>
-
-        <div className="lp-wrap lp-hero-grid">
+        <div className="lp-wrap lp-hero-head">
           <div className="lp-hero-copy">
             <a href="#features" className="lp-badge">
               <span className="lp-badge-tag">New</span>
@@ -469,24 +486,15 @@ export default function Landing() {
               <Icon name="right" size={14} />
             </a>
             <h1>
-              {['Your allowance.', 'Your spending.'].map((line, i) => (
+              {['Six months of your money,', 'on one screen.'].map((line, i) => (
                 <span className="lp-line" key={line} style={{ '--i': i }}>
                   <span>{line}</span>
                 </span>
               ))}
-              <span className="lp-line" style={{ '--i': 2 }}>
-                <em>
-                  One clear picture.
-                  {/* A hand-drawn stroke that draws itself under the promise. */}
-                  <svg className="lp-underline" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true">
-                    <path d="M4 14 C 60 4, 140 4, 200 10 S 280 16, 296 6" pathLength="1" />
-                  </svg>
-                </em>
-              </span>
             </h1>
             <p className="lp-lead">
-              From your morning chai at the canteen to the hostel rent at the end of the month. Log it, budget it and
-              understand it, with a tracker built for irregular student income rather than a salary.
+              No bank link, no card, no setup. Type what you spent and Campus Coin does the rest — built for an
+              allowance that lands when it lands, not for a salary.
             </p>
             <div className="lp-actions">
               <Link to="/register" className="lp-btn lp-btn-solid">
@@ -498,99 +506,42 @@ export default function Landing() {
                 <Icon name="right" size={16} />
               </a>
             </div>
-            <ul className="lp-facts">
-              <li>
-                <span className="lp-fact-icon">
-                  <Icon name="shield" size={16} />
-                </span>
-                <span>
-                  <strong>No bank link</strong>
-                  Nothing to connect
-                </span>
-              </li>
-              <li>
-                <span className="lp-fact-icon is-mint">
-                  <Icon name="spark" size={16} />
-                </span>
-                <span>
-                  <strong>7 saving rules</strong>
-                  Built from your history
-                </span>
-              </li>
-              <li>
-                <span className="lp-fact-icon is-cream">
-                  <Icon name="chart" size={16} />
-                </span>
-                <span>
-                  <strong>6 months</strong>
-                  Side by side
-                </span>
-              </li>
-            </ul>
           </div>
+        </div>
 
-          {/* The app, layered: the desktop dashboard behind, the phone in front,
-              and cards with figures from the app. Each layer
-              has its own depth, so they drift apart as the pointer moves. */}
-          <div className="lp-stage" aria-hidden="true">
-            <span className="lp-orbit lp-orbit-a">
-              <i className="lp-orbit-coin" />
-            </span>
-            <span className="lp-orbit lp-orbit-b">
-              <i className="lp-orbit-coin is-small" />
-            </span>
-            {[
-              ['coin', 'is-f1'],
-              ['money-bag', 'is-f2'],
-              ['sparkles', 'is-f3'],
-              ['chart-increasing', 'is-f4'],
-            ].map(([art, cls]) => (
-              <img key={art} className={`lp-float ${cls}`} src={artUrl(art)} alt="" />
-            ))}
-
-            <figure className="lp-frame lp-depth" style={{ '--depth': 0.4 }}>
+        {/* The app itself, on the two screens a student actually uses it on.
+            The laptop sits back, the phone stands in front of it, and two live
+            cards float clear of both. Each layer carries its own --depth, so
+            they separate as the pointer moves (usePointerDepth). */}
+        <div className="lp-wrap">
+          <div className="lp-devices" aria-hidden="true">
+            <figure className="lp-laptop lp-depth" style={{ '--depth': 0.4 }}>
               <div className="lp-frame-bar">
                 <i />
                 <i />
                 <i />
               </div>
-              <img src="/shots/hero.png" alt="" />
+              <img src="/shots/hero.png" alt="" width="1440" height="900" />
             </figure>
 
-            <figure className="lp-phone lp-depth" style={{ '--depth': 1 }}>
-              <span className="lp-phone-notch" />
-              <img src="/shots/phone.png" alt="" />
+            <figure className="lp-handset lp-depth" style={{ '--depth': 1.1 }}>
+              <span className="lp-handset-notch" />
+              <img src="/shots/phone.png" alt="" width="390" height="844" />
             </figure>
 
-            <div className="lp-card lp-card-income lp-depth" style={{ '--depth': 1.4 }}>
-              <span className="lp-card-icon is-mint">
-                <Icon name="download" size={17} />
+            <div className="lp-chip lp-chip-in lp-depth" style={{ '--depth': 1.7 }}>
+              <span className="lp-chip-icon">
+                <Icon name="download" size={16} />
               </span>
-              <div>
-                <span>Allowance received</span>
-                <strong className="num">+Rs 20,000</strong>
-              </div>
-            </div>
-
-            <div className="lp-card lp-card-budget lp-depth" style={{ '--depth': 1.8 }}>
-              <div className="lp-card-row">
-                <span>Food budget</span>
-                <em>Over</em>
-              </div>
-              <strong className="num">
-                Rs 10,941 <small>of Rs 9,000</small>
-              </strong>
-              <span className="lp-card-bar">
-                <i />
+              <span>
+                <em>Allowance received</em>
+                <strong>+Rs 20,000</strong>
               </span>
             </div>
 
-            <div className="lp-card lp-card-chat lp-depth" style={{ '--depth': 1.2 }}>
-              <span className="lp-chat-q">How much on food?</span>
-              <span className="lp-chat-a">
-                <Icon name="spark" size={13} />
-                Rs 10,941 this month, 7% above your usual.
-              </span>
+            <div className="lp-chip lp-chip-ask lp-depth" style={{ '--depth': 1.9 }}>
+              <span className="lp-chip-q">How much on food?</span>
+              <span className="lp-chip-a">Rs 10,941 — 7% above your usual.</span>
             </div>
           </div>
         </div>
@@ -622,6 +573,8 @@ export default function Landing() {
           ))}
         </div>
       </section>
+
+      <ScrollStory />
 
       <section className="lp-section" id="features">
         <div className="lp-wrap">
@@ -900,6 +853,16 @@ export default function Landing() {
               <br />
               <em>peace of mind.</em>
             </h2>
+            {/* Help in the nav lands here, so this column answers the question
+                the four below do not: what if mine is not on the list. */}
+            <p className="lp-faq-aside">
+              Anything not here, ask Coin inside the app. It answers from your
+              own transactions, so you get a figure rather than general advice.
+            </p>
+            <a href="#coin" className="lp-text-link">
+              Meet Coin
+              <Icon name="right" size={16} />
+            </a>
           </div>
           <div className="lp-faq">
             {FAQ.map(([q, a]) => (

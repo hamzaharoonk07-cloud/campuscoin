@@ -8,7 +8,10 @@
 //
 // Expected header (order does not matter, case does not matter):
 //   date, type, amount, category, description
+// and optionally: note, method
 // ---------------------------------------------------------------------------
+
+import { PAYMENT_METHODS } from '../models/Transaction.js';
 
 /** Splits one CSV line, honouring quoted fields that contain commas. */
 function splitLine(line) {
@@ -97,6 +100,10 @@ export function parseTransactionCsv(text) {
       amount: Math.round(amount * 100) / 100,
       categoryName: get('category'),
       description: get('description'),
+      // Optional: a file exported from Campus Coin carries it, one from a bank
+      // or a spreadsheet will not. Anything unrecognised falls back to cash,
+      // which is what the schema defaults to anyway.
+      method: PAYMENT_METHODS.includes(get('method').toLowerCase()) ? get('method').toLowerCase() : 'cash',
     });
   });
 
@@ -110,7 +117,7 @@ const escape = (value) => {
 
 /** Turns transactions back into a CSV file for download. */
 export function toCsv(transactions) {
-  const header = ['date', 'type', 'amount', 'category', 'description', 'note'];
+  const header = ['date', 'type', 'amount', 'category', 'description', 'note', 'method'];
   const lines = transactions.map((t) =>
     [
       new Date(t.date).toISOString().slice(0, 10),
@@ -119,6 +126,7 @@ export function toCsv(transactions) {
       t.category?.name || '',
       t.description || '',
       t.note || '',
+      t.method || 'cash',
     ]
       .map(escape)
       .join(',')

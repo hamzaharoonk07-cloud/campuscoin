@@ -14,6 +14,7 @@ import './styles/insights.css';
 import './styles/account.css';
 import './styles/live.css';
 import './styles/calendar.css';
+import './styles/story.css';
 import { installPointerEffects } from './lib/pointerEffects.js';
 
 installPointerEffects();

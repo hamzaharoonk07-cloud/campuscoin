@@ -1137,3 +1137,128 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 .d9-fresh-note { align-items: center; justify-content: center; text-align: center; gap: 0.4rem; }
 .d9-fresh-note h3 { font-size: 1.15rem; font-weight: 500; margin: 0.4rem 0 0; }
 .d9-fresh-note p { max-width: 36ch; }
+
+/* --- Where it moved: cash against the wallets ------------------------------
+   Cash is given equal weight to every digital method combined, because that
+   is the comparison worth making - it is the half of a month with no record
+   behind it. The provider marks reuse each brand's own colour. */
+
+.d9-methods-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.d9-methods-split > span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--r-control);
+  background: var(--tile-out);
+}
+.d9-methods-split > span.is-digital { background: var(--tile-in); }
+.d9-methods-split em { font-style: normal; font-size: var(--step--2); font-weight: 600; color: var(--muted); }
+.d9-methods-split strong { font-size: var(--step-1); font-weight: 700; letter-spacing: -0.03em; }
+.d9-methods-split small { font-size: var(--step--2); color: var(--muted); }
+
+.d9-methods-bar {
+  display: flex;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--series-in);
+  overflow: hidden;
+  margin-bottom: 1.1rem;
+}
+.d9-methods-bar i { display: block; height: 100%; background: var(--series-out); }
+
+.d9-methods-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.d9-methods-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--line);
+}
+.d9-methods-list li:first-child { border-top: 0; }
+.d9-method-mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex: none;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.d9-method-name {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+.d9-method-name em { font-style: normal; font-size: var(--step--2); font-weight: 500; color: var(--muted); }
+
+/* --- Paid with, in the add form ------------------------------------------- */
+
+.method-field { border: 0; padding: 0; margin: 0; min-width: 0; }
+.method-field legend { padding: 0; margin-bottom: 0.5rem; font-size: var(--step--1); font-weight: 600; }
+.method-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.method-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem 0.4rem 0.4rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  font-size: var(--step--1);
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--surface);
+  transition: border-color 0.18s var(--ease), background 0.18s var(--ease);
+}
+.method-pill:hover { border-color: var(--faint); }
+.method-pill input { position: absolute; opacity: 0; pointer-events: none; }
+.method-pill[data-on] { border-color: var(--accent); background: var(--accent-soft); }
+.method-pill:focus-within { outline: 2px solid var(--sky); outline-offset: 2px; }
+.method-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex: none;
+  font-size: 0.64rem;
+  font-weight: 800;
+}
+
+.d9-methods-note {
+  margin: 0 0 0.5rem;
+  font-size: var(--step--2);
+  color: var(--muted);
+}
+.method-other { margin-top: 0.7rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.method-other label { font-size: var(--step--2); font-weight: 600; color: var(--muted); }
+
+/* The account/cash breakdown under the two headline figures. Kept to one quiet
+   line so it reads as a footnote to the total, never competing with it. */
+.d9-stat-split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.85rem;
+  margin-top: 0.5rem;
+  font-size: var(--step--2);
+  color: var(--muted);
+}
+.d9-stat-split em { font-style: normal; display: inline-flex; align-items: center; gap: 0.35rem; }
+.d9-stat-split em::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--series-in);
+}
+.d9-stat-split em:last-child::before { background: var(--series-out); }
