@@ -2287,3 +2287,25 @@ body:has(.lp) { background: var(--surface); }
   .lp-hero-split .lp-actions .lp-btn,
   .lp-hero-split .lp-actions .lp-text-link { justify-content: center; }
 }
+
+/* Line icons on tinted tiles, replacing the emoji artwork on the landing page.
+   Light by default; the navy sections and the pale card inside one redeclare it. */
+.lp-line-tile {
+  display: inline-grid;
+  place-items: center;
+  width: var(--s, 44px);
+  height: var(--s, 44px);
+  border-radius: 28%;
+  flex: none;
+  background: color-mix(in srgb, var(--sky) 18%, var(--surface));
+  color: var(--good);
+  transition: transform 0.35s var(--ease-out);
+}
+.lp-bento-card:hover .lp-line-tile { transform: rotate(-6deg) scale(1.08); }
+.lp-navy .lp-line-tile,
+.lp-coin .lp-line-tile,
+.lp-cta .lp-line-tile { background: rgba(255, 255, 255, 0.1); color: #6ee7b7; }
+/* The pale card sits inside the navy section but is light itself. */
+.lp-navy-card.is-pale .lp-line-tile { background: #dcf3e6; color: #047857; }
+/* The Meet Coin bullets are bare icons, not tiles. */
+.lp-coin-points li svg { color: #6ee7b7; flex: none; }

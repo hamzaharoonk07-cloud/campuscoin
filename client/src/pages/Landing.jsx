@@ -224,6 +224,23 @@ const TABS = [
 ];
 
 // The ribbon under the hero: the everyday things students actually log.
+// The feature art used to be Microsoft Fluent Emoji, the one place four colours the
+// design system does not have got into the page. Each is now the app's own line
+// icon on a tinted tile, so the sections read as one system.
+const ART_ICON = {
+  receipt: 'receipt', speech_balloon: 'chat', bell: 'bell', bar_chart: 'chart', light_bulb: 'bulb',
+  calendar: 'calendar', magnifying_glass_tilted_left: 'search', card_index_dividers: 'ledger',
+  gear: 'sliders', shield: 'shield',
+};
+
+function LineTile({ icon, size = 44 }) {
+  return (
+    <span className="lp-line-tile" style={{ '--s': size + 'px' }} aria-hidden="true">
+      <Icon name={icon} size={Math.round(size * 0.5)} />
+    </span>
+  );
+}
+
 // The hero board, from the demo student's six months. Height is a percentage
 // of July, the tallest; the last entry is the month the page is "in".
 const HERO_MONTHS = [
@@ -664,7 +681,7 @@ export default function Landing() {
                   </div>
                 ) : (
                   <span className="lp-bento-art">
-                    <ArtIcon name={f.art} size={56} />
+                    <LineTile icon={ART_ICON[f.art] || 'spark'} size={56} />
                   </span>
                 )}
                 <h3>{f.title}</h3>
@@ -704,7 +721,7 @@ export default function Landing() {
                 handled.
               </h3>
               <p>Your allowance and your subscriptions post themselves on the right day, so the only things you type are the ones you chose.</p>
-              <ArtIcon name="calendar" size={52} />
+              <LineTile icon="calendar" size={52} />
             </article>
             <article className="lp-navy-card is-pale" data-reveal>
               <span className="lp-card-num">02 / Compared to you</span>
@@ -714,7 +731,7 @@ export default function Landing() {
                 not someone else’s.
               </h3>
               <p>Every tip measures this month against your own last three, which is the only reason the advice is worth anything.</p>
-              <ArtIcon name="bullseye" size={52} />
+              <LineTile icon="target" size={52} />
             </article>
           </div>
         </div>
@@ -745,19 +762,19 @@ export default function Landing() {
             <p>Category breakdowns and six months of history turn your entries into a picture you can actually read.</p>
             <div className="lp-pastels">
               <span className="is-out">
-                <ArtIcon name="money_with_wings" size={34} />
+                <LineTile icon="upload" size={34} />
                 Spending
               </span>
               <span className="is-in">
-                <ArtIcon name="dollar_banknote" size={34} />
+                <LineTile icon="download" size={34} />
                 Income
               </span>
               <span className="is-budget">
-                <ArtIcon name="bullseye" size={34} />
+                <LineTile icon="target" size={34} />
                 Budgets
               </span>
               <span className="is-goal">
-                <ArtIcon name="seedling" size={34} />
+                <LineTile icon="trend" size={34} />
                 Savings
               </span>
             </div>
@@ -834,13 +851,13 @@ export default function Landing() {
             </p>
             <ul className="lp-coin-points">
               <li>
-                <img src={artUrl('speech-balloon')} alt="" width="26" height="26" /> Plain questions, plain answers
+                <Icon name="chat" size={22} /> Plain questions, plain answers
               </li>
               <li>
-                <img src={artUrl('bar-chart')} alt="" width="26" height="26" /> Every figure comes from your own data
+                <Icon name="chart" size={22} /> Every figure comes from your own data
               </li>
               <li>
-                <img src={artUrl('light-bulb')} alt="" width="26" height="26" /> Advice worth real money, not rules of thumb
+                <Icon name="bulb" size={22} /> Advice worth real money, not rules of thumb
               </li>
             </ul>
             <Link to="/register" className="lp-btn lp-btn-solid">
@@ -889,7 +906,7 @@ export default function Landing() {
       <section className="lp-cta">
         <div className="lp-wrap lp-center" data-reveal>
           <span className="lp-cta-mark">
-            <ArtIcon name="money_bag" size={58} />
+            <LineTile icon="coin" size={58} />
           </span>
           <span className="lp-eyebrow">Your money, a little more sorted</span>
           <h2 className="lp-h2 is-light">
