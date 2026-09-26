@@ -2868,3 +2868,20 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   .auth-preview { margin-right: 0; }
   .auth-preview img { width: 100%; border-radius: 16px 16px 0 0; }
 }
+
+/* --- The sign-in panel on a short screen ----------------------------------
+   The panel is 100vh with overflow:hidden, so on a laptop at 720px the lead
+   and the preview were simply cut off with no way to reach them. It tightens
+   as the viewport gets shorter, and scrolls as a last resort rather than
+   hiding anything. */
+.auth-aside { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+
+@media (max-height: 860px) {
+  .auth-aside { gap: 1.25rem; padding-top: clamp(1.25rem, 3vh, 2rem); }
+  .auth-title { font-size: clamp(1.6rem, 2.6vw, 2.2rem); }
+  .auth-lead { font-size: var(--step--1); }
+  .auth-preview { min-height: 150px; }
+}
+@media (max-height: 700px) {
+  .auth-aside .auth-preview { display: none; }
+}

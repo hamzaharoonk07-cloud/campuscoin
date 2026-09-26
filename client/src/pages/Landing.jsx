@@ -243,14 +243,17 @@ const HERO_SPLIT = [
   ['Transport', 4, 11, -49],
 ];
 
-// The ribbon: every chip is a real logo on that brand's real colour, drawn
-// from Simple Icons (CC0, bundled - nothing is fetched). The ink on each mark
-// is chosen by measured WCAG contrast, not by a brightness guess, which is
-// what put white on Spotify green at 1.92:1.
+// The ribbon: the places a student here actually pays, international and local
+// together. Simple Icons (CC0, bundled) carries the real mark for most of them
+// and for foodpanda and Telenor among the local ones; Careem, Daraz, JazzCash,
+// Easypaisa, SadaPay and Bykea are not in that set, so they take their own
+// initials on their own brand colour rather than a drawn imitation of a real
+// trademark - the rule lib/brands.js sets. Either way the ink is chosen by
+// measured contrast, so nothing comes out white on white.
 const RIBBON = [
-  ['Netflix'], ['foodpanda'], ['Spotify'], ['KFC'], ['Coursera'], ['YouTube'],
-  ['Starbucks'], ['Uber'], ['Udemy'], ['Duolingo'], ['McDonalds'],
-  ['Instagram'], ['Steam'], ['Zoom'], ['PayPal'], ['TikTok'],
+  ['Netflix'], ['foodpanda'], ['JazzCash'], ['Spotify'], ['Careem'], ['KFC'],
+  ['Easypaisa'], ['Coursera'], ['Daraz'], ['YouTube'], ['SadaPay'], ['Uber'],
+  ['Telenor'], ['Udemy'], ['Bykea'], ['McDonalds'], ['Instagram'], ['Steam'],
 ];
 
 // The places students actually pay, in two rows that slide opposite ways.

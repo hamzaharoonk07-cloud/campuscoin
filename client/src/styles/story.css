@@ -203,7 +203,7 @@
   grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 0.45rem;
 }
-.story-cal i { aspect-ratio: 1; border-radius: 5px; background: var(--sunken); opacity: 0; }
+.story-cal i { aspect-ratio: 1; border-radius: 5px; background: var(--sunken); opacity: 0.35; }
 .story-cal i.lvl-1 { background: color-mix(in srgb, var(--sky) 28%, var(--sunken)); }
 .story-cal i.lvl-2 { background: color-mix(in srgb, var(--sky) 58%, var(--sunken)); }
 .story-cal i.lvl-3 { background: var(--sky); }
@@ -275,8 +275,10 @@
   @media (prefers-reduced-motion: no-preference) {
     /* Everything that plays starts hidden; without timeline support the
        declarations above leave each act in its finished state instead. */
-    .b-compose, .b-chip, .b-drop, .b-shift, .b-budget, .b-coin,
-    .b-ask, .b-sum, .b-answer, .b-avg { opacity: 0; }
+    /* The first beat of each act stays at rest: the panel must never be an empty
+       white box while the reader scrolls into it. Only what happens NEXT plays. */
+    .b-chip, .b-drop, .b-shift, .b-budget, .b-coin,
+    .b-sum, .b-answer, .b-avg { opacity: 0; }
     .b-amount { opacity: 0; }
 
     .lp-story [class*='b-'] {
@@ -286,7 +288,7 @@
     }
 
     /* --- Act I --- */
-    .b-compose { animation-name: story-in; animation-range: cover 29% cover 35%; }
+    /* compose and ask are present from the start - see above */
     .story-typed { animation: story-type linear both; animation-timeline: --act; animation-range: cover 33% cover 43%; }
     .b-amount { animation-name: story-in; animation-range: cover 42% cover 46%; }
     .b-chip { animation-name: story-in; animation-range: cover 45% cover 51%; }
@@ -319,7 +321,7 @@
     }
 
     /* --- Act III --- */
-    .b-ask { animation-name: story-in; animation-range: cover 29% cover 34%; }
+    
     .story-typed.is-ask { animation-range: cover 32% cover 40%; }
     .story-reads .story-row {
       animation: story-in linear both;
@@ -337,7 +339,7 @@
 @keyframes story-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes story-drop { from { opacity: 0; transform: translateY(-26px) scale(0.97); } to { opacity: 1; transform: none; } }
 @keyframes story-fill { from { width: 0; } 70% { width: 82%; background: var(--sky); } to { width: 100%; background: var(--bad); } }
-@keyframes story-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
+@keyframes story-pop { from { opacity: 0.35; transform: scale(0.85); } to { opacity: 1; transform: none; } }
 @keyframes story-grow { from { transform: scaleY(0); transform-origin: bottom; } to { transform: none; transform-origin: bottom; } }
 @keyframes story-sweep { from { stroke-dasharray: 0 100; } to { stroke-dasharray: var(--d); } }
 @keyframes story-cal-out { 0%, 74% { opacity: 1; transform: none; } 100% { opacity: 0; transform: scale(0.9); } }
