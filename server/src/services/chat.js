@@ -1,6 +1,6 @@
 import Transaction from '../models/Transaction.js';
 import Budget from '../models/Budget.js';
-import { monthTotals, byCategory, categoryBaseline, budgetProgress, trend } from './analytics.js';
+import { monthTotals, byCategory, byMethod, categoryBaseline, budgetProgress, trend } from './analytics.js';
 import { forecastNextMonth } from './forecast.js';
 import { listTips } from './tips.js';
 import { suggestCategory, visibleCategories, tokenize } from './categorizer.js';
@@ -299,6 +299,58 @@ async function factSheet(user, month) {
   };
 }
 
+// How the money moved: cash, or which account. The names the student would say,
+// the id each one is stored under, and what to call it back.
+const PLACES = [
+  [/\bjazz ?cash\b/, 'jazzcash', 'JazzCash'],
+  [/\beasy ?paisa\b/, 'easypaisa', 'Easypaisa'],
+  [/\bsada ?pay\b/, 'sadapay', 'SadaPay'],
+  [/\bnaya ?pay\b/, 'nayapay', 'NayaPay'],
+  [/\bbank\b/, 'bank', 'bank transfer'],
+  [/\b(debit|credit|card)\b/, 'card', 'card'],
+  [/\bcash\b|\bnotes\b/, 'cash', 'cash'],
+];
+const PLACE_NAMES = { cash: 'Cash', bank: 'Bank transfer', easypaisa: 'Easypaisa', jazzcash: 'JazzCash', sadapay: 'SadaPay', nayapay: 'NayaPay', card: 'Debit or credit card', other: 'Something else' };
+
+/**
+ * Questions about cash, online or a named account. Money coming in and money
+ * going out are different questions, so the wording picks the direction: it is
+ * spending unless the student is clearly asking about what arrived.
+ */
+async function byPlace({ user, month, money }, text) {
+  // "receiv" covers receive, received and receiving; "get"/"got" cover how a
+  // student says it. Spending words win, so "paid by card" is never money in.
+  const incoming = has(text, /came in|come in|coming in|receiv|arriv|money in|income|earn|\bgot\b|\bget\b|paid into|deposit/) && !has(text, /spen[dt]|paid (with|by)|went out|go out|out of/);
+  const type = incoming ? 'income' : 'expense';
+  const verb = incoming ? 'came in' : 'went out';
+  const data = await byMethod(user._id, month, type);
+  if (!data.total) return { reply: `There is nothing ${incoming ? 'received' : 'spent'} logged for ${monthName(month)} yet.` };
+
+  const named = PLACES.find(([re]) => re.test(text));
+  if (named) {
+    const [, id, label] = named;
+    const rows = data.rows.filter((r) => r.method === id);
+    const total = round2(rows.reduce((acc, r) => acc + r.total, 0));
+    const count = rows.reduce((acc, r) => acc + r.count, 0);
+    // How to say it: notes are "as cash", a card is "by card", and a wallet or a
+    // bank is somewhere the money goes "through".
+    const how = id === 'cash' ? 'as cash' : id === 'card' ? 'by card' : 'through ' + label;
+    if (!count) return { reply: `Nothing ${verb} ${how} in ${monthName(month)}.` };
+    const share = data.total ? Math.round((total / data.total) * 100) : 0;
+    return {
+      reply: `${money(total)} ${verb} ${how} in ${monthName(month)}, across ${count} ${count === 1 ? 'entry' : 'entries'}. That is ${share}% of the ${money(data.total)} that ${verb}.`,
+      link: { to: '/transactions', label: 'See the entries' },
+    };
+  }
+
+  // No place named: the whole split, cash first because it is the half with no record.
+  return {
+    reply: `Of the ${money(data.total)} that ${verb} in ${monthName(month)}, ${money(data.cash)} (${data.cashShare}%) was cash and ${money(data.digital)} was online.`,
+    rows: data.rows.map((r) => ({ label: r.label || PLACE_NAMES[r.method] || r.method, value: money(r.total), tone: incoming ? 'in' : 'out' })),
+    link: { to: '/dashboard', label: 'Open the dashboard' },
+  };
+}
+
 export async function answer(user, question) {
   const text = String(question || '').toLowerCase().trim();
   const context = { user, month: monthFor(text), money: (n) => formatMoney(n, user.currency) };
@@ -310,6 +362,10 @@ export async function answer(user, question) {
   else if (has(text, /categor(y|ise|ize)|which .*(file|put)/) && !has(text, /top|biggest|most/)) result = await whichCategory(context, text);
   else if (has(text, /afford/)) result = await afford(context, text);
   else if (has(text, /forecast|next month|predict|expect/)) result = await forecast(context);
+  // Cash, online and named accounts. Before the budget and category checks: without
+  // this, "how much cash did I spend" fell through to the generic summary and
+  // "which accounts did money come into" was read as a question about Allowance.
+  else if (has(text, /\bcash\b|\bonline\b|\baccounts?\b|\bwallets?\b|jazz ?cash|easy ?paisa|sada ?pay|naya ?pay|\bbank\b|\b(debit|credit) card\b|\bcard\b|digital/)) result = await byPlace(context, text);
   else if (has(text, /budget|limit|\bcap\b|overspen/)) result = await budgets(context);
   else if (has(text, /tip|save more|saving|advice|cut (down|back)|reduce/)) result = await tips(context);
   else if (has(text, /biggest (expense|purchase|transaction)|largest|most expensive/)) result = await biggestExpense(context);
