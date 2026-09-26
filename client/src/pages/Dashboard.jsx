@@ -475,71 +475,30 @@ export default function Dashboard() {
                   {spending[0].share}% of everything you spent
                   {spending[1] ? `, ahead of ${spending[1].name} at ${spending[1].share}%` : ''}.
                 </p>
+                {/* The next three, so the card has something under the winner and the
+                    top category is read against what it beat. */}
+                {spending.length > 1 ? (
+                  <ul className="d9-topcat-next">
+                    {spending.slice(1, 4).map((c) => (
+                      <li key={c.categoryId || c.name}>
+                        <CategoryIcon icon={c.icon} slot={c.slot} size={28} />
+                        <span className="d9-topcat-next-name">
+                          {c.name}
+                          <span className="d9-topcat-next-bar">
+                            <i style={{ width: `${c.share}%`, background: slotColor(c.slot) }} />
+                          </span>
+                        </span>
+                        <span className="num">{money(c.total, currency)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </>
             ) : (
               <p className="d9-muted">Nothing spent yet this month.</p>
             )}
           </section>
   
-          {/* Cash against the wallets. Cash is shown first and on its own line
-              because it is the half of a month with no record to check against. */}
-          <section className="d9-card d9-methods">
-            <div className="d9-head">
-              <h2>In account and in cash</h2>
-              <Link to="/transactions" className="d9-link">
-                All
-              </Link>
-            </div>
-            {methods?.total ? (
-              <>
-                <div className="d9-methods-split">
-                  <span className="is-digital">
-                    <em>Came in to accounts</em>
-                    <strong className="num">{money(flow?.in?.account ?? 0, currency)}</strong>
-                    <small>
-                      {flow?.in?.cash ? `and ${money(flow.in.cash, currency)} as cash` : 'nothing arrived as cash'}
-                    </small>
-                  </span>
-                  <span>
-                    <em>Went out as cash</em>
-                    <strong className="num">{money(flow?.out?.cash ?? 0, currency)}</strong>
-                    <small>
-                      {flow?.out?.account ? `and ${money(flow.out.account, currency)} from accounts` : 'nothing from accounts'}
-                    </small>
-                  </span>
-                </div>
-                {flow?.out?.cashShare !== null && flow?.out?.cashShare !== undefined ? (
-                  <div className="d9-methods-bar" aria-label={`${flow.out.cashShare}% of spending was cash`}>
-                    <i style={{ width: `${flow.out.cashShare}%` }} />
-                  </div>
-                ) : null}
-                <p className="d9-methods-note">
-                  Money reaches you digitally and leaves as notes. Withdrawals are not logged, so no balance is
-                  guessed. Spent this month:
-                </p>
-                <ul className="d9-methods-list">
-                  {methods.rows.map((row) => {
-                    const m = markFor(row.method, row.label);
-                    return (
-                      <li key={`${row.method}:${row.label || ''}`}>
-                        <span className="d9-method-mark" style={{ background: `#${m.hex}`, color: m.ink }}>
-                          {m.letter}
-                        </span>
-                        <span className="d9-method-name">
-                          {m.name}
-                          <em>{row.count} {row.count === 1 ? 'entry' : 'entries'}</em>
-                        </span>
-                        <span className="num">{money(row.total, currency)}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </>
-            ) : (
-              <p className="d9-muted">Nothing spent yet this month.</p>
-            )}
-          </section>
-
           <section className="d9-card d9-bva">
             <div className="d9-head">
               <h2>Budget vs. actual</h2>
@@ -588,6 +547,72 @@ export default function Dashboard() {
           </section>
         </div>
   
+        {/* Where the money moved. It has its own row: it is far wider than the two
+            cards above it, and sitting beside them it left a hole under Top category
+            and pushed Budget vs. actual onto a row of its own. */}
+        <div className="d9-row d9-row-methods">
+          <section className="d9-card d9-methods">
+            <div className="d9-head">
+              <h2>In account and in cash</h2>
+              <Link to="/transactions" className="d9-link">
+                All
+              </Link>
+            </div>
+            {methods?.total ? (
+              <div className="d9-methods-body">
+                <div className="d9-methods-side">
+                  <div className="d9-methods-split">
+                    <span className="is-digital">
+                      <em>Came in to accounts</em>
+                      <strong className="num">{money(flow?.in?.account ?? 0, currency)}</strong>
+                      <small>
+                        {flow?.in?.cash ? `and ${money(flow.in.cash, currency)} as cash` : 'nothing arrived as cash'}
+                      </small>
+                    </span>
+                    <span>
+                      <em>Went out as cash</em>
+                      <strong className="num">{money(flow?.out?.cash ?? 0, currency)}</strong>
+                      <small>
+                        {flow?.out?.account ? `and ${money(flow.out.account, currency)} from accounts` : 'nothing from accounts'}
+                      </small>
+                    </span>
+                  </div>
+                  {flow?.out?.cashShare !== null && flow?.out?.cashShare !== undefined ? (
+                    <div className="d9-methods-bar" aria-label={`${flow.out.cashShare}% of spending was cash`}>
+                      <i style={{ width: `${flow.out.cashShare}%` }} />
+                    </div>
+                  ) : null}
+                  <p className="d9-methods-note">
+                    Money reaches you digitally and leaves as notes. Withdrawals are not logged, so no balance is guessed.
+                  </p>
+                </div>
+                <div className="d9-methods-main">
+                  <h3 className="d9-methods-sub">Spent this month, by where it moved</h3>
+                  <ul className="d9-methods-list">
+                    {methods.rows.map((row) => {
+                      const m = markFor(row.method, row.label);
+                      return (
+                        <li key={`${row.method}:${row.label || ''}`}>
+                          <span className="d9-method-mark" style={{ background: `#${m.hex}`, color: m.ink }}>
+                            {m.letter}
+                          </span>
+                          <span className="d9-method-name">
+                            {m.name}
+                            <em>{row.count} {row.count === 1 ? 'entry' : 'entries'}</em>
+                          </span>
+                          <span className="num">{money(row.total, currency)}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <p className="d9-muted">Nothing spent yet this month.</p>
+            )}
+          </section>
+        </div>
+
         <div className="d9-row">
           {/* --- Spending activity ----------------------------------------- */}
           <section className="d9-card d9-activity">

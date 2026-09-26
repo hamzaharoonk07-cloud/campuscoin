@@ -1310,3 +1310,64 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
   font-weight: 800;
   letter-spacing: -0.02em;
 }
+
+/* --- Where it moved, as a row of its own ------------------------------------
+   It used to sit inside .d9-row-srs, a two-column grid built for exactly two
+   cards, so adding a third pushed Budget vs. actual onto a second row with
+   nothing beside it and left a hole under Top category. As a full-width row
+   it reads in two halves: the figures on the left, and the methods in two
+   columns on the right so each name sits near its amount instead of being
+   pinned across 700px of empty card. */
+
+.d9-row-methods { grid-template-columns: minmax(0, 1fr); }
+.d9-methods-body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 1.25rem 2.75rem;
+  align-items: start;
+}
+.d9-methods-side .d9-methods-split { margin-bottom: 0.9rem; }
+.d9-methods-side .d9-methods-bar { margin-bottom: 0.9rem; }
+.d9-methods-side .d9-methods-note { margin: 0; line-height: 1.55; }
+.d9-methods-sub {
+  margin: 0 0 0.35rem;
+  font-size: var(--step--2);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.d9-methods-main .d9-methods-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 2rem;
+}
+.d9-methods-main .d9-methods-list li:nth-child(2) { border-top: 0; }
+
+@media (max-width: 62rem) {
+  .d9-methods-body { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 40rem) {
+  .d9-methods-main .d9-methods-list { grid-template-columns: minmax(0, 1fr); }
+  .d9-methods-main .d9-methods-list li:nth-child(2) { border-top: 1px solid var(--line); }
+}
+
+/* Cards in a row match heights. The rows were align-items: start, so a short
+   card beside a tall one - Top category beside Budget vs. actual, Coming up
+   beside Coin's insight - left a hole under it. Stretching them fills the row,
+   and the short card's content sits at the top of it as before. */
+.d9-row-srs,
+.d9-row-fresh { align-items: stretch; }
+.d9-row-srs > .d9-card,
+.d9-row-fresh > .d9-card { display: flex; flex-direction: column; }
+
+/* The three categories that came after the winner. */
+.d9-topcat-next { list-style: none; margin: 1.1rem 0 0; padding: 0.9rem 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 0.8rem; }
+.d9-topcat-next li { display: flex; align-items: center; gap: 0.7rem; font-size: var(--step--1); font-weight: 600; }
+.d9-topcat-next-name { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.d9-topcat-next-bar { display: block; height: 4px; border-radius: var(--r-pill); background: var(--sunken); overflow: hidden; }
+.d9-topcat-next-bar i { display: block; height: 100%; border-radius: var(--r-pill); }
+
+/* Every row of cards matches heights, not only the two named above: Coming up
+   beside Coin's insight and Worth doing left a short card with a hole under it. */
+.d9-row { align-items: stretch; }
