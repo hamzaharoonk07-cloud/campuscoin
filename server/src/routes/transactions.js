@@ -28,13 +28,19 @@ async function resolveCategory(user, categoryId) {
 router.get(
   '/',
   wrap(async (req, res) => {
-    const { month, from, to, category, type, q, flagged, recurring } = req.query;
+    const { month, from, to, category, type, q, flagged, recurring, method } = req.query;
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Number(req.query.limit) || 25);
 
     const filter = { user: req.user._id };
     if (type) filter.type = type;
     if (category) filter.category = category;
+    // How the money moved. Rows written before the field existed have no method and
+    // count as cash everywhere else in the app, so "cash" has to include them or
+    // they would drop out of it. "digital" is anything that is not cash.
+    if (method === 'cash') filter.$or = [{ method: 'cash' }, { method: { $exists: false } }];
+    else if (method === 'digital') filter.method = { $exists: true, $nin: ['cash'] };
+    else if (PAYMENT_METHODS.includes(method)) filter.method = method;
     if (flagged === '1') filter.flags = { $ne: [] };
     // The rules behind repeating entries, for the dashboard's "coming up" list.
     if (recurring === '1') filter['recurring.enabled'] = true;

@@ -7,17 +7,17 @@ import { CategoryIcon, WalletArt } from '../components/Illustrations.jsx';
 import ImportWizard from '../components/ImportWizard.jsx';
 import { api } from '../lib/api.js';
 import { dayHeading, formatDate, money, slotColor } from '../lib/format.js';
-import { markFor } from '../lib/methods.js';
+import { markFor, METHODS } from '../lib/methods.js';
 import { useAuth, useToast } from '../context/AppContext.jsx';
 
-const EMPTY_FILTERS = { q: '', type: '', category: '', from: '', to: '', flagged: '' };
+const EMPTY_FILTERS = { q: '', type: '', category: '', method: '', from: '', to: '', flagged: '' };
 
 export default function Transactions() {
   const { currency } = useAuth();
   const toast = useToast();
   const [params] = useSearchParams();
   // The rail's search arrives as ?q=, the dashboard's Flagged button as ?flagged=1.
-  const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS, q: params.get('q') || '', flagged: params.get('flagged') || '', from: params.get('from') || '', to: params.get('to') || '' }));
+  const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS, q: params.get('q') || '', flagged: params.get('flagged') || '', from: params.get('from') || '', to: params.get('to') || '', method: params.get('method') || '' }));
   const [page, setPage] = useState(1);
   // On a phone only the search shows until the student opens the other filters.
   const [moreFilters, setMoreFilters] = useState(false);
@@ -137,6 +137,19 @@ export default function Transactions() {
               </select>
             </div>
             <div className="field">
+              <label htmlFor="method">Paid with</label>
+              <select id="method" value={filters.method} onChange={setFilter('method')}>
+                <option value="">Any way</option>
+                <option value="cash">Cash</option>
+                <option value="digital">Any account (not cash)</option>
+                {METHODS.filter((m) => m.id !== 'cash').map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
               <label htmlFor="from">From</label>
               <input id="from" type="date" value={filters.from} onChange={setFilter('from')} />
             </div>
@@ -149,7 +162,7 @@ export default function Transactions() {
           <button type="button" className="btn btn-sm tx-filter-toggle" onClick={() => setMoreFilters((was) => !was)} aria-expanded={moreFilters}>
             <Icon name="filter" size={14} />
             {moreFilters ? 'Fewer filters' : 'More filters'}
-            {!moreFilters && ['type', 'category', 'from', 'to', 'flagged'].some((k) => filters[k]) ? <span className="tx-filter-dot" /> : null}
+            {!moreFilters && ['type', 'category', 'method', 'from', 'to', 'flagged'].some((k) => filters[k]) ? <span className="tx-filter-dot" /> : null}
           </button>
 
           <div className="row row-wrap" style={{ marginTop: '0.85rem' }}>
