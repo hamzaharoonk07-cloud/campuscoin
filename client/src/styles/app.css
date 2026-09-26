@@ -2794,3 +2794,68 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 @media (max-width: 420px) {
   .money-tile { min-height: 88px; padding: 0.9rem; }
 }
+
+/* --- Sign-in on a phone ---------------------------------------------------
+   The card becomes a sheet: it starts under the header strip and runs to the
+   bottom edge, with the fine print sitting on it rather than stranded on the
+   dark below. The content is anchored near the top, because a form centred in
+   a full-height sheet leaves a band of empty white above and below it. */
+
+.auth-sheet { display: contents; }
+
+@media (max-width: 48rem) {
+  .auth { grid-template-columns: minmax(0, 1fr); }
+  .auth-form-side { padding: 0; gap: 0; }
+  .auth-top {
+    padding: 0.9rem 1.15rem;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+  }
+  .auth-top-note { margin-left: auto; white-space: nowrap; }
+  .auth-top-note .btn-sm { padding-inline: 0.85rem; }
+
+  .auth-sheet {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+    background: var(--surface);
+    border-radius: 26px 26px 0 0;
+    box-shadow: 0 -10px 40px -20px rgba(0, 0, 0, 0.7);
+    padding: 1.9rem 1.25rem 1.25rem;
+    gap: 1.1rem;
+  }
+  .auth-form {
+    width: 100%;
+    max-width: none;
+    margin-block: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  /* On the sheet, not on the dark: this needs the card's ink. */
+  .auth-fine { margin-top: auto; color: var(--muted); }
+  .auth-fine a { color: var(--muted); }
+  .auth-fine a:hover { color: var(--text); }
+}
+
+/* The three points only exist on a phone, where the navy panel is hidden. */
+.auth-points { display: none; }
+
+@media (max-width: 48rem) {
+  .auth-points {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    list-style: none;
+    margin: 1.6rem 0 0;
+    padding: 1.5rem 0 0;
+    border-top: 1px solid var(--line);
+  }
+  .auth-points li { display: flex; align-items: flex-start; gap: 0.8rem; }
+  .auth-points svg { color: var(--good); flex: none; margin-top: 0.15rem; }
+  .auth-points span { display: flex; flex-direction: column; gap: 0.1rem; font-size: var(--step--2); color: var(--muted); }
+  .auth-points strong { font-size: var(--step--1); font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+}

@@ -131,6 +131,9 @@ export default function Login() {
           </span>
         </AuthTop>
 
+        {/* On a phone this wrapper becomes the sheet, so the fine print sits on
+            it rather than stranded on the dark below a card that stops short. */}
+        <div className="auth-sheet">
         <form className="auth-form" onSubmit={submit}>
           {/* The aside already carries the brand and the promise, so the card
               only has to ask for two things. */}
@@ -181,11 +184,39 @@ export default function Login() {
           </button>
         </form>
 
+        {/* The navy panel is hidden on a phone, which leaves the sheet with a
+            band of empty white and the page with no reason to sign up. These
+            three carry it on small screens only. */}
+        <ul className="auth-points">
+          <li>
+            <Icon name="shield" size={17} />
+            <span>
+              <strong>No bank link</strong>
+              Nothing to connect, ever
+            </span>
+          </li>
+          <li>
+            <Icon name="spark" size={17} />
+            <span>
+              <strong>Seven saving rules</strong>
+              Built from your own history
+            </span>
+          </li>
+          <li>
+            <Icon name="chart" size={17} />
+            <span>
+              <strong>Six months</strong>
+              Side by side, from day one
+            </span>
+          </li>
+        </ul>
+
         {/* Out of the card: neither is part of signing in. */}
         <p className="auth-fine">
           No bank connection, no card details, no subscription.
           <Link to="/admin/login">Administrator sign-in</Link>
         </p>
+        </div>
       </div>
     </div>
   );

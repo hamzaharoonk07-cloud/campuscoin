@@ -2126,30 +2126,3 @@ body:has(.lp) { background: var(--surface); }
   box-shadow: none;
 }
 .lp-badge:hover { background: rgba(255, 255, 255, 0.13); box-shadow: none; }
-
-/* --- Sign-in on a phone: the card owns the screen ------------------------- */
-
-@media (max-width: 48rem) {
-  .auth-form-side { padding: 0; justify-content: stretch; }
-  .auth-top { padding: 1rem 1.25rem 0; }
-  .auth-form {
-    width: 100%;
-    max-width: none;
-    margin-block: 0;
-    flex-grow: 1;
-    border-radius: 22px 22px 0 0;
-    padding: 1.75rem 1.25rem 2rem;
-    justify-content: center;
-  }
-  .auth-fine { padding: 1rem 1.25rem 1.25rem; }
-}
-
-/* In the split layout the copy column is about 600px, which a nowrap headline
-   at 3.9vw overruns - it ran straight under the phone. It wraps here and sits
-   a size down. */
-.lp-hero-split h1 { font-size: clamp(1.95rem, 3.2vw, 2.95rem); }
-.lp-hero-split .lp-line { white-space: normal; }
-.lp-hero-split .lp-lead { max-width: min(27rem, 100%); }
-/* And the stage is pushed clear of the copy. */
-.lp-hero-split .lp-handset { left: 2%; top: 24%; }
-.lp-hero-split .lp-chip-ask { left: 0; bottom: -8%; }
