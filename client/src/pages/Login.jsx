@@ -54,6 +54,51 @@ export function AuthFeed() {
   );
 }
 
+// What the app itself does for a student, as opposed to what they log: alerts,
+// arrivals, insights and repeating entries. Different from the transaction reel
+// on the form side, so the two are not saying the same thing twice. Examples.
+const ACTIVITY = [
+  ['bell', 'Food budget at 80%', 'Rs 7,200 of Rs 9,000', 'just now'],
+  ['download', 'Allowance received', '+Rs 20,000 by JazzCash', '2 min ago'],
+  ['chat', 'Coin noticed something', 'Food is 7% above your usual', '1 h ago'],
+  ['repeat', 'Gym membership added', 'Rs 654 by card, repeats monthly', 'today'],
+  ['target', 'Savings goal: 62% there', 'Rs 3,100 to go this month', 'yesterday'],
+  ['spark', 'A tip worth Rs 3,100', 'Delivery orders on weekends', 'yesterday'],
+];
+
+/**
+ * A stack of app events drifting up over the dashboard preview in the navy
+ * panel, so the left half of every account page is moving too. Glass cards, cut
+ * off top and bottom by a fade, written twice so the loop has no seam, hidden
+ * from screen readers, and still under reduced motion.
+ */
+export function AuthActivity() {
+  return (
+    <div className="auth-activity" aria-hidden="true">
+      <div className="auth-activity-head">
+        <span className="auth-feed-live" />
+        Live activity
+      </div>
+      <div className="auth-activity-window">
+        <ul className="auth-activity-track">
+          {[...ACTIVITY, ...ACTIVITY].map(([icon, title, body, when], i) => (
+            <li key={`${title}-${i}`}>
+              <span className="auth-activity-icon">
+                <Icon name={icon} size={15} />
+              </span>
+              <span className="auth-activity-text">
+                {title}
+                <em>{body}</em>
+              </span>
+              <time>{when}</time>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 /**
  * The navy half of every sign-in page: the promise, and the real dashboard
  * the student is about to open, so they know what they are signing in to.
@@ -77,6 +122,7 @@ export function AuthAside({ eyebrow = 'Student money. Clearly sorted.', title, h
       </div>
       <div className="auth-preview" aria-hidden="true">
         <img src="/shots/hero.png" alt="" />
+        <AuthActivity />
         <div className="auth-preview-card">
           <span className="auth-preview-icon">
             <Icon name="bulb" size={17} />

@@ -2867,7 +2867,9 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   .auth-preview { min-height: 150px; }
 }
 @media (max-height: 700px) {
-  .auth-aside .auth-preview { display: none; }
+  /* Only the still picture and its tip card go; the activity stays. */
+  .auth-aside .auth-preview img,
+  .auth-aside .auth-preview-card { display: none; }
 }
 
 /* ===========================================================================
@@ -3017,4 +3019,105 @@ table.data tbody tr:last-child td { border-bottom: 0; }
   .auth-form-side { gap: 1rem; padding-bottom: 1.25rem; }
   .auth-feed-window { height: 92px; }
   .auth-feed-head { margin-bottom: 0.45rem; }
+}
+
+/* ===========================================================================
+   Live activity over the dashboard preview in the navy panel. The panel was a
+   headline and a still picture with dead ground beside the text; this makes the
+   left half of every account page move as well. Glass cards on the dark, so the
+   picture stays readable behind them.
+   =========================================================================== */
+
+.auth-preview { position: relative; }
+.auth-activity {
+  position: absolute;
+  z-index: 3;
+  top: 1.1rem;
+  right: 1.4rem;
+  width: min(272px, 44%);
+  padding: 0.75rem 0.7rem 0.2rem;
+  border-radius: 18px;
+  background: rgba(10, 10, 13, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.9);
+  animation: auth-act-in 0.9s var(--ease-out) 0.7s backwards;
+}
+@keyframes auth-act-in { from { opacity: 0; transform: translateY(18px) scale(0.97); } }
+
+.auth-activity-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0.3rem 0.55rem;
+  font-size: var(--step--2);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a1a1aa;
+}
+.auth-activity-window {
+  height: clamp(118px, 24vh, 206px);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
+}
+.auth-activity-track { list-style: none; margin: 0; padding: 0; animation: auth-act-scroll 34s linear infinite; }
+.auth-activity-window:hover .auth-activity-track { animation-play-state: paused; }
+/* Written twice, so half the height is exactly one loop. */
+@keyframes auth-act-scroll { to { transform: translateY(-50%); } }
+
+.auth-activity-track li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 56px;
+  margin-bottom: 7px;
+  padding: 0 0.6rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4f4f6;
+}
+.auth-activity-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  flex: none;
+  background: rgba(34, 197, 94, 0.18);
+  color: #6ee7b7;
+}
+.auth-activity-text {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.auth-activity-text em { font-style: normal; font-size: 0.7rem; font-weight: 500; color: #a1a1aa; overflow: hidden; text-overflow: ellipsis; }
+.auth-activity-track time { font-size: 0.66rem; color: #7c7c87; flex: none; align-self: flex-start; margin-top: 0.55rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-activity, .auth-activity-track { animation: none; }
+}
+/* On a laptop-height screen there is no room for a picture with a card over it. The
+   still screenshot gives way and the activity takes its place, in the flow, so the
+   left panel is still moving rather than hiding the one thing that fills it. */
+@media (max-height: 800px) {
+  .auth-aside .auth-preview img { display: none; }
+  .auth-aside .auth-preview { min-height: 0; margin-right: 0; }
+  .auth-activity {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: min(430px, 100%);
+    margin-top: 0.2rem;
+  }
+  .auth-activity-window { height: clamp(150px, 26vh, 190px); }
 }
