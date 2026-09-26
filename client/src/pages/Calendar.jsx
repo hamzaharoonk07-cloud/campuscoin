@@ -117,6 +117,13 @@ export default function Calendar() {
           <span>
             <small>Came in</small>
             <strong className="num is-in">{money(data?.totals.income || 0, currency)}</strong>
+            {/* How it arrived: an allowance usually lands in an account. */}
+            {data?.totals.income ? (
+              <em className="cal-split">
+                <i>{money(data.totals.inDigital || 0, currency)} online</i>
+                <i>{money(data.totals.inCash || 0, currency)} cash</i>
+              </em>
+            ) : null}
           </span>
         </div>
         <div className="cal-fact">
@@ -222,6 +229,11 @@ export default function Calendar() {
                 <span>
                   <small>Came in</small>
                   <strong className="num is-in">{money(day.income, currency)}</strong>
+                  {day.income ? (
+                    <em className="cal-day-split">
+                      {money(day.inDigital || 0, currency)} online · {money(day.inCash || 0, currency)} cash
+                    </em>
+                  ) : null}
                 </span>
               </div>
 

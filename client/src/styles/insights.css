@@ -188,7 +188,7 @@
 .in-habits strong { color: var(--text); font-weight: 600; }
 
 /* The advice, on blue. */
-.in-advice { background: var(--blue); border-color: var(--blue); color: #fff; }
+.in-advice { background: var(--fill-strong); border-color: var(--fill-strong); color: #fff; }
 .in-advice .in-head h3 { color: #fff; }
 .in-advice p { margin: 0 0 1.1rem; font-size: 1rem; line-height: 1.55; }
 

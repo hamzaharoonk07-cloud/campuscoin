@@ -57,7 +57,9 @@
 .cal-day.is-pad:hover { transform: none; box-shadow: none; }
 .cal-day.is-1 { background: var(--blue-soft); border-color: transparent; }
 .cal-day.is-2 { background: color-mix(in srgb, var(--blue) 32%, var(--surface)); border-color: transparent; }
-.cal-day.is-3 { background: var(--blue); border-color: transparent; color: #fff; }
+/* --blue is the bright green now, and white on it is 2.28:1. Dark ink is 8.21:1
+   in the light theme and 9.73:1 in the dark one. */
+.cal-day.is-3 { background: var(--blue); border-color: transparent; color: #121214; }
 .cal-day.is-future { background: repeating-linear-gradient(135deg, var(--surface) 0 8px, var(--raised) 8px 9px); }
 .cal-day.is-today { box-shadow: inset 0 0 0 2px var(--accent); }
 .cal-day.is-picked { box-shadow: inset 0 0 0 2px var(--accent), 0 10px 22px -12px rgba(18, 18, 20, 0.45); transform: translateY(-2px); }
@@ -67,7 +69,7 @@
 .cal-amounts { display: grid; margin-top: auto; line-height: 1.2; }
 .cal-amounts b { font-size: 0.78rem; font-weight: 700; }
 .cal-amounts i { font-style: normal; font-size: 0.72rem; font-weight: 700; color: var(--blue-deep); }
-.cal-day.is-3 .cal-amounts i { color: #fff; }
+.cal-day.is-3 .cal-amounts i { color: #121214; }
 .cal-due { position: absolute; left: 8px; bottom: 6px; width: 7px; height: 7px; border-radius: 50%; background: #f5a524; box-shadow: 0 0 0 2px var(--surface); }
 .cal-day .cal-due { left: auto; right: 8px; bottom: 8px; }
 
@@ -196,3 +198,7 @@
 @media (max-width: 40rem) {
   .cal-day-totals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Money in, split the same way money out is: how it arrived, on the day and on
+   the month. Set small under the figure so it reads as a footnote to it. */
+.cal-day-split { display: block; margin-top: 0.2rem; font-style: normal; font-size: var(--step--2); color: var(--muted); line-height: 1.4; }

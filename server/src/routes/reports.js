@@ -105,11 +105,16 @@ router.get(
     const dayOf = (d) => new Date(d).toISOString().slice(0, 10);
     // cash / digital is carried per day as well as per transaction, so the grid
     // can show the split without walking each day's rows.
-    const bucket = (key) => (days[key] ||= { date: key, income: 0, expense: 0, cash: 0, digital: 0, transactions: [], upcoming: [] });
+    // cash/digital are the spending split; inCash/inDigital are the same split for
+    // money coming in, so the calendar can say how an allowance arrived as well as
+    // how the money left.
+    const bucket = (key) => (days[key] ||= { date: key, income: 0, expense: 0, cash: 0, digital: 0, inCash: 0, inDigital: 0, transactions: [], upcoming: [] });
     for (const t of rows) {
       const day = bucket(dayOf(t.date));
       day[t.type === 'income' ? 'income' : 'expense'] += t.amount;
-      if (t.type === 'expense') day[(t.method || 'cash') === 'cash' ? 'cash' : 'digital'] += t.amount;
+      const isCash = (t.method || 'cash') === 'cash';
+      if (t.type === 'expense') day[isCash ? 'cash' : 'digital'] += t.amount;
+      else day[isCash ? 'inCash' : 'inDigital'] += t.amount;
       day.transactions.push({
         _id: t._id,
         type: t.type,
@@ -136,11 +141,20 @@ router.get(
       day.expense = round2(day.expense);
       day.cash = round2(day.cash);
       day.digital = round2(day.digital);
+      day.inCash = round2(day.inCash);
+      day.inDigital = round2(day.inDigital);
     }
 
     const totals = Object.values(days).reduce(
-      (acc, d) => ({ income: acc.income + d.income, expense: acc.expense + d.expense, cash: acc.cash + d.cash, digital: acc.digital + d.digital }),
-      { income: 0, expense: 0, cash: 0, digital: 0 }
+      (acc, d) => ({
+        income: acc.income + d.income,
+        expense: acc.expense + d.expense,
+        cash: acc.cash + d.cash,
+        digital: acc.digital + d.digital,
+        inCash: acc.inCash + d.inCash,
+        inDigital: acc.inDigital + d.inDigital,
+      }),
+      { income: 0, expense: 0, cash: 0, digital: 0, inCash: 0, inDigital: 0 }
     );
     res.json({
       month: monthKey(month),
@@ -150,6 +164,8 @@ router.get(
         expense: round2(totals.expense),
         cash: round2(totals.cash),
         digital: round2(totals.digital),
+        inCash: round2(totals.inCash),
+        inDigital: round2(totals.inDigital),
       },
     });
   })
