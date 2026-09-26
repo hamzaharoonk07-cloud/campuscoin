@@ -77,7 +77,7 @@ export function AuthActivity() {
     <div className="auth-activity" aria-hidden="true">
       <div className="auth-activity-head">
         <span className="auth-feed-live" />
-        Live activity
+        Coin at work &middot; examples
       </div>
       <div className="auth-activity-window">
         <ul className="auth-activity-track">
