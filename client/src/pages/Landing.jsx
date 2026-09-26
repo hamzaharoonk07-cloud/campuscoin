@@ -243,24 +243,29 @@ const HERO_SPLIT = [
   ['Transport', 4, 11, -49],
 ];
 
-// The ribbon: a line icon in a tint of its category's colour, or, where the
-// entry names a company, that company's real logo on its own brand colour
-// (lib/brands.js). The emoji artwork this replaced was the loudest thing on
-// the page and brought four colours the design system does not have.
+// The ribbon: the places a student actually pays. Where Simple Icons carries
+// the mark it is the real logo on the real brand colour; Careem, Daraz and the
+// wallets get their own initials on their own colour rather than an imitation
+// logo (the rule lib/brands.js sets). The few that are not companies at all
+// take a line icon on a tint of their category colour.
 //   icon, label, category colour slot, and the brand to look up when there is one
 const RIBBON = [
-  ['utensils', 'Canteen chai', 1],
-  ['home', 'Hostel rent', 2],
-  ['bus', 'Rickshaw fare', 3],
-  ['book', 'Textbooks', 4],
   ['repeat', 'Netflix', 5, 'Netflix'],
-  ['utensils', 'Biryani', 1],
-  ['receipt', 'Photocopies', 4],
-  ['gift', 'Eidi', 6],
-  ['award', 'Scholarship', 2],
-  ['film', 'Cinema night', 5],
-  ['wallet', 'Allowance', 3],
+  ['utensils', 'Foodpanda', 1, 'Foodpanda'],
+  ['home', 'Hostel rent', 2],
+  ['bus', 'Careem', 3, 'Careem'],
   ['chat', 'Spotify', 7, 'Spotify'],
+  ['utensils', 'KFC', 1, 'KFC'],
+  ['book', 'Coursera', 4, 'Coursera'],
+  ['wallet', 'JazzCash', 3, 'JazzCash'],
+  ['film', 'YouTube', 5, 'YouTube'],
+  ['award', 'Scholarship', 2],
+  ['tag', 'Daraz', 6, 'Daraz'],
+  ['utensils', 'Starbucks', 1, 'Starbucks'],
+  ['wallet', 'Easypaisa', 3, 'Easypaisa'],
+  ['book', 'Udemy', 4, 'Udemy'],
+  ['gift', 'Eidi', 6],
+  ['repeat', 'Telenor', 2, 'Telenor'],
 ];
 
 // The places students actually pay, in two rows that slide opposite ways.
@@ -563,10 +568,15 @@ export default function Landing() {
                   data-slot={mark ? undefined : slot}
                   style={mark ? { background: `#${mark.hex}`, color: inkOn(mark.hex) } : undefined}
                 >
+                  {/* A real logo where Simple Icons carries one; the brand's own
+                      initials on its own colour where it does not (Careem,
+                      Daraz, the Pakistani wallets); a line icon otherwise. */}
                   {mark?.path ? (
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                       <path d={mark.path} />
                     </svg>
+                  ) : mark ? (
+                    <b className="lp-ribbon-letter">{mark.letter}</b>
                   ) : (
                     <Icon name={icon} size={16} />
                   )}
