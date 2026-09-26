@@ -757,7 +757,7 @@
   left: -16rem;
   bottom: -30rem;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(91, 145, 255, 0.16), transparent 65%);
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.16), transparent 65%);
   pointer-events: none;
 }
 .lp-navy > * { position: relative; }
@@ -1152,7 +1152,7 @@
   align-self: flex-end;
   padding: 0.4rem 0.75rem;
   border-radius: 14px 14px 4px 14px;
-  background: var(--series-in);
+  background: var(--blue-deep);
   color: #fff !important;
   font-weight: 600;
 }
@@ -1213,8 +1213,8 @@
   --hero-top: #0a0a0c;
   padding: clamp(1.5rem, 3vw, 2.5rem) 0 0;
   background:
-    radial-gradient(70% 55% at 50% 4%, rgba(91, 145, 255, 0.26) 0%, transparent 62%),
-    radial-gradient(45% 40% at 88% 78%, rgba(91, 145, 255, 0.14) 0%, transparent 70%),
+    radial-gradient(70% 55% at 50% 4%, rgba(34, 197, 94, 0.26) 0%, transparent 62%),
+    radial-gradient(45% 40% at 88% 78%, rgba(34, 197, 94, 0.14) 0%, transparent 70%),
     linear-gradient(176deg, #0a0a0c 0%, #101018 58%, #14141d 100%);
   color: #ffffff;
   border-bottom: 0;
@@ -1411,7 +1411,7 @@
   }
 }
 
-.lp-mesh-a { background: #5b91ff; opacity: 0.12; animation: none; }
+.lp-mesh-a { background: #22c55e; opacity: 0.12; animation: none; }
 .lp-grid {
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
@@ -1423,7 +1423,7 @@
 /* Ink for the dark band. Every value is fixed rather than tokenised, because
    this band is dark in both themes. */
 .lp-hero h1 { color: #ffffff; }
-.lp-hero h1 em { color: #8ab0ff; }
+.lp-hero h1 em { color: #6ee7b7; }
 .lp-hero .lp-lead { color: #c2c5d2; }
 
 .lp-badge {
@@ -1433,9 +1433,9 @@
   backdrop-filter: blur(8px);
   box-shadow: none;
 }
-.lp-badge:hover { border-color: rgba(91, 145, 255, 0.65); box-shadow: 0 0 0 4px rgba(91, 145, 255, 0.14); }
-.lp-badge svg { color: #8ab0ff; }
-.lp-badge-tag { background: #5b91ff; color: #ffffff; }
+.lp-badge:hover { border-color: rgba(34, 197, 94, 0.65); box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14); }
+.lp-badge svg { color: #6ee7b7; }
+.lp-badge-tag { background: #15803d; color: #ffffff; }
 
 /* A white pill on the dark reads as the one thing to press. */
 .lp-hero .lp-btn-solid {
@@ -1467,13 +1467,13 @@
 }
 .lp-nav.is-top .lp-brand,
 .lp-nav.is-top .lp-nav-links a { color: #ffffff; }
-.lp-nav.is-top .lp-nav-links a:hover { color: #8ab0ff; }
-.lp-nav.is-top .lp-nav-links a::after { background: #8ab0ff; }
+.lp-nav.is-top .lp-nav-links a:hover { color: #6ee7b7; }
+.lp-nav.is-top .lp-nav-links a::after { background: #6ee7b7; }
 .lp-nav.is-top .lp-nav-cta {
-  background: #5b91ff;
-  border-color: #5b91ff;
+  background: #15803d;
+  border-color: #15803d;
   color: #ffffff;
-  box-shadow: 0 14px 30px -14px rgba(91, 145, 255, 0.8);
+  box-shadow: 0 14px 30px -14px rgba(34, 197, 94, 0.8);
 }
 .lp-nav { transition: background 0.35s var(--ease), box-shadow 0.3s var(--ease), border-color 0.35s var(--ease); }
 .lp-nav .lp-brand,
@@ -1674,7 +1674,7 @@ body:has(.lp) { background: var(--surface); }
 .lp-hero h1 { font-size: clamp(2.3rem, 4.4vw, 3.9rem); }
 .lp-hero h1 em { white-space: nowrap; }
 .lp-hero h1 em {
-  background: linear-gradient(90deg, #5b91ff, #a9c5ff, #5b91ff);
+  background: linear-gradient(90deg, #22c55e, #86dcae, #22c55e);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -1693,7 +1693,7 @@ body:has(.lp) { background: var(--surface); }
   background: linear-gradient(160deg, #f5f8ff, #fff 60%);
 }
 .lp-stat strong { display: block; font-size: clamp(2.4rem, 4vw, 3.4rem); font-weight: 800; letter-spacing: -0.05em; line-height: 1; color: #121214; }
-.lp-stat strong span { background: linear-gradient(135deg, #121214 30%, #5b91ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lp-stat strong span { background: linear-gradient(135deg, #121214 30%, #22c55e); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .lp-stat > span { display: block; margin-top: 0.5rem; font-size: 0.95rem; color: var(--muted); line-height: 1.4; }
 @media (max-width: 820px) { .lp-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
@@ -1702,7 +1702,7 @@ body:has(.lp) { background: var(--surface); }
   padding: clamp(4rem, 8vw, 6.5rem) 0;
   color: #fff;
   background:
-    radial-gradient(60% 80% at 90% 20%, rgba(91, 145, 255, 0.35), transparent 60%),
+    radial-gradient(60% 80% at 90% 20%, rgba(34, 197, 94, 0.35), transparent 60%),
     radial-gradient(40% 60% at 5% 90%, rgba(167, 139, 250, 0.18), transparent 70%),
     #0c0c0e;
   overflow: hidden;
@@ -1710,7 +1710,7 @@ body:has(.lp) { background: var(--surface); }
 .lp-coin-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; align-items: center; }
 @media (max-width: 900px) { .lp-coin-grid { grid-template-columns: minmax(0, 1fr); } }
 .lp-coin .lp-h2 { color: #fff; }
-.lp-coin .lp-h2 em { font-style: normal; color: #5b91ff; }
+.lp-coin .lp-h2 em { font-style: normal; color: #22c55e; }
 .lp-coin p { color: #b8bcc8; font-size: 1.08rem; line-height: 1.65; max-width: 34rem; }
 .lp-coin-points { list-style: none; padding: 0; margin: 1.4rem 0 2rem; display: grid; gap: 0.8rem; }
 .lp-coin-points li { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: #eef0f5; }
@@ -1741,10 +1741,10 @@ body:has(.lp) { background: var(--surface); }
   animation: lp-msg 0.4s cubic-bezier(0.2, 1.1, 0.3, 1) backwards;
 }
 .lp-coin p.lp-msg { color: inherit; max-width: 82%; font-size: 0.98rem; }
-.lp-msg.is-me { align-self: flex-end; background: #5b91ff; color: #fff; border-top-right-radius: 6px; }
+.lp-msg.is-me { align-self: flex-end; background: #15803d; color: #fff; border-top-right-radius: 6px; }
 .lp-msg.is-coin { align-self: flex-start; background: rgba(255, 255, 255, 0.1); color: #eef0f5; border-top-left-radius: 6px; }
 .lp-msg.is-typing { display: inline-flex; gap: 5px; padding: 0.95rem 1.1rem; }
-.lp-msg.is-typing i { width: 7px; height: 7px; border-radius: 50%; background: #a9c5ff; animation: lp-dot 1s ease-in-out infinite; }
+.lp-msg.is-typing i { width: 7px; height: 7px; border-radius: 50%; background: #86dcae; animation: lp-dot 1s ease-in-out infinite; }
 .lp-msg.is-typing i:nth-child(2) { animation-delay: 0.15s; }
 .lp-msg.is-typing i:nth-child(3) { animation-delay: 0.3s; }
 @keyframes lp-msg { from { opacity: 0; transform: translateY(10px) scale(0.96); } }
@@ -1756,14 +1756,14 @@ body:has(.lp) { background: var(--surface); }
   overflow: hidden;
   color: #fff;
   background:
-    radial-gradient(70% 90% at 50% 0%, rgba(91, 145, 255, 0.45), transparent 60%),
+    radial-gradient(70% 90% at 50% 0%, rgba(34, 197, 94, 0.45), transparent 60%),
     #121214;
   border-top: 0;
 }
 .lp-cta .lp-h2 { color: #fff; }
 .lp-cta .lp-lead { color: #b8bcc8; }
-.lp-cta .lp-eyebrow { color: #a9c5ff; }
-.lp-cta .lp-btn-solid { background: #5b91ff; border-color: #5b91ff; color: #fff; }
+.lp-cta .lp-eyebrow { color: #86dcae; }
+.lp-cta .lp-btn-solid { background: #15803d; border-color: #15803d; color: #fff; }
 .lp-cta .lp-btn:not(.lp-btn-solid) { background: rgba(255, 255, 255, 0.1); color: #fff; border-color: rgba(255, 255, 255, 0.2); }
 .lp-cta-mark { background: #fff; }
 
@@ -1771,7 +1771,7 @@ body:has(.lp) { background: var(--surface); }
   .lp-hero h1 em, .lp-msg, .lp-msg.is-typing i { animation: none; }
 }
 .lp-coin .lp-h2 { margin-bottom: 1.2rem; }
-.lp-coin .lp-btn-solid { background: #5b91ff; border-color: #5b91ff; color: #fff; box-shadow: 0 14px 30px -12px rgba(91, 145, 255, 0.7); }
+.lp-coin .lp-btn-solid { background: #15803d; border-color: #15803d; color: #fff; box-shadow: 0 14px 30px -12px rgba(34, 197, 94, 0.7); }
 
 /* ============================================================================
    More colour, depth and motion
@@ -1783,14 +1783,14 @@ body:has(.lp) { background: var(--surface); }
 .lp-bento-section .lp-h2 em,
 .lp-logos .lp-h2 em {
   font-style: normal;
-  background: linear-gradient(90deg, #3f74e6, #8db3ff 45%, #a78bfa 70%, #3f74e6);
+  background: linear-gradient(90deg, #15803d, #8db3ff 45%, #a78bfa 70%, #15803d);
   background-size: 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   animation: lp-shine 8s linear infinite;
 }
-.lp-eyebrow { color: #3f74e6; }
+.lp-eyebrow { color: #15803d; }
 
 /* Objects drifting around the hero picture. */
 .lp-float { position: absolute; z-index: 4; width: 58px; height: 58px; filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.45)); pointer-events: none; }
@@ -1803,22 +1803,22 @@ body:has(.lp) { background: var(--surface); }
 @media (max-width: 900px) { .lp-float { display: none; } }
 
 /* The features section sits on a soft blue wash. */
-.lp-bento-section { background: radial-gradient(70% 50% at 50% 0%, #eaf1ff, transparent 70%), linear-gradient(180deg, #fff, #f5f8ff); }
+.lp-bento-section { background: radial-gradient(70% 50% at 50% 0%, #e7f7ee, transparent 70%), linear-gradient(180deg, #fff, #f5f8ff); }
 
 /* Feature cards lift on hover, with a glowing blue edge. */
 .lp-bento-card {
   position: relative;
   transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
 }
-.lp-bento-card:hover { transform: translateY(-6px); border-color: #a9c5ff; box-shadow: 0 24px 50px -24px rgba(63, 116, 230, 0.55); }
+.lp-bento-card:hover { transform: translateY(-6px); border-color: #86dcae; box-shadow: 0 24px 50px -24px rgba(21, 128, 61, 0.55); }
 .lp-bento-card:hover .lp-bento-art { transform: scale(1.1) rotate(-6deg); }
-.lp-bento-art { transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1); background: linear-gradient(135deg, #eaf1ff, #fff); border-radius: 16px; }
+.lp-bento-art { transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1); background: linear-gradient(135deg, #e7f7ee, #fff); border-radius: 16px; }
 .lp-bento-card h3 { font-weight: 700; }
 
 /* Duo cards: gradients and a lift. */
 .lp-duo-card { transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.35s ease; }
 .lp-duo-card:hover { transform: translateY(-5px); box-shadow: 0 26px 50px -26px rgba(18, 18, 20, 0.35); }
-.lp-duo-card.is-blue { background: linear-gradient(145deg, #dfe9ff, #eef3ff 60%, #f6f0ff); }
+.lp-duo-card.is-blue { background: linear-gradient(145deg, #ddf5e8, #eefaf3 60%, #f2fbf6); }
 .lp-duo-card.is-grey { background: linear-gradient(145deg, #f4f5f7, #fbfbfc); }
 .lp-duo-card h3 { font-weight: 700; }
 
@@ -1836,10 +1836,10 @@ body:has(.lp) { background: var(--surface); }
   color: #fff;
   font-size: 1rem;
   font-weight: 800;
-  box-shadow: 0 0 0 6px #eaf1ff;
+  box-shadow: 0 0 0 6px #e7f7ee;
 }
-.lp-steps li:nth-child(2) > span { background: #3f74e6; }
-.lp-steps li:nth-child(3) > span { background: #5b91ff; }
+.lp-steps li:nth-child(2) > span { background: #15803d; }
+.lp-steps li:nth-child(3) > span { background: #15803d; }
 .lp-steps h3 { font-weight: 700; }
 .lp-step-art { transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1); }
 .lp-steps li:hover .lp-step-art { transform: translateY(-6px); }
@@ -1857,7 +1857,7 @@ body:has(.lp) { background: var(--surface); }
 .lp-faq details:hover { border-color: var(--line-strong); }
 .lp-faq details[open] {
   border-color: color-mix(in srgb, var(--sky) 45%, var(--line));
-  box-shadow: 0 16px 36px -22px rgba(63, 116, 230, 0.5);
+  box-shadow: 0 16px 36px -22px rgba(21, 128, 61, 0.5);
 }
 .lp-faq summary { font-weight: 600; }
 .lp-faq details[open] summary svg { transform: rotate(45deg); color: var(--sky); }
@@ -1875,7 +1875,7 @@ body:has(.lp) { background: var(--surface); }
    chart object sits clear of the phone. */
 .lp-steps li::before { display: none; }
 .lp-bento-art { background: none; }
-.lp-bento-art .art-icon { background: linear-gradient(135deg, #dfe9ff, #fff); box-shadow: 0 8px 18px -10px rgba(63, 116, 230, 0.5); }
+.lp-bento-art .art-icon { background: linear-gradient(135deg, #ddf5e8, #fff); box-shadow: 0 8px 18px -10px rgba(21, 128, 61, 0.5); }
 .lp-float.is-f4 { left: auto; right: 38%; bottom: -6%; }
 /* The middle step starts level with the others. */
 
@@ -1911,7 +1911,7 @@ body:has(.lp) { background: var(--surface); }
   white-space: nowrap;
   transition: transform 0.25s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.25s;
 }
-.lp-logo:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 0 1px rgba(91, 145, 255, 0.45), 0 16px 30px -18px rgba(63, 116, 230, 0.6); }
+.lp-logo:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.45), 0 16px 30px -18px rgba(21, 128, 61, 0.6); }
 .lp-logo-mark {
   display: inline-grid;
   place-items: center;
@@ -2167,7 +2167,7 @@ body:has(.lp) { background: var(--surface); }
 .lp-hero-split .lp-badge:hover { background: none; box-shadow: none; color: #ffffff; }
 .lp-hero-split .lp-badge svg { color: #6f7488; }
 .lp-hero-split .lp-badge-tag {
-  background: #5b91ff;
+  background: #15803d;
   color: #ffffff;
   font-size: 0.64rem;
   font-weight: 800;
@@ -2228,9 +2228,9 @@ body:has(.lp) { background: var(--surface); }
      Tinted a shade further than the light theme so they still separate from
      the card, which is itself pale. */
   --tile-out: #eceef4;
-  --tile-in: #e2ebff;
+  --tile-in: #ddf5e8;
   --tile-budget: #eff0f4;
-  --tile-goal: #e2ebff;
+  --tile-goal: #ddf5e8;
   color: var(--text);
 }
 .lp-duo-card.is-blue h3,

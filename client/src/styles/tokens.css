@@ -2,7 +2,7 @@
    Campus Coin design tokens
    ---------------------------------------------------------------------------
    Modelled on design 9, a fintech dashboard on Dribbble: black (#121214),
-   white and one blue (#5b91ff), set in Plus Jakarta Sans. Blue marks money coming in and
+   white and one blue (#22c55e), set in Plus Jakarta Sans. Blue marks money coming in and
    black money going out; categories take shades of blue and grey.
 
    Colour is assigned by the job it does, never by decoration:
@@ -29,17 +29,17 @@
   --shadow-1: 0 1px 2px rgba(10, 10, 11, 0.04);
   --bad-soft: rgba(198, 47, 53, 0.1);
   --bad: #c62f35;
-  --good-soft: rgba(91, 145, 255, 0.14);
-  --good: #2f5fd0;
-  --tile-goal: #eaf1ff;
+  --good-soft: rgba(34, 197, 94, 0.14);
+  --good: #047857;
+  --tile-goal: #e7f7ee;
   --tile-budget: #f5f5f6;
-  --tile-in: #eaf1ff;
+  --tile-in: #e7f7ee;
   --tile-out: #f5f5f6;
   --series-out: #121214;
-  --series-in: #5b91ff;
+  --series-in: #22c55e;
   --on-navy-muted: #a1a1aa;
   --on-navy: #ffffff;
-  --sky: #5b91ff;
+  --sky: #22c55e;
   --navy-raised: #1e1e22;
   --navy: #121214;
   --accent-glow: 0 8px 18px -10px rgba(18, 18, 20, 0.5);
@@ -71,11 +71,11 @@
 
 
 
-  --cat-1: #5b91ff;
+  --cat-1: #22c55e;
   --cat-2: #121214;
-  --cat-3: #9ebfff;
+  --cat-3: #86dcae;
   --cat-4: #6b7488;
-  --cat-5: #2f5fd0;
+  --cat-5: #047857;
   --cat-6: #c4c9d4;
   --cat-7: #3d3d45;
 
@@ -119,19 +119,19 @@
   --teal: #1f6b57;
   --amber: #f5bd45;
   --clay: #e8895a;
-  --blue: #5b91ff;
-  --blue-deep: #3f74e6;
-  --blue-soft: #eaf1ff;
-  --blue-mid: #9ebfff;
+  --blue: #22c55e;
+  --blue-deep: #15803d;
+  --blue-soft: #e7f7ee;
+  --blue-mid: #86dcae;
 }
 
 :root[data-theme='dark'] {
-  --tile-goal: #18223a;
+  --tile-goal: #11291f;
   --tile-budget: #1e1e23;
-  --tile-in: #18223a;
+  --tile-in: #11291f;
   --tile-out: #1e1e23;
   --series-out: #e8e8ec;
-  --series-in: #6b9cff;
+  --series-in: #34d399;
   --navy-raised: #16161a;
   --navy: #000000;
   --accent-glow: 0 8px 18px -10px rgba(0, 0, 0, 0.7);
@@ -161,16 +161,16 @@
 
 
 
-  --cat-1: #6b9cff;
+  --cat-1: #34d399;
   --cat-2: #e8e8ec;
-  --cat-3: #3f6fd8;
+  --cat-3: #0f9d58;
   --cat-4: #8a93a8;
-  --cat-5: #a9c5ff;
+  --cat-5: #86dcae;
   --cat-6: #4b4b55;
   --cat-7: #c4c9d4;
 
-  --good: #8fb4ff;
-  --good-soft: rgba(107, 156, 255, 0.16);
+  --good: #6ee7b7;
+  --good-soft: rgba(52, 211, 153, 0.16);
   --warn: #e0a83c;
   --warn-soft: rgba(224, 168, 60, 0.13);
   --bad: #ff6b70;
@@ -189,8 +189,8 @@
   --teal: #4fa98c;
   --amber: #f5bd45;
   --clay: #f0a57c;
-  --blue: #6b9cff;
-  --blue-deep: #5b91ff;
-  --blue-soft: rgba(91, 145, 255, 0.14);
+  --blue: #34d399;
+  --blue-deep: #22c55e;
+  --blue-soft: rgba(34, 197, 94, 0.14);
   --blue-mid: #3f5f9e;
 }

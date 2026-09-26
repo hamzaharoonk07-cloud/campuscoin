@@ -586,7 +586,7 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 /* --- Money in and out, month by month (MonthBars in DashCharts.jsx) ---------- */
 
 .mbars { --in: var(--blue); --out: var(--accent); --ink: var(--text); --soft: var(--faint); --rule: var(--line); }
-.mbars.is-dark { --in: #6b9cff; --out: #f4f4f6; --ink: #fff; --soft: #a1a1aa; --rule: rgba(255, 255, 255, 0.1); }
+.mbars.is-dark { --in: #34d399; --out: #f4f4f6; --ink: #fff; --soft: #a1a1aa; --rule: rgba(255, 255, 255, 0.1); }
 .mbars-legend { display: flex; gap: 1.1rem; margin-bottom: 0.9rem; font-size: 0.85rem; color: var(--ink); }
 .mbars-legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
 .mbars-legend i { width: 10px; height: 10px; border-radius: 3px; }
@@ -906,7 +906,7 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 .d9-greet {
   --g-ink: #121214;
   --g-soft: #5c5c66;
-  --g-bg: linear-gradient(120deg, #eaf1ff 0%, #f7f9ff 55%, #fff4e0 100%);
+  --g-bg: linear-gradient(120deg, #e7f7ee 0%, #f7f9ff 55%, #fff4e0 100%);
   --g-chip: rgba(18, 18, 20, 0.07);
   --g-glow: rgba(255, 196, 92, 0.55);
   position: relative;
@@ -924,7 +924,7 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 .d9-greet.is-afternoon {
   --g-ink: #fff;
   --g-soft: rgba(255, 255, 255, 0.82);
-  --g-bg: linear-gradient(120deg, #3f74e6 0%, #5b91ff 55%, #8db3ff 100%);
+  --g-bg: linear-gradient(120deg, #15803d 0%, #22c55e 55%, #8db3ff 100%);
   --g-chip: rgba(255, 255, 255, 0.18);
   --g-glow: rgba(255, 236, 160, 0.6);
 }

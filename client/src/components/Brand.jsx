@@ -15,7 +15,7 @@ export function BrandMark({ size = 30 }) {
       <defs>
         <linearGradient id={`${id}-disc`} x1="0.15" y1="0" x2="0.85" y2="1">
           <stop offset="0" stopColor="#8db3ff" />
-          <stop offset="0.5" stopColor="#5b91ff" />
+          <stop offset="0.5" stopColor="#22c55e" />
           <stop offset="1" stopColor="#3566dc" />
         </linearGradient>
         <radialGradient id={`${id}-light`} cx="0.35" cy="0.2" r="0.75">

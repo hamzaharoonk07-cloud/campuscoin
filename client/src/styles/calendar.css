@@ -154,7 +154,7 @@
   height: 560px;
   top: -120px;
   right: -120px;
-  background: radial-gradient(circle, rgba(91, 145, 255, 0.22), transparent 65%);
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.22), transparent 65%);
   animation: panel-drift-a 24s ease-in-out infinite alternate;
 }
 .main::after {
@@ -169,7 +169,7 @@
 @keyframes panel-drift-b { to { transform: translate(55vw, -40vh) scale(0.9); } }
 /* The panel's own white sits over the frame, so the shapes need it behind them. */
 .main { background: var(--surface); overflow: clip; }
-:root[data-theme="dark"] .main::before { background: radial-gradient(circle, rgba(91, 145, 255, 0.16), transparent 65%); }
+:root[data-theme="dark"] .main::before { background: radial-gradient(circle, rgba(34, 197, 94, 0.16), transparent 65%); }
 :root[data-theme="dark"] .main::after { background: radial-gradient(circle, rgba(167, 139, 250, 0.1), transparent 65%); }
 @media (prefers-reduced-motion: reduce) {
   .main::before, .main::after { animation: none; }
