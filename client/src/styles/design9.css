@@ -585,14 +585,14 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 
 /* --- Money in and out, month by month (MonthBars in DashCharts.jsx) ---------- */
 
-.mbars { --in: var(--blue); --out: var(--accent); --ink: var(--text); --soft: var(--faint); --rule: var(--line); }
-.mbars.is-dark { --in: #34d399; --out: #f4f4f6; --ink: #fff; --soft: #a1a1aa; --rule: rgba(255, 255, 255, 0.1); }
-.mbars-legend { display: flex; gap: 1.1rem; margin-bottom: 0.9rem; font-size: 0.85rem; color: var(--ink); }
+.mbars { --in: var(--blue); --out: #52525b; --ink: var(--text); --soft: var(--faint); --rule: var(--line); }
+.mbars.is-dark { --in: #34d399; --out: #a1a1aa; --ink: #fff; --soft: #a1a1aa; --rule: rgba(255, 255, 255, 0.1); }
+.mbars-legend { display: flex; gap: 1.1rem; margin-bottom: 0.35rem; font-size: 0.85rem; color: var(--ink); }
 .mbars-legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
 .mbars-legend i { width: 10px; height: 10px; border-radius: 3px; }
 .mbars-legend i.is-in { background: var(--in); }
 .mbars-legend i.is-out { background: var(--out); }
-.mbars-plot { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.6rem; height: 200px; }
+.mbars-plot { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.6rem; height: 200px; margin-top: 1.35rem; }
 .mbars-scale { position: relative; width: 3rem; }
 .mbars-scale span {
   position: absolute;
@@ -620,17 +620,36 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 }
 .mbars-month:hover,
 .mbars-month.is-on { background: color-mix(in srgb, var(--in) 12%, transparent); }
-.mbars-pair { display: flex; align-items: flex-end; gap: 3px; height: 100%; width: min(70%, 44px); }
-.mbars-pair i {
-  flex: 1;
-  min-height: 2px;
-  border-radius: 5px 5px 2px 2px;
+.mbars-pair { display: flex; align-items: flex-end; gap: 5px; height: 100%; width: min(84%, 96px); }
+.mbars-col { position: relative; flex: 1; min-height: 2px; display: block; }
+.mbars-col i {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px 6px 2px 2px;
   transform-origin: bottom;
   animation: mbars-grow 0.7s var(--ease-out) backwards;
   animation-delay: calc(0.1s + var(--i, 0) * 60ms);
 }
-.mbars-pair i.is-in { background: var(--in); }
-.mbars-pair i.is-out { background: var(--out); }
+.mbars-col.is-in i { background: var(--in); }
+.mbars-col.is-out i { background: var(--out); }
+/* The value sits above its own bar, and arrives after the bar has grown. */
+.mbars-col b {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  translate: -50% 0;
+  margin-bottom: 5px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+  animation: mbars-fade 0.4s ease backwards;
+  animation-delay: calc(0.55s + var(--i, 0) * 60ms);
+}
+.mbars-month.is-on .mbars-col b { color: var(--ink); }
+@keyframes mbars-fade { from { opacity: 0; } }
 @keyframes mbars-grow { from { transform: scaleY(0); } }
 .mbars-labels { display: flex; gap: 4px; margin: 0.45rem 0 0 3.6rem; }
 .mbars-labels span { flex: 1; text-align: center; font-size: 0.8rem; color: var(--soft); }
@@ -651,6 +670,10 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 .d9-flow-note { font-size: 0.8rem; color: #a1a1aa; }
 @media (max-width: 520px) {
   .mbars-plot { height: 170px; }
+  /* Narrow columns put a bar's value over its neighbour, and the row underneath
+     already gives the selected month in full, so there are no labels here. */
+  .mbars-col b { display: none; }
+  .mbars-plot { margin-top: 0.6rem; }
   .mbars-scale { width: 2.4rem; }
   .mbars-labels { margin-left: 3rem; }
   .mbars-detail dd { font-size: 0.95rem; }

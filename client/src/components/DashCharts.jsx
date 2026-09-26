@@ -132,11 +132,11 @@ export function DonutChart({ rows, currency, total, caption = 'Spent this month'
 
 /* --- Area chart ----------------------------------------------------------- */
 
-function niceScale(value) {
+function niceScale(value, tickOptions = [3, 4]) {
   if (value <= 0) return { max: 100, ticks: 4 };
   const steps = [1, 2, 2.5, 5, 10];
   let best = null;
-  for (const ticks of [3, 4]) {
+  for (const ticks of tickOptions) {
     const rough = value / ticks;
     const m = 10 ** Math.floor(Math.log10(rough));
     const interval = m * (steps.find((s) => rough <= m * s) ?? 10);
@@ -413,7 +413,9 @@ export function MonthBars({ data, currency, dark = false }) {
   if (!data?.length) return <p className="muted small">No months to compare yet.</p>;
 
   // At least Rs 1,000 of scale, so tiny first amounts do not give labels like "Rs1, Rs1, Rs0".
-  const { max, ticks } = niceScale(Math.max(...data.flatMap((d) => [d.income, d.expense]), 1000));
+  // Five ticks are on offer as well as three and four, so the axis can end close to
+  // the tallest bar: 48.2k on a 60k axis left the top fifth of the plot empty.
+  const { max, ticks } = niceScale(Math.max(...data.flatMap((d) => [d.income, d.expense]), 1000), [3, 4, 5]);
   const at = picked ?? data.length - 1;
   const shown = data[at];
   const kept = shown.income - shown.expense;
@@ -452,8 +454,14 @@ export function MonthBars({ data, currency, dark = false }) {
               aria-label={`${m.label}: in ${money(m.income, currency)}, out ${money(m.expense, currency)}`}
             >
               <span className="mbars-pair">
-                <i className="is-in" style={{ height: pct(m.income), '--i': i }} />
-                <i className="is-out" style={{ height: pct(m.expense), '--i': i }} />
+                <span className="mbars-col is-in" style={{ height: pct(m.income), '--i': i }}>
+                  <b>{compactMoney(m.income, currency)}</b>
+                  <i />
+                </span>
+                <span className="mbars-col is-out" style={{ height: pct(m.expense), '--i': i }}>
+                  <b>{compactMoney(m.expense, currency)}</b>
+                  <i />
+                </span>
               </span>
             </button>
           ))}
