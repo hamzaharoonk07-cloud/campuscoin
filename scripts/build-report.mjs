@@ -86,19 +86,36 @@ await cdp(ws, 'Page.navigate', { url: pageUrl });
 // Long enough for the Google Fonts stylesheet and the screenshots to land.
 await sleep(5000);
 
+// Chrome renders header/footer templates in their own isolated frame, with no
+// access to the report's stylesheet or its Google Fonts link - font-family
+// here falls back past 'Plus Jakarta Sans' to system-ui on every real render,
+// which is fine for a few words of small print but is why the logo is drawn
+// as inline SVG paths rather than anything that depends on a loaded font.
+const header = `
+  <div style="width:100%;font-family:system-ui,sans-serif;font-size:8pt;color:#e8e8ee;
+              padding:0 17mm;display:flex;align-items:center;gap:2.6mm;">
+    <svg width="12" height="12" viewBox="0 0 48 48" style="flex:none">
+      <circle cx="24" cy="24" r="22" fill="none" stroke="#4ade80" stroke-width="2.4" />
+      <path d="M32.5 15.5A12 12 0 1 0 32.5 32.5" fill="none" stroke="#4ade80" stroke-width="5.5" stroke-linecap="round" />
+      <circle cx="24" cy="24" r="3.4" fill="#4ade80" />
+    </svg>
+    <span style="font-weight: 700;">Campus Coin</span>
+    <span style="color:#8a8a94;">&nbsp;&middot; Project Report</span>
+  </div>`;
+
 const footer = `
-  <div style="width:100%;font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:7.4pt;color:#8a8a94;
-              padding:0 17mm;display:flex;align-items:center;">
-    <span>Campus Coin &middot; Project Report</span>
-    <span style="margin-left:auto;"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
+  <div style="width:100%;font-family:system-ui,sans-serif;font-size:7.4pt;color:#8a8a94;
+              padding:0 17mm;display:flex;align-items:center;justify-content:flex-end;">
+    <span><span class="pageNumber"></span> / <span class="totalPages"></span></span>
   </div>`;
 
 const pdf = await cdp(ws, 'Page.printToPDF', {
   printBackground: true,
   preferCSSPageSize: true,
   displayHeaderFooter: true,
-  headerTemplate: '<span></span>',
+  headerTemplate: header,
   footerTemplate: footer,
+  marginTop: 0.5,
   marginBottom: 0.55,
 });
 

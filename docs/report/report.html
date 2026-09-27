@@ -53,7 +53,32 @@ body {
   font-size: 10.2pt;
   line-height: 1.62;
   color: var(--ink);
-  background: var(--page);
+  /* No background here on purpose: html's background above already fills the
+     canvas, and it fills it specially, beneath even negative-z-index content.
+     A background here would be an ordinary element background instead, which
+     paints in front of a negative-z-index child - it was hiding the watermark
+     completely regardless of its opacity, which is why raising the opacity
+     twice never changed a thing until this was found. */
+}
+
+/* --- Watermark -------------------------------------------------------------
+   Bottom-right, large, almost invisible: present on every page, cover and
+   back cover included, without competing with anything printed over it -
+   this is one element that Chrome's print engine repeats per physical page
+   (see the note beside it in the body), so there is no per-page way to
+   suppress it on just two of the thirty; at 5% opacity it does not need one. */
+.page-watermark {
+  position: fixed;
+  /* Pulled further onto the page than the first attempt, which bled so much
+     of a 130mm mark off the trim that only a sliver of the ring showed - at
+     5% opacity that read as an artifact, not a logo. More of the mark on the
+     page, and a third again as opaque, is what actually reads as one. */
+  right: -8mm;
+  bottom: -8mm;
+  width: 100mm;
+  height: 100mm;
+  opacity: 0.11;
+  z-index: -1;
 }
 
 /* --- Cover ---------------------------------------------------------------- */
@@ -151,37 +176,81 @@ body {
 section { break-before: page; }
 section.runs-on { break-before: auto; }
 
+/* A numbered badge beside a genuinely large title, on a two-part rule - a
+   short coloured segment over a full-width faint one - rather than a single
+   thin line under modest bold text. This is the one change that does the
+   most to make a page read as a designed report rather than a formatted
+   document: real size and weight contrast between a section opener and the
+   body that follows it. */
 .sec-head {
   display: flex;
-  align-items: baseline;
-  gap: 5mm;
-  padding-bottom: 4mm;
-  margin-bottom: 7mm;
-  border-bottom: 2px solid var(--ink);
+  align-items: center;
+  gap: 5.5mm;
+  padding-bottom: 5mm;
+  margin-bottom: 9mm;
+  position: relative;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.sec-head::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 24mm;
+  height: 2.2px;
+  background: var(--blue);
 }
 .sec-num {
-  font-size: 9pt; font-weight: 800; letter-spacing: 0.1em;
-  color: var(--blue-deep); flex: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 12mm;
+  height: 12mm;
+  padding: 0 2mm;
+  border-radius: 3mm;
+  background: var(--blue);
+  color: #06210f;
+  font-size: 12.5pt;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 h2 {
   margin: 0;
-  font-size: 19pt;
-  font-weight: 700;
-  letter-spacing: -0.032em;
-  line-height: 1.12;
+  font-size: 27pt;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.04;
 }
 h3 {
-  margin: 8mm 0 3mm;
-  font-size: 12pt;
+  position: relative;
+  margin: 10mm 0 3.5mm;
+  padding-left: 4.2mm;
+  font-size: 13.5pt;
   font-weight: 700;
   letter-spacing: -0.02em;
   break-after: avoid;
 }
+h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 2mm;
+  height: 2mm;
+  border-radius: 0.5mm;
+  background: var(--blue);
+}
 h4 {
-  margin: 6mm 0 2mm;
-  font-size: 10.4pt;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  margin: 7mm 0 2.2mm;
+  padding-left: 3.2mm;
+  border-left: 2px solid var(--blue-deep);
+  font-size: 9pt;
+  font-weight: 800;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  color: var(--ink);
   break-after: avoid;
 }
 p { margin: 0 0 3.4mm; }
@@ -424,6 +493,19 @@ figcaption b { color: var(--ink); font-weight: 700; flex: none; }
       <path d="M0,0 L10,5 L0,10 z" fill="#e0a83c" />
     </marker>
   </defs>
+</svg>
+
+<!-- A faint version of the real mark, fixed on the page rather than in the
+     document flow. Chrome's print engine repeats a position:fixed element on
+     every physical page when paginating to PDF (verified against the actual
+     generated file, not a DOM guess) - it is drawn once here and appears on
+     all thirty. Line art rather than the gradient disc used elsewhere: at
+     this size and this low an opacity a filled gradient read as a blurry
+     coloured blob, where an outline stays a recognisable mark. -->
+<svg class="page-watermark" viewBox="0 0 48 48" aria-hidden="true">
+  <circle cx="24" cy="24" r="22" fill="none" stroke="#f4f4f6" stroke-width="1.6" />
+  <path d="M32.5 15.5A12 12 0 1 0 32.5 32.5" fill="none" stroke="#f4f4f6" stroke-width="4" stroke-linecap="round" />
+  <circle cx="24" cy="24" r="3" fill="#f4f4f6" />
 </svg>
 
 <!-- ============================ COVER ============================ -->
