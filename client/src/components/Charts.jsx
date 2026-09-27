@@ -359,6 +359,21 @@ export function BudgetMeter({ budget, currency }) {
           }}
         />
       </div>
+      {/* How much of this cap was cash versus a card or account - a budget
+          eaten mostly by cash is a different habit to fix than one eaten by
+          a subscription on a card, and the combined total above hides that. */}
+      {budget.spent > 0 ? (
+        <div className="spine-split">
+          <span>
+            <i style={{ background: 'var(--series-out)' }} />
+            {money(budget.cash, currency)} cash
+          </span>
+          <span>
+            <i style={{ background: 'var(--faint)' }} />
+            {money(budget.digital, currency)} card / account
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }

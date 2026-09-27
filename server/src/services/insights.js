@@ -1,7 +1,7 @@
 import Insight from '../models/Insight.js';
 import Budget from '../models/Budget.js';
 import Transaction from '../models/Transaction.js';
-import { budgetProgress, byCategory, categoryBaseline, dailySeries, monthTotals, trend } from './analytics.js';
+import { budgetProgress, byCategory, categoryBaseline, dailySeries, moneyFlow, monthTotals, trend } from './analytics.js';
 import { narrateInsight, llmEnabled } from './llm.js';
 import { startOfMonth } from '../utils/dates.js';
 import { round2, formatMoney } from '../utils/money.js';
@@ -20,11 +20,12 @@ const MIN_CHANGE_AMOUNT = 100; // and a change this small is not worth mentionin
 /** Collects the facts that both the built-in writer and the model work from. */
 async function gatherFacts(user, month) {
   const start = startOfMonth(month);
-  const [totals, spending, baseline, sixMonths] = await Promise.all([
+  const [totals, spending, baseline, sixMonths, flow] = await Promise.all([
     monthTotals(user._id, start),
     byCategory(user._id, start, 'expense'),
     categoryBaseline(user._id, start, 3),
     trend(user._id, start, 6),
+    moneyFlow(user._id, start),
   ]);
 
   // Categories that moved meaningfully against the student's own average.
@@ -55,13 +56,14 @@ async function gatherFacts(user, month) {
     highlights,
     sixMonths,
     savingsGoal: user.savingsGoal || 0,
+    flow,
   };
 }
 
 /** The built-in writer. Always runs, and is the only writer when no API key is set. */
 function writeSummary(facts, currency) {
   const money = (n) => formatMoney(n, currency);
-  const { totals, topCategory, highlights, monthLabel } = facts;
+  const { totals, topCategory, highlights, monthLabel, flow } = facts;
   const sentences = [];
 
   if (totals.transactionCount === 0) {
@@ -77,6 +79,16 @@ function writeSummary(facts, currency) {
 
   if (topCategory) {
     sentences.push(`${topCategory.name} was your largest category at ${money(topCategory.total)}, about ${topCategory.share}% of everything you spent.`);
+  }
+
+  // Cash and a card/account are two different habits to manage, so the
+  // summary says which one did most of the work this month.
+  if (flow?.out?.total) {
+    sentences.push(
+      flow.out.cashShare >= 50
+        ? `Most of it left as cash - ${money(flow.out.cash)}, against ${money(flow.out.account)} from accounts.`
+        : `${money(flow.out.account)} of it moved through an account or card, and ${money(flow.out.cash)} left as cash.`
+    );
   }
 
   const risen = highlights.find((h) => h.direction === 'up');
@@ -134,6 +146,9 @@ export async function generateInsight(user, month, { useLlm = true } = {}) {
         largestCategory: facts.topCategory ? { name: facts.topCategory.name, amount: facts.topCategory.total, sharePercent: facts.topCategory.share } : null,
         notableChanges: facts.highlights,
         savingsGoal: facts.savingsGoal || null,
+        // So the model can say which way the money moved, not just how much.
+        spentAsCash: facts.flow?.out?.cash ?? 0,
+        spentFromAccounts: facts.flow?.out?.account ?? 0,
       },
       currency: user.currency,
     });
@@ -217,7 +232,7 @@ function monthScore({ totals, budgets, usualExpense }) {
 
 export async function monthDetails(user, month) {
   const start = startOfMonth(month);
-  const [totals, spending, baseline, sixMonths, daily, budgets, biggest, small] = await Promise.all([
+  const [totals, spending, baseline, sixMonths, daily, budgets, biggest, small, flow] = await Promise.all([
     monthTotals(user._id, start),
     byCategory(user._id, start, 'expense'),
     categoryBaseline(user._id, start, 3),
@@ -230,6 +245,9 @@ export async function monthDetails(user, month) {
       { $match: { user: user._id, month: start, type: 'expense', amount: { $lt: SMALL } } },
       { $group: { _id: null, count: { $sum: 1 }, total: { $sum: '$amount' } } },
     ]),
+    // Cash against accounts, both ways - the same split the dashboard, the
+    // calendar and the report already show.
+    moneyFlow(user._id, start),
   ]);
 
   // Every category against the student's own average of the months before.
@@ -279,6 +297,7 @@ export async function monthDetails(user, month) {
       daysInMonth: daily.length,
       perActiveDay: spentDays.length ? round2(totals.expense / spentDays.length) : 0,
       small: { under: SMALL, count: small[0]?.count || 0, total: round2(small[0]?.total || 0) },
+      cash: { amount: flow.out.cash, digital: flow.out.account, share: flow.out.cashShare },
     },
     biggest: biggest
       ? { description: biggest.description || biggest.category?.name, amount: biggest.amount, date: biggest.date, category: biggest.category }

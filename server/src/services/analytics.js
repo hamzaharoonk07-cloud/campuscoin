@@ -51,6 +51,31 @@ export async function byCategory(userId, month, type = 'expense') {
 }
 
 /**
+ * Cash against accounts, per category, for one month - what budgetProgress
+ * uses so a cap's bar can say how much of it was notes rather than only the
+ * one combined total.
+ */
+async function byCategoryMethod(userId, month, type = 'expense') {
+  const rows = await Transaction.aggregate([
+    { $match: { user: oid(userId), month: startOfMonth(month), type } },
+    {
+      $group: {
+        _id: { category: '$category', isCash: { $eq: [{ $ifNull: ['$method', 'cash'] }, 'cash'] } },
+        total: { $sum: '$amount' },
+      },
+    },
+  ]);
+  const byCategory = new Map();
+  for (const row of rows) {
+    const key = String(row._id.category);
+    const entry = byCategory.get(key) || { cash: 0, digital: 0 };
+    entry[row._id.isCash ? 'cash' : 'digital'] += row.total;
+    byCategory.set(key, entry);
+  }
+  return byCategory;
+}
+
+/**
  * Spending for one month split by where the money moved, largest first, with
  * the cash / digital totals alongside. Cash leaves no trace of its own, so
  * seeing it as its own figure is the point: it is the part that goes missing.
@@ -225,9 +250,10 @@ export async function categoryBaseline(userId, month, months = 3) {
 /** Budget caps for a month next to what was actually spent against each. */
 export async function budgetProgress(Budget, userId, month) {
   const start = startOfMonth(month);
-  const [budgets, spending] = await Promise.all([
+  const [budgets, spending, methodSplit] = await Promise.all([
     Budget.find({ user: userId, month: start }).populate('category', 'name slot icon type'),
     byCategory(userId, start, 'expense'),
+    byCategoryMethod(userId, start, 'expense'),
   ]);
   const spent = new Map(spending.map((row) => [String(row.categoryId), row.total]));
 
@@ -236,11 +262,17 @@ export async function budgetProgress(Budget, userId, month) {
     .map((budget) => {
       const used = spent.get(String(budget.category._id)) || 0;
       const pct = budget.limitAmount > 0 ? Math.round((used / budget.limitAmount) * 100) : 0;
+      // How much of this cap was eaten by cash versus a card or account - a
+      // budget bar that is 80% cash is a different problem to fix than one
+      // that is 80% subscriptions on a card.
+      const split = methodSplit.get(String(budget.category._id)) || { cash: 0, digital: 0 };
       return {
         _id: budget._id,
         category: budget.category,
         limitAmount: round2(budget.limitAmount),
         spent: used,
+        cash: round2(split.cash),
+        digital: round2(split.digital),
         remaining: round2(budget.limitAmount - used),
         pct,
         state: pct >= 100 ? 'exceeded' : pct >= 80 ? 'warning' : 'ok',

@@ -619,6 +619,20 @@ a:hover { text-decoration-color: currentColor; }
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.22);
 }
 
+/* The cash / card footnote under a budget bar - quiet, so it reads as a
+   detail on the total above rather than competing with it. */
+.spine-split {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.85rem;
+  margin-top: -0.15rem;
+  font-size: var(--step--2);
+  color: var(--muted);
+}
+.spine-split span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.spine-split i { display: block; width: 6px; height: 6px; border-radius: 2px; }
+
 .spine-fill {
   height: 100%;
   border-radius: var(--r-pill);

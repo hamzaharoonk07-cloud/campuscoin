@@ -349,6 +349,15 @@ export default function Insights() {
                       </span>
                     </li>
                   ) : null}
+                  {habits.cash.share !== null && habits.cash.share !== undefined ? (
+                    <li>
+                      <img src={artUrl('dollar-banknote')} alt="" width="22" height="22" />
+                      <span>
+                        <strong>{habits.cash.share}%</strong> of what you spent left as cash
+                        {habits.cash.digital ? `, the rest (${money(habits.cash.digital, currency)}) from an account or card` : ''}.
+                      </span>
+                    </li>
+                  ) : null}
                 </ul>
               </section>
 

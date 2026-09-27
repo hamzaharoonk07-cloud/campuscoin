@@ -85,6 +85,18 @@ export default function Budgets() {
             <div className="stat-label">Spent against it</div>
             <div className="stat-value num"><CountUp value={data.summary.totalSpent} currency={currency} /></div>
             <div className="stat-meta">{data.summary.pct}% of the total cap</div>
+            {data.summary.totalSpent > 0 ? (
+              <div className="spine-split" style={{ marginTop: '0.4rem' }}>
+                <span>
+                  <i style={{ background: 'var(--series-out)' }} />
+                  {money(data.summary.totalCash, currency)} cash
+                </span>
+                <span>
+                  <i style={{ background: 'var(--faint)' }} />
+                  {money(data.summary.totalDigital, currency)} card / account
+                </span>
+              </div>
+            ) : null}
           </div>
           <div className="stat">
             <div className="stat-label">Still available</div>

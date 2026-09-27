@@ -18,12 +18,18 @@ router.get(
 
     const totalLimit = round2(budgets.reduce((acc, b) => acc + b.limitAmount, 0));
     const totalSpent = round2(budgets.reduce((acc, b) => acc + b.spent, 0));
+    // Across every capped category, how much of it was cash - so the summary
+    // row can say the same thing the dashboard and reports already do.
+    const totalCash = round2(budgets.reduce((acc, b) => acc + b.cash, 0));
+    const totalDigital = round2(budgets.reduce((acc, b) => acc + b.digital, 0));
 
     res.json({
       budgets,
       summary: {
         totalLimit,
         totalSpent,
+        totalCash,
+        totalDigital,
         totalRemaining: round2(totalLimit - totalSpent),
         pct: totalLimit ? Math.round((totalSpent / totalLimit) * 100) : 0,
         overCount: budgets.filter((b) => b.state === 'exceeded').length,
