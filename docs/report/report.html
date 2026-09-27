@@ -18,24 +18,34 @@
    =========================================================================== */
 
 :root {
-  --ink: #121214;
-  --muted: #43434e;
-  --faint: #6a6a75;
-  --blue: #22c55e;
-  --blue-deep: #047857;
-  --rule: #e2e2e7;
-  --rule-soft: #f0f0f3;
-  --wash: #f6f7f9;
+  /* The app's own dark theme, on paper: every page is the dark ground, not
+     just the cover. --ink is near-white text on a near-black page - the
+     opposite of a normal document - so every downstream colour (tables, code,
+     rules, the checklist) is redefined here rather than only on the cover. */
+  --page: #0b0b0d;
+  --surface: #151518;
+  --raised: #1b1b1f;
+  --ink: #f4f4f6;
+  --muted: #b0b0ba;
+  --faint: #8a8a94;
+  --blue: #4ade80;
+  --blue-deep: #6ee7b7;
+  --rule: rgba(255, 255, 255, 0.16);
+  --rule-soft: rgba(255, 255, 255, 0.09);
+  --wash: rgba(255, 255, 255, 0.045);
 }
 
 @page {
   size: A4;
   margin: 19mm 17mm 20mm;
+  /* The dark ground has to fill right to the trim, including the strip
+     Chrome's own @page margin leaves outside the content box. */
+  background: #0b0b0d;
 }
 
 * { box-sizing: border-box; }
 
-html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #0b0b0d; }
 
 body {
   margin: 0;
@@ -43,18 +53,19 @@ body {
   font-size: 10.2pt;
   line-height: 1.62;
   color: var(--ink);
-  background: #ffffff;
+  background: var(--page);
 }
 
 /* --- Cover ---------------------------------------------------------------- */
 
 .cover {
   position: relative;
-  /* Bleeds past the page margin so the black reaches every edge. */
+  /* Bleeds past the page margin so the glow reaches every edge; the ground
+     itself no longer needs to, since the whole document is this colour now -
+     @page's own background above covers the margin strip. */
   margin: -19mm -17mm 0;
   padding: 34mm 22mm 24mm;
   min-height: 297mm;
-  background: #0b0b0d;
   color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -215,7 +226,10 @@ td code, th code { white-space: nowrap; }
 pre {
   margin: 4mm 0 5mm;
   padding: 4.5mm 5mm;
-  background: #0f0f12;
+  /* Raised one step above the page, with a border, so it still reads as a
+     distinct panel now that the page itself is dark rather than white. */
+  background: var(--raised);
+  border: 1px solid var(--rule-soft);
   color: #e8e8ee;
   border-radius: 3mm;
   font-family: 'JetBrains Mono', Consolas, monospace;
@@ -257,12 +271,13 @@ pre code { background: none; border: 0; padding: 0; font-size: inherit; color: i
   gap: 4.5mm;
   margin: 5mm 0 6mm;
   padding: 3.5mm 5mm;
-  background: #0f0f12;
+  background: var(--raised);
+  border: 1px solid var(--rule-soft);
   border-radius: 3mm;
   break-inside: avoid;
 }
 .mascot-note-face { flex: none; }
-.mascot-note p { margin: 0; color: #d4d4d8; font-size: 9.2pt; line-height: 1.55; }
+.mascot-note p { margin: 0; color: var(--muted); font-size: 9.2pt; line-height: 1.55; }
 .mascot-note p b { color: #fff; }
 
 /* --- Back cover: bookends the front cover, same full-bleed dark, centred. --- */
@@ -293,7 +308,8 @@ pre code { background: none; border: 0; padding: 0; font-size: inherit; color: i
 .tree {
   margin: 4mm 0 6mm;
   padding: 5mm;
-  border: 1px solid var(--rule);
+  background: var(--raised);
+  border: 1px solid var(--rule-soft);
   border-radius: 3mm;
   font-family: 'JetBrains Mono', Consolas, monospace;
   font-size: 8pt;
@@ -303,17 +319,68 @@ pre code { background: none; border: 0; padding: 0; font-size: inherit; color: i
 }
 .tree i { font-style: normal; color: var(--faint); }
 
+/* --- Diagrams --------------------------------------------------------------
+   Flowcharts, data flow diagrams and the ER diagram, drawn as inline SVG so
+   they stay crisp at any zoom rather than being a pasted screenshot. One small
+   shape vocabulary reused across all five: a rounded box for a process, an
+   open-ended box for a data store, a bold box for an external entity, a
+   diamond for a decision, a pill for start/end, and one arrowhead marker. */
+
+.diagram {
+  margin: 5mm 0 7mm;
+  padding: 6mm;
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+  border-radius: 3mm;
+  break-inside: avoid;
+  /* break-inside: avoid does not reliably hold for a box containing inline
+     SVG in Chrome's print engine - Figure D3 split mid-diagram across a page
+     boundary with this alone. Forcing a fresh page per diagram is a stronger
+     guarantee, and reads more like a deliberate full-page plate anyway. */
+  break-before: page;
+}
+.diagram svg { display: block; width: 100%; height: auto; font-family: 'Plus Jakarta Sans', sans-serif; }
+.diagram figcaption { margin-top: 3mm; padding-top: 3mm; border-top: 1px solid var(--rule-soft); }
+
+.dg-proc { fill: var(--raised); stroke: var(--rule); stroke-width: 1.5; }
+.dg-store { fill: none; stroke: var(--rule); stroke-width: 1.5; }
+.dg-ext { fill: var(--raised); stroke: var(--blue-deep); stroke-width: 1.6; }
+.dg-dec { fill: var(--raised); stroke: #e0a83c; stroke-width: 1.5; }
+.dg-term { fill: var(--blue); stroke: none; }
+.dg-line { fill: none; stroke: var(--rule); stroke-width: 1.5; }
+.dg-flow { fill: none; stroke: var(--blue-deep); stroke-width: 1.6; marker-end: url(#dg-arrow); }
+.dg-flow.is-alt { stroke: #e0a83c; stroke-dasharray: 5 4; marker-end: url(#dg-arrow-amber); }
+.dg-t { fill: var(--ink); font-size: 13px; text-anchor: middle; }
+.dg-t.is-title { font-weight: 700; }
+.dg-t.is-term { fill: #06210f; font-weight: 800; }
+.dg-t.is-left { text-anchor: start; }
+.dg-lbl { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+.dg-lbl.is-left { text-anchor: start; }
+.dg-num { fill: var(--blue-deep); font-size: 11px; font-weight: 800; text-anchor: middle; }
+
 /* --- Figures -------------------------------------------------------------- */
 
 figure {
   margin: 0 0 7mm;
   break-inside: avoid;
 }
+/* Screenshots are the app's own light theme, so they sit in a matted card
+   rather than directly against the dark page - a plain border left them
+   looking pasted on rather than framed. A small three-dot bar echoes the
+   browser-chrome frame the landing page itself uses for the same picture. */
+figure .shot {
+  padding: 2.2mm 2.2mm 0;
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+  border-radius: 3mm;
+  box-shadow: 0 3mm 8mm -4mm rgba(0, 0, 0, 0.55);
+}
+figure .shot-bar { display: flex; gap: 1.3mm; padding: 0 0.6mm 2.2mm; }
+figure .shot-bar i { width: 2mm; height: 2mm; border-radius: 50%; background: rgba(255, 255, 255, 0.18); }
 figure img {
   width: 100%;
   display: block;
-  border: 1px solid var(--rule);
-  border-radius: 2.5mm;
+  border-radius: 1.6mm 1.6mm 0 0;
 }
 figcaption {
   margin-top: 2.4mm;
@@ -340,11 +407,24 @@ figcaption b { color: var(--ink); font-weight: 700; flex: none; }
   display: flex; align-items: center; justify-content: center;
   font-size: 7pt; font-weight: 800; margin-top: 0.8mm;
 }
-.check .yes { background: var(--ink); color: #fff; }
-.check .no { background: #fff; border: 1px solid var(--rule); color: var(--faint); }
+.check .yes { background: var(--blue); color: #0b0b0d; }
+.check .no { background: var(--raised); border: 1px solid var(--rule); color: var(--faint); }
 </style>
 </head>
 <body>
+
+<!-- One arrowhead marker, reused by every diagram's flow lines rather than
+     redefined per SVG. -->
+<svg width="0" height="0" style="position: absolute">
+  <defs>
+    <marker id="dg-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6ee7b7" />
+    </marker>
+    <marker id="dg-arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#e0a83c" />
+    </marker>
+  </defs>
+</svg>
 
 <!-- ============================ COVER ============================ -->
 <div class="cover">
@@ -405,6 +485,7 @@ figcaption b { color: var(--ink); font-weight: 700; flex: none; }
     <li><b>Configuration</b> <span>Every variable, and the behaviour without it</span></li>
     <li><b>Technology</b></li>
     <li><b>How the application is put together</b> <span>Layout and the engines</span></li>
+    <li><b>Diagrams: flow and data</b> <span>Context, DFD, two flowcharts, the ER diagram</span></li>
     <li><b>The parts that make judgements</b> <span>Where a model is used, and where it is not</span></li>
     <li><b>Design and accessibility</b></li>
     <li><b>Deploying to Vercel</b></li>
@@ -491,6 +572,29 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
     Seeding only fills what is missing; it never overwrites existing data. To
     start completely fresh, delete <code>server/data/</code> first.
   </p>
+
+  <h3>Test data</h3>
+  <p>
+    <code>server/src/seed/seed.js</code> runs automatically on first start (and
+    again, safely, on every later one) and writes:
+  </p>
+  <ul>
+    <li>The twelve default categories — five income (Allowance, Part-time Job,
+      Scholarship, Gift, Other Income) and seven expense (Food, Transport,
+      Hostel/Rent, Academics, Subscriptions, Entertainment, Miscellaneous) —
+      shared by every account.</li>
+    <li>The administrator and the two demo students listed in section 03.</li>
+    <li>Six months of history per student (<code>back = 5</code> down to
+      <code>0</code> in the seed loop), income and expenses spread across the
+      categories above with Food deliberately drifting upward in the most
+      recent two months, so the anomaly and trend features have something real
+      to notice on a machine that was only just installed.</li>
+    <li>A payment method on every seeded row — cash, bank transfer, card, or
+      one of Easypaisa, JazzCash, SadaPay and NayaPay — weighted per category
+      (rent by bank transfer, a subscription by card, the canteen mostly cash)
+      so the "in account and in cash" figures in section 10 are meaningful from
+      the first login rather than reading a flat 100% cash.</li>
+  </ul>
 </section>
 
 <!-- ============================ 3 ============================ -->
@@ -717,7 +821,409 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
 <!-- ============================ 8 ============================ -->
 <section>
-  <div class="sec-head"><span class="sec-num">08</span><h2>The parts that make judgements</h2></div>
+  <div class="sec-head"><span class="sec-num">08</span><h2>Diagrams: flow and data</h2></div>
+
+  <p class="lead">
+    How a request moves through the system, and how the database is shaped -
+    drawn rather than described, so the two can be checked against each other.
+  </p>
+
+  <h3>Context diagram</h3>
+  <p>
+    The whole application as one process, and everyone and everything outside
+    it that it exchanges data with. Two of the four are optional: email only
+    sends where <code>SMTP_*</code> is configured, and Claude is only asked
+    where <code>ANTHROPIC_API_KEY</code> is set - without either, the
+    equivalent built-in engine answers instead (section 09). Scanning a
+    receipt is deliberately not on this diagram: the photo is read by
+    Tesseract OCR inside the student's own browser and never reaches the
+    server, so it is not a flow this system's boundary has.
+  </p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 1000 480" role="img" aria-label="Context diagram: Campus Coin exchanges data with the student, the administrator, email, and optionally Claude.">
+      <rect class="dg-ext" x="15" y="55" width="180" height="74" rx="6" />
+      <text class="dg-t is-title" x="105" y="88">Student</text>
+      <text class="dg-lbl" x="105" y="106">Every registered user</text>
+
+      <rect class="dg-ext" x="15" y="352" width="180" height="74" rx="6" />
+      <text class="dg-t is-title" x="105" y="385">Administrator</text>
+      <text class="dg-lbl" x="105" y="403">A student account, role "admin"</text>
+
+      <rect class="dg-ext" x="805" y="35" width="180" height="72" rx="6" />
+      <text class="dg-t is-title" x="895" y="67">Email (SMTP)</text>
+      <text class="dg-lbl" x="895" y="85">Optional</text>
+
+      <rect class="dg-ext" x="805" y="373" width="180" height="72" rx="6" />
+      <text class="dg-t is-title" x="895" y="405">Claude</text>
+      <text class="dg-lbl" x="895" y="423">Optional</text>
+
+      <rect class="dg-proc" x="330" y="130" width="340" height="220" rx="14" />
+      <text class="dg-num" x="500" y="228">0.0</text>
+      <text class="dg-t is-title" x="500" y="248">Campus Coin</text>
+
+      <path class="dg-flow" d="M195,82 C 260,82 260,165 330,180" />
+      <text class="dg-lbl is-left" x="205" y="74">Sign-up, log income &amp; expenses, ask Coin</text>
+
+      <path class="dg-flow" d="M330,225 C 260,225 260,112 195,112" />
+      <text class="dg-lbl is-left" x="205" y="145">Dashboard, reports, alerts, chat answers</text>
+
+      <path class="dg-flow" d="M195,373 C 260,373 260,300 330,285" />
+      <text class="dg-lbl is-left" x="205" y="365">Manage categories &amp; announcements</text>
+
+      <path class="dg-flow" d="M330,315 C 260,315 260,404 195,404" />
+      <text class="dg-lbl is-left" x="205" y="435">Usage statistics, user accounts</text>
+
+      <path class="dg-flow" d="M670,190 C 750,190 750,90 805,72" />
+      <text class="dg-lbl" x="740" y="145">Reset link, alerts</text>
+
+      <path class="dg-flow is-alt" d="M670,300 C 750,300 750,380 805,398" />
+      <text class="dg-lbl" x="745" y="345">Facts to rewrite</text>
+      <path class="dg-flow is-alt" d="M805,428 C 750,428 750,340 670,320" />
+      <text class="dg-lbl" x="745" y="450">Rewritten text</text>
+    </svg>
+    <figcaption><b>Figure D1</b><span>Context diagram (DFD level 0). Amber, dashed flows are the two the SRS marks optional.</span></figcaption>
+  </figure>
+
+  <h3>Level 1: inside the process</h3>
+  <p>
+    The same boundary, opened up into the seven processes a request actually
+    reaches and the five stores they read and write. This is the layer
+    <code>server/src/services/</code> is organised at (section 07's table names
+    each engine); the student-facing routes are 2.0, 5.0 and 6.0, and 7.0 is the
+    only one an administrator can reach.
+  </p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 1000 660" role="img" aria-label="Level 1 data flow diagram: seven processes and five data stores.">
+      <ellipse class="dg-proc" cx="90" cy="330" rx="70" ry="44" />
+      <text class="dg-t is-title" x="90" y="335">Student</text>
+
+      <ellipse class="dg-proc" cx="90" cy="620" rx="70" ry="32" />
+      <text class="dg-t is-title" x="90" y="625">Administrator</text>
+
+      <g>
+        <rect class="dg-proc" x="270" y="20" width="180" height="60" rx="10" />
+        <text class="dg-num" x="360" y="42">1.0</text>
+        <text class="dg-t" x="360" y="62">Authenticate</text>
+      </g>
+      <g>
+        <rect class="dg-proc" x="270" y="140" width="180" height="60" rx="10" />
+        <text class="dg-num" x="360" y="162">2.0</text>
+        <text class="dg-t" x="360" y="182">Log a transaction</text>
+      </g>
+      <g>
+        <rect class="dg-proc" x="270" y="260" width="180" height="60" rx="10" />
+        <text class="dg-num" x="360" y="282">3.0</text>
+        <text class="dg-t" x="360" y="302">Categorise &amp; flag</text>
+      </g>
+      <g>
+        <rect class="dg-proc" x="270" y="380" width="180" height="60" rx="10" />
+        <text class="dg-num" x="360" y="402">4.0</text>
+        <text class="dg-t" x="360" y="422">Track budgets</text>
+      </g>
+      <g>
+        <rect class="dg-proc" x="270" y="500" width="180" height="60" rx="10" />
+        <text class="dg-num" x="360" y="522">5.0</text>
+        <text class="dg-t" x="360" y="542">Report &amp; advise</text>
+      </g>
+      <g>
+        <rect class="dg-proc" x="560" y="440" width="180" height="60" rx="10" />
+        <text class="dg-num" x="650" y="462">6.0</text>
+        <text class="dg-t" x="650" y="482">Answer the chat</text>
+      </g>
+      <g>
+        <rect class="dg-proc" x="560" y="600" width="180" height="50" rx="10" />
+        <text class="dg-num" x="650" y="619">7.0</text>
+        <text class="dg-t" x="650" y="637">Administer</text>
+      </g>
+
+      <rect class="dg-store" x="790" y="10" width="190" height="42" />
+      <line class="dg-line" x1="790" y1="10" x2="790" y2="52" />
+      <text class="dg-t is-title" x="885" y="36">Users</text>
+      <rect class="dg-store" x="790" y="70" width="190" height="42" />
+      <line class="dg-line" x1="790" y1="70" x2="790" y2="112" />
+      <text class="dg-t is-title" x="885" y="96">Categories &amp; hints</text>
+      <rect class="dg-store" x="790" y="130" width="190" height="42" />
+      <line class="dg-line" x1="790" y1="130" x2="790" y2="172" />
+      <text class="dg-t is-title" x="885" y="156">Transactions</text>
+      <rect class="dg-store" x="790" y="190" width="190" height="42" />
+      <line class="dg-line" x1="790" y1="190" x2="790" y2="232" />
+      <text class="dg-t is-title" x="885" y="216">Budgets</text>
+      <rect class="dg-store" x="790" y="250" width="190" height="42" />
+      <line class="dg-line" x1="790" y1="250" x2="790" y2="292" />
+      <text class="dg-t is-title" x="885" y="276">Insights &amp; tips</text>
+
+      <path class="dg-flow" d="M160,310 C 210,290 220,60 270,50" />
+      <path class="dg-flow" d="M160,335 C 220,335 220,170 270,170" />
+      <path class="dg-flow" d="M450,50 C 700,50 700,18 790,20" />
+      <path class="dg-flow" d="M450,170 C 700,170 730,150 790,150" />
+      <path class="dg-flow" d="M450,170 C 700,180 700,90 790,90" />
+      <path class="dg-flow" d="M270,290 C 200,290 200,340 160,345" />
+
+      <path class="dg-flow" d="M450,290 C 700,290 730,160 790,158" />
+      <path class="dg-flow" d="M450,410 C 700,410 730,220 790,215" />
+      <path class="dg-flow" d="M160,355 C 210,400 220,405 270,405" />
+      <path class="dg-flow" d="M450,410 C 200,470 190,360 160,350" />
+
+      <path class="dg-flow" d="M450,530 C 700,530 730,290 790,275" />
+      <path class="dg-flow" d="M270,525 C 200,500 190,365 160,350" />
+      <path class="dg-flow" d="M160,320 C 200,470 220,555 270,540" />
+
+      <path class="dg-flow" d="M160,325 C 400,300 500,420 560,465" />
+      <path class="dg-flow" d="M560,485 C 400,500 200,380 160,340" />
+      <path class="dg-flow" d="M650,440 C 700,300 750,190 790,171" />
+
+      <path class="dg-flow" d="M90,375 C 90,500 550,610 560,618" />
+      <path class="dg-flow" d="M560,635 C 300,650 100,520 90,375" />
+      <path class="dg-flow" d="M740,615 C 770,500 780,120 790,90" />
+    </svg>
+    <figcaption><b>Figure D2</b><span>Level 1 DFD. Every arrow into a store is a write, every arrow out is a read; 3.0 both reads and writes Categories &amp; hints, which is how a correction becomes the next suggestion.</span></figcaption>
+  </figure>
+
+  <h3>Flowchart: logging a transaction</h3>
+  <p>
+    The one activity every other feature depends on having real data for,
+    walking through the three judgement calls section 09 explains in detail:
+    the category the assistant suggests, whether the amount looks wrong, and
+    whether it pushes a budget over.
+  </p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 1000 300" role="img" aria-label="Flowchart: type a description, accept or correct the suggested category, save, and be told about anomalies or a budget crossed.">
+      <rect class="dg-term" x="15" y="118" width="110" height="44" rx="22" />
+      <text class="dg-t is-term" x="70" y="145">Start</text>
+
+      <rect class="dg-proc" x="165" y="112" width="150" height="56" rx="8" />
+      <text class="dg-t" x="240" y="135">Type amount &amp;</text>
+      <text class="dg-t" x="240" y="153">description</text>
+
+      <rect class="dg-proc" x="355" y="112" width="150" height="56" rx="8" />
+      <text class="dg-t" x="430" y="135">Assistant</text>
+      <text class="dg-t" x="430" y="153">suggests a category</text>
+
+      <polygon class="dg-dec" points="655,140 615,168 575,140 615,112" />
+      <text class="dg-t" x="615" y="122" style="font-size:11px">Kept the</text>
+      <text class="dg-t" x="615" y="150" style="font-size:11px">suggestion?</text>
+
+      <rect class="dg-proc" x="555" y="215" width="120" height="50" rx="8" />
+      <text class="dg-t" x="615" y="234">Pick a</text>
+      <text class="dg-t" x="615" y="250">category</text>
+
+      <rect class="dg-proc" x="720" y="112" width="140" height="56" rx="8" />
+      <text class="dg-t" x="790" y="135">Save; hint table</text>
+      <text class="dg-t" x="790" y="153">learns the pairing</text>
+
+      <polygon class="dg-dec" points="960,140 920,175 880,140 920,105" />
+      <text class="dg-t" x="920" y="125" style="font-size:10px">Unusual or</text>
+      <text class="dg-t" x="920" y="141" style="font-size:10px">duplicate,</text>
+      <text class="dg-t" x="920" y="157" style="font-size:10px">over budget?</text>
+
+      <rect class="dg-proc" x="810" y="215" width="150" height="56" rx="8" />
+      <text class="dg-t" x="885" y="238">Toast + a flag on</text>
+      <text class="dg-t" x="885" y="256">the row</text>
+
+      <path class="dg-flow" d="M125,140 H165" />
+      <path class="dg-flow" d="M315,140 H355" />
+      <path class="dg-flow" d="M505,140 H575" />
+      <path class="dg-flow" d="M655,140 H720" />
+      <text class="dg-lbl" x="687" y="130">yes</text>
+      <path class="dg-flow" d="M615,168 V215" />
+      <text class="dg-lbl" x="635" y="195">no</text>
+      <path class="dg-flow" d="M675,240 H790 V168" />
+      <path class="dg-flow" d="M860,140 H880" />
+      <path class="dg-flow" d="M920,175 V220 H810" />
+      <text class="dg-lbl" x="945" y="195">yes</text>
+
+      <rect class="dg-term" x="15" y="215" width="110" height="44" rx="22" />
+      <text class="dg-t is-term" x="70" y="242">End</text>
+      <path class="dg-flow" d="M885,271 C 500,285 200,285 70,259" />
+      <path class="dg-flow is-alt" d="M960,140 C 985,140 985,237 885,237" />
+      <text class="dg-lbl" x="980" y="185">no</text>
+    </svg>
+    <figcaption><b>Figure D3</b><span>Logging a transaction, from the empty form to a saved row that has already been checked against the student's own budgets and history.</span></figcaption>
+  </figure>
+
+  <h3>Flowchart: forgot password</h3>
+  <p>
+    The tokenised-link recovery section 04 describes, as a flow. The password
+    itself never travels except in this last step, and only over the link the
+    student's own inbox received.
+  </p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 1000 220" role="img" aria-label="Flowchart: request a reset link, follow it within an hour, and set a new password that meets the rules.">
+      <rect class="dg-term" x="15" y="78" width="110" height="44" rx="22" />
+      <text class="dg-t is-term" x="70" y="105">Start</text>
+
+      <rect class="dg-proc" x="160" y="72" width="150" height="56" rx="8" />
+      <text class="dg-t" x="235" y="95">Enter account</text>
+      <text class="dg-t" x="235" y="113">email</text>
+
+      <rect class="dg-proc" x="345" y="72" width="170" height="56" rx="8" />
+      <text class="dg-t" x="430" y="90">Token hashed &amp;</text>
+      <text class="dg-t" x="430" y="106">stored, link emailed</text>
+      <text class="dg-lbl" x="430" y="121" style="font-size:9.5px">same reply either way</text>
+
+      <polygon class="dg-dec" points="655,100 615,128 575,100 615,72" />
+      <text class="dg-t" x="615" y="90" style="font-size:10px">Opened</text>
+      <text class="dg-t" x="615" y="106" style="font-size:10px">within</text>
+      <text class="dg-t" x="615" y="122" style="font-size:10px">1 hour?</text>
+
+      <rect class="dg-proc" x="710" y="140" width="150" height="50" rx="8" />
+      <text class="dg-t" x="785" y="169">"Link has expired"</text>
+
+      <rect class="dg-proc" x="710" y="30" width="150" height="56" rx="8" />
+      <text class="dg-t" x="785" y="52">Choose a new</text>
+      <text class="dg-t" x="785" y="68">password</text>
+
+      <polygon class="dg-dec" points="960,58 920,86 880,58 920,30" />
+      <text class="dg-t" x="920" y="52" style="font-size:9.5px">Meets</text>
+      <text class="dg-t" x="920" y="66" style="font-size:9.5px">the</text>
+      <text class="dg-t" x="920" y="80" style="font-size:9.5px">rules?</text>
+
+      <rect class="dg-term" x="860" y="140" width="130" height="44" rx="22" />
+      <text class="dg-t is-term" x="925" y="167" style="font-size:12px">Saved, all</text>
+
+      <path class="dg-flow" d="M125,100 H160" />
+      <path class="dg-flow" d="M310,100 H345" />
+      <path class="dg-flow" d="M515,100 H575" />
+      <path class="dg-flow" d="M655,100 H710 V86" />
+      <text class="dg-lbl" x="675" y="90">yes</text>
+      <path class="dg-flow" d="M785,86 H860 V58 H880" />
+      <path class="dg-flow" d="M615,128 V165 H710" />
+      <text class="dg-lbl" x="640" y="150">no</text>
+      <path class="dg-flow is-alt" d="M920,86 C 900,110 870,140 785,140" />
+      <text class="dg-lbl" x="945" y="105">no</text>
+      <path class="dg-flow" d="M960,58 C 985,58 985,155 990,158" />
+      <text class="dg-lbl" x="978" y="100">yes</text>
+    </svg>
+    <figcaption><b>Figure D4</b><span>Forgot password. "Saved" also raises the account's session version, which signs every other device out, and sends a "your password was changed" email.</span></figcaption>
+  </figure>
+
+  <h3>Database design</h3>
+  <p>
+    MongoDB, so this is collections and references rather than foreign keys with
+    constraints - but the shape is the same one the SRS's example table asks
+    for, drawn from the real schema in <code>server/src/models/</code> rather
+    than a simplified stand-in. <code>User</code> is the one everything else
+    points back to; <code>Category</code> is shared, since a default category
+    has no owner and every student's own categories sit in the same collection;
+    <code>Transaction</code> is the busiest table, with two optional links of
+    its own - <code>aiSuggestedCategory</code>, kept so the categoriser can tell
+    whether its guess was accepted, and <code>recurringParent</code>, a
+    transaction pointing at the rule that generated it.
+  </p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 1040 620" role="img" aria-label="Entity-relationship diagram of the nine MongoDB collections.">
+      <g>
+        <rect class="dg-proc" x="20" y="20" width="220" height="150" rx="8" />
+        <text class="dg-t is-title" x="130" y="44">User</text>
+        <line class="dg-line" x1="30" y1="54" x2="230" y2="54" />
+        <text class="dg-t is-left" x="34" y="72" style="font-size:11px">name, email (unique)</text>
+        <text class="dg-t is-left" x="34" y="90" style="font-size:11px">passwordHash, role</text>
+        <text class="dg-t is-left" x="34" y="108" style="font-size:11px">monthlyAllowance,</text>
+        <text class="dg-t is-left" x="34" y="123" style="font-size:11px">savingsGoal, currency</text>
+        <text class="dg-t is-left" x="34" y="141" style="font-size:11px">tokenVersion,</text>
+        <text class="dg-t is-left" x="34" y="156" style="font-size:11px">resetTokenHash</text>
+      </g>
+
+      <g>
+        <rect class="dg-proc" x="300" y="20" width="220" height="110" rx="8" />
+        <text class="dg-t is-title" x="410" y="44">Category</text>
+        <line class="dg-line" x1="310" y1="54" x2="510" y2="54" />
+        <text class="dg-t is-left" x="314" y="72" style="font-size:11px">name, type, slot, icon</text>
+        <text class="dg-t is-left" x="314" y="90" style="font-size:11px">owner → User (null =</text>
+        <text class="dg-t is-left" x="314" y="105" style="font-size:11px">a default)</text>
+        <text class="dg-t is-left" x="314" y="123" style="font-size:11px">isDefault, keywords</text>
+      </g>
+
+      <g>
+        <rect class="dg-proc" x="620" y="20" width="220" height="150" rx="8" />
+        <text class="dg-t is-title" x="730" y="44">Transaction</text>
+        <line class="dg-line" x1="630" y1="54" x2="830" y2="54" />
+        <text class="dg-t is-left" x="634" y="72" style="font-size:11px">user, category → refs</text>
+        <text class="dg-t is-left" x="634" y="90" style="font-size:11px">type, amount, date</text>
+        <text class="dg-t is-left" x="634" y="108" style="font-size:11px">method, methodLabel</text>
+        <text class="dg-t is-left" x="634" y="126" style="font-size:11px">aiSuggestedCategory,</text>
+        <text class="dg-t is-left" x="634" y="141" style="font-size:11px">recurringParent → self</text>
+        <text class="dg-t is-left" x="634" y="156" style="font-size:11px">flags[], hasReceipt</text>
+      </g>
+
+      <g>
+        <rect class="dg-proc" x="20" y="230" width="200" height="100" rx="8" />
+        <text class="dg-t is-title" x="120" y="254">Budget</text>
+        <line class="dg-line" x1="30" y1="264" x2="210" y2="264" />
+        <text class="dg-t is-left" x="34" y="282" style="font-size:11px">user, category → refs</text>
+        <text class="dg-t is-left" x="34" y="300" style="font-size:11px">month, limitAmount</text>
+        <text class="dg-t is-left" x="34" y="318" style="font-size:11px">alertedAt</text>
+      </g>
+
+      <g>
+        <rect class="dg-proc" x="260" y="230" width="200" height="100" rx="8" />
+        <text class="dg-t is-title" x="360" y="254">CategoryHint</text>
+        <line class="dg-line" x1="270" y1="264" x2="450" y2="264" />
+        <text class="dg-t is-left" x="274" y="282" style="font-size:11px">user, category → refs</text>
+        <text class="dg-t is-left" x="274" y="300" style="font-size:11px">token, count</text>
+        <text class="dg-t is-left" x="274" y="318" style="font-size:11px">(the categoriser's memory)</text>
+      </g>
+
+      <g>
+        <rect class="dg-proc" x="500" y="230" width="200" height="100" rx="8" />
+        <text class="dg-t is-title" x="600" y="254">Tip</text>
+        <line class="dg-line" x1="510" y1="264" x2="690" y2="264" />
+        <text class="dg-t is-left" x="514" y="282" style="font-size:11px">user, category → refs</text>
+        <text class="dg-t is-left" x="514" y="300" style="font-size:11px">title, body, impact</text>
+        <text class="dg-t is-left" x="514" y="318" style="font-size:11px">status, lastSeenAt</text>
+      </g>
+
+      <g>
+        <rect class="dg-proc" x="740" y="230" width="200" height="100" rx="8" />
+        <text class="dg-t is-title" x="840" y="254">Insight</text>
+        <line class="dg-line" x1="750" y1="264" x2="930" y2="264" />
+        <text class="dg-t is-left" x="754" y="282" style="font-size:11px">user, month → ref</text>
+        <text class="dg-t is-left" x="754" y="300" style="font-size:11px">summaryText, tipText</text>
+        <text class="dg-t is-left" x="754" y="318" style="font-size:11px">engine, bookmarked</text>
+      </g>
+
+      <g>
+        <rect class="dg-proc" x="20" y="430" width="220" height="100" rx="8" />
+        <text class="dg-t is-title" x="130" y="454">Announcement</text>
+        <line class="dg-line" x1="30" y1="464" x2="230" y2="464" />
+        <text class="dg-t is-left" x="34" y="482" style="font-size:11px">title, body, kind, active</text>
+        <text class="dg-t is-left" x="34" y="500" style="font-size:11px">createdBy → User (admin)</text>
+      </g>
+
+      <g>
+        <rect class="dg-proc" x="280" y="430" width="220" height="100" rx="8" />
+        <text class="dg-t is-title" x="390" y="454">Notification</text>
+        <line class="dg-line" x1="290" y1="464" x2="490" y2="464" />
+        <text class="dg-t is-left" x="294" y="482" style="font-size:11px">user → ref, kind, title</text>
+        <text class="dg-t is-left" x="294" y="500" style="font-size:11px">announcement → ref, read</text>
+      </g>
+
+      <path class="dg-line" d="M240,80 H300" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M520,60 H620" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M130,170 V230" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M220,280 H260" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M410,130 C 410,180 360,200 360,230" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M600,230 C 600,190 500,150 620,120" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M730,170 C 780,200 840,200 840,230" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M130,330 C 130,380 130,430 130,430" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M240,480 H280" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M730,60 C 700,340 500,470 500,480" marker-end="url(#dg-arrow)" />
+      <path class="dg-line" d="M760,90 C 740,200 500,330 460,280" marker-end="url(#dg-arrow)" />
+
+      <text class="dg-lbl" x="120" y="580" style="font-size:11px">Every line is a "references, one user or category to many rows" relationship - the same shape MongoDB's own reference fields describe.</text>
+    </svg>
+    <figcaption><b>Figure D5</b><span>Entity-relationship diagram, from the actual Mongoose schemas, not the SRS's illustrative example.</span></figcaption>
+  </figure>
+</section>
+
+<!-- ============================ 9 ============================ -->
+<section>
+  <div class="sec-head"><span class="sec-num">09</span><h2>The parts that make judgements</h2></div>
 
   <p class="lead">
     The SRS asks for AI assistance in two places, and for a chatbot. They are
@@ -830,7 +1336,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
 <!-- ============================ 9 ============================ -->
 <section>
-  <div class="sec-head"><span class="sec-num">09</span><h2>Design and accessibility</h2></div>
+  <div class="sec-head"><span class="sec-num">10</span><h2>Design and accessibility</h2></div>
 
   <p class="lead">The interface is written rather than assembled. A few decisions worth naming.</p>
 
@@ -898,6 +1404,27 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
     defaults.
   </p>
 
+  <h4>Cash and account, not just a total</h4>
+  <p>
+    Every transaction also records where the money moved — cash, a bank
+    transfer, a card, or a named wallet (Easypaisa, JazzCash, SadaPay,
+    NayaPay), with a typed name and its own colour for anything else. The
+    <strong>In account and in cash</strong> dashboard card splits the month
+    both ways: what came in to an account against what came in as notes, and
+    the reverse for spending, each expandable into the individual places the
+    money actually went. The calendar and the Transactions filter answer the
+    same question at the day and the row: a "Paid with" filter, and a mark
+    beside every entry. Coin understands it too — "how much cash did I spend",
+    "how much came in through Easypaisa" — through the same aggregation the
+    dashboard reads, so the two can never disagree. It is deliberately not a
+    running balance: the application never sees a transfer between two of a
+    student's own places, so a true "cash in hand" figure would drift wrong
+    the first time an ATM withdrawal was spent as notes. Reporting the two
+    flows honestly, rather than guessing a number it cannot back up, is the
+    more defensible choice — and the more informative one, since most students
+    are paid digitally and spend the difference as cash.
+  </p>
+
   <h4>Motion explains, it does not decorate</h4>
   <p>
     Sections arrive top to bottom, charts draw themselves (the donut sweeps in
@@ -920,7 +1447,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
 <!-- ============================ 10 ============================ -->
 <section>
-  <div class="sec-head"><span class="sec-num">10</span><h2>Deploying to Vercel</h2></div>
+  <div class="sec-head"><span class="sec-num">11</span><h2>Deploying to Vercel</h2></div>
 
   <ol>
     <li>Push the repository to GitHub and import it into Vercel.</li>
@@ -940,7 +1467,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
 <!-- ============================ 11 ============================ -->
 <section>
-  <div class="sec-head"><span class="sec-num">11</span><h2>Deliverables checklist</h2></div>
+  <div class="sec-head"><span class="sec-num">12</span><h2>Deliverables checklist</h2></div>
 
   <ul class="check">
     <li><i class="yes">✓</i><span>Problem definition, design specification and database design — see this report</span></li>
@@ -955,35 +1482,45 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
 <!-- ============================ 12 ============================ -->
 <section>
-  <div class="sec-head"><span class="sec-num">12</span><h2>The interface</h2></div>
+  <div class="sec-head"><span class="sec-num">13</span><h2>The interface</h2></div>
 
   <p class="lead">The screens a student meets, in the order they meet them.</p>
 
   <figure>
-    <img src="../../client/public/shots/dashboard.png" alt="The Campus Coin dashboard">
+    <div class="shot">
+      <div class="shot-bar"><i></i><i></i><i></i></div>
+      <img src="../../client/public/shots/dashboard.png" alt="The Campus Coin dashboard">
+    </div>
     <figcaption><b>Figure 1</b><span>The dashboard: the month's figures, the cash flow card, the spending calendar and the latest transactions.</span></figcaption>
   </figure>
 
   <figure>
-    <img src="../../client/public/shots/reports.png" alt="The reports page">
+    <div class="shot">
+      <div class="shot-bar"><i></i><i></i><i></i></div>
+      <img src="../../client/public/shots/reports.png" alt="The reports page">
+    </div>
     <figcaption><b>Figure 2</b><span>Reports: six months side by side, the category breakdown, and the trend cards.</span></figcaption>
   </figure>
 
   <div class="fig-grid">
     <figure>
-      <img src="../../client/public/shots/budgets.png" alt="The budgets page">
+      <div class="shot"><div class="shot-bar"><i></i><i></i><i></i></div>
+      <img src="../../client/public/shots/budgets.png" alt="The budgets page"></div>
       <figcaption><b>Figure 3</b><span>Budgets, each cap against what was spent.</span></figcaption>
     </figure>
     <figure>
-      <img src="../../client/public/shots/assistant.png" alt="The chat assistant">
+      <div class="shot"><div class="shot-bar"><i></i><i></i><i></i></div>
+      <img src="../../client/public/shots/assistant.png" alt="The chat assistant"></div>
       <figcaption><b>Figure 4</b><span>Coin, answering from the student's own figures.</span></figcaption>
     </figure>
     <figure>
-      <img src="../../client/public/shots/receipt.png" alt="Scanning a receipt">
+      <div class="shot"><div class="shot-bar"><i></i><i></i><i></i></div>
+      <img src="../../client/public/shots/receipt.png" alt="Scanning a receipt"></div>
       <figcaption><b>Figure 5</b><span>A receipt read in the browser by Tesseract OCR.</span></figcaption>
     </figure>
     <figure>
-      <img src="../../client/public/shots/phone.png" alt="Campus Coin on a phone">
+      <div class="shot"><div class="shot-bar"><i></i><i></i><i></i></div>
+      <img src="../../client/public/shots/phone.png" alt="Campus Coin on a phone"></div>
       <figcaption><b>Figure 6</b><span>The same interface at 390px.</span></figcaption>
     </figure>
   </div>
