@@ -74,12 +74,7 @@ body {
 .cover > * { position: relative; z-index: 1; }
 
 .cover-brand { display: flex; align-items: center; gap: 9pt; }
-.cover-mark {
-  width: 22pt; height: 22pt; border-radius: 50%;
-  background: var(--blue); color: #0b0b0d;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12pt; font-weight: 800; letter-spacing: -0.03em;
-}
+.cover-mark { display: block; flex: none; }
 .cover-word { font-size: 13pt; font-weight: 700; letter-spacing: -0.02em; }
 
 .cover-eyebrow {
@@ -256,6 +251,43 @@ pre code { background: none; border: 0; padding: 0; font-size: inherit; color: i
 .note b { display: block; margin-bottom: 1.4mm; font-size: 8pt; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-deep); }
 .note p:last-child { margin-bottom: 0; }
 
+.mascot-note {
+  display: flex;
+  align-items: center;
+  gap: 4.5mm;
+  margin: 5mm 0 6mm;
+  padding: 3.5mm 5mm;
+  background: #0f0f12;
+  border-radius: 3mm;
+  break-inside: avoid;
+}
+.mascot-note-face { flex: none; }
+.mascot-note p { margin: 0; color: #d4d4d8; font-size: 9.2pt; line-height: 1.55; }
+.mascot-note p b { color: #fff; }
+
+/* --- Back cover: bookends the front cover, same full-bleed dark, centred. --- */
+.back-cover {
+  position: relative;
+  margin: 0 -17mm -20mm;
+  padding: 30mm 22mm;
+  min-height: 297mm;
+  background: #0b0b0d;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  break-before: page;
+}
+.back-cover-face { margin-bottom: 8mm; }
+.back-cover h2 { margin: 0 0 3mm; font-size: 22pt; font-weight: 700; letter-spacing: -0.03em; }
+.back-cover h2 span { color: #6ee7b7; }
+.back-cover p { margin: 0 0 12mm; max-width: 100mm; color: #b9b9c4; font-size: 10.5pt; line-height: 1.6; }
+.back-cover-links { display: flex; gap: 8mm; font-size: 9pt; }
+.back-cover-links a { color: #6ee7b7; }
+.back-cover-foot { margin-top: auto; padding-top: 12mm; font-size: 7.6pt; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6a75; }
+
 /* --- Tree ----------------------------------------------------------------- */
 
 .tree {
@@ -317,7 +349,28 @@ figcaption b { color: var(--ink); font-weight: 700; flex: none; }
 <!-- ============================ COVER ============================ -->
 <div class="cover">
   <div class="cover-brand">
-    <span class="cover-mark">C</span>
+    <!-- The real mark from client/src/components/Brand.jsx, not a placeholder
+         letter: a blue-to-green coin disc with a white C cut into it and a soft
+         light across the top. Hand-converted from JSX to static SVG for print -
+         same paths and gradient stops, fixed ids instead of React's useId. -->
+    <svg class="cover-mark" width="30" height="30" viewBox="0 0 48 48" aria-hidden="true">
+      <defs>
+        <linearGradient id="cover-mark-disc" x1="0.15" y1="0" x2="0.85" y2="1">
+          <stop offset="0" stop-color="#6ee7b7" />
+          <stop offset="0.5" stop-color="#22c55e" />
+          <stop offset="1" stop-color="#15803d" />
+        </linearGradient>
+        <radialGradient id="cover-mark-light" cx="0.35" cy="0.2" r="0.75">
+          <stop offset="0" stop-color="#fff" stop-opacity="0.45" />
+          <stop offset="0.55" stop-color="#fff" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="24" cy="24" r="24" fill="url(#cover-mark-disc)" />
+      <circle cx="24" cy="24" r="24" fill="url(#cover-mark-light)" />
+      <circle cx="24" cy="24" r="22.5" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1" />
+      <path d="M32.5 15.5A12 12 0 1 0 32.5 32.5" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" />
+      <circle cx="24" cy="24" r="3.4" fill="#fff" />
+    </svg>
     <span class="cover-word">Campus Coin</span>
   </div>
 
@@ -710,6 +763,37 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
     and is never stored on the server.
   </p>
 
+  <div class="mascot-note">
+    <!-- Coin, the assistant's face: the same coin from the logo, brought to
+         life. Hand-converted from client/src/components/CoinBot.jsx - same
+         paths and gradients, no speech bubble at this size. -->
+    <svg class="mascot-note-face" width="46" height="46" viewBox="0 0 64 64" aria-hidden="true">
+      <defs>
+        <linearGradient id="mn-face" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#d1fae5" /><stop offset="0.3" stop-color="#6ee7b7" /><stop offset="1" stop-color="#15803d" />
+        </linearGradient>
+        <linearGradient id="mn-rim" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#15803d" /><stop offset="1" stop-color="#14532d" />
+        </linearGradient>
+        <radialGradient id="mn-shine" cx="0.32" cy="0.25" r="0.7">
+          <stop offset="0" stop-color="#fff" stop-opacity="0.7" /><stop offset="0.45" stop-color="#fff" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <ellipse cx="29" cy="37.5" rx="24" ry="23" fill="#14532d" opacity="0.3" />
+      <circle cx="29" cy="35" r="24" fill="url(#mn-rim)" />
+      <circle cx="29" cy="33" r="22.6" fill="url(#mn-face)" />
+      <circle cx="29" cy="33" r="22.6" fill="url(#mn-shine)" />
+      <circle cx="29" cy="33" r="18" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="1.4" />
+      <ellipse cx="20" cy="38.5" rx="3.6" ry="2.2" fill="#ff8fa3" opacity="0.45" />
+      <ellipse cx="38" cy="38.5" rx="3.6" ry="2.2" fill="#ff8fa3" opacity="0.45" />
+      <ellipse cx="22.5" cy="31" rx="2.8" ry="3.8" fill="#121214" /><ellipse cx="35.5" cy="31" rx="2.8" ry="3.8" fill="#121214" />
+      <circle cx="23.5" cy="29.4" r="1.1" fill="#fff" /><circle cx="36.5" cy="29.4" r="1.1" fill="#fff" />
+      <path d="M23.5 38.6c3.1 3.4 7.9 3.4 11 0" fill="none" stroke="#121214" stroke-width="2.4" stroke-linecap="round" />
+      <path d="M14.6 22.4c2.4-3 5.7-4.9 9.4-5.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity="0.85" />
+    </svg>
+    <p><b>This is Coin.</b> The same disc as the logo, with eyes — so the mark on the tab and the face answering a question are visibly the same thing, not two different pieces of clip art.</p>
+  </div>
+
   <h4>Scanning a receipt</h4>
   <p>
     The SRS's optional OCR. In the add-transaction form a student takes or drops
@@ -904,6 +988,55 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
     </figure>
   </div>
 </section>
+
+<!-- ============================ BACK COVER ============================ -->
+<div class="back-cover">
+  <!-- Coin again, this time with its speech bubble - the same pose as the chat
+       bubble in the corner of every student page (frame.css / CoinBot.jsx),
+       so the report closes the way the app greets a student. -->
+  <svg class="back-cover-face" width="84" height="84" viewBox="0 0 64 64" aria-hidden="true">
+    <defs>
+      <linearGradient id="bc-face" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#d1fae5" /><stop offset="0.3" stop-color="#6ee7b7" /><stop offset="1" stop-color="#15803d" />
+      </linearGradient>
+      <linearGradient id="bc-rim" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#15803d" /><stop offset="1" stop-color="#14532d" />
+      </linearGradient>
+      <linearGradient id="bc-bubble" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#2a2a30" /><stop offset="1" stop-color="#121214" />
+      </linearGradient>
+      <radialGradient id="bc-shine" cx="0.32" cy="0.25" r="0.7">
+        <stop offset="0" stop-color="#fff" stop-opacity="0.7" /><stop offset="0.45" stop-color="#fff" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <ellipse cx="29" cy="37.5" rx="24" ry="23" fill="#14532d" opacity="0.3" />
+    <circle cx="29" cy="35" r="24" fill="url(#bc-rim)" />
+    <circle cx="29" cy="33" r="22.6" fill="url(#bc-face)" />
+    <circle cx="29" cy="33" r="22.6" fill="url(#bc-shine)" />
+    <circle cx="29" cy="33" r="18" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="1.4" />
+    <ellipse cx="20" cy="38.5" rx="3.6" ry="2.2" fill="#ff8fa3" opacity="0.45" />
+    <ellipse cx="38" cy="38.5" rx="3.6" ry="2.2" fill="#ff8fa3" opacity="0.45" />
+    <ellipse cx="22.5" cy="31" rx="2.8" ry="3.8" fill="#121214" /><ellipse cx="35.5" cy="31" rx="2.8" ry="3.8" fill="#121214" />
+    <circle cx="23.5" cy="29.4" r="1.1" fill="#fff" /><circle cx="36.5" cy="29.4" r="1.1" fill="#fff" />
+    <path d="M23.5 38.6c3.1 3.4 7.9 3.4 11 0" fill="none" stroke="#121214" stroke-width="2.4" stroke-linecap="round" />
+    <path d="M14.6 22.4c2.4-3 5.7-4.9 9.4-5.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity="0.85" />
+    <path d="M44 4h14a5 5 0 0 1 5 5v8a5 5 0 0 1-5 5h-8l-6 5 1.2-5.4A5 5 0 0 1 39 17V9a5 5 0 0 1 5-5z" fill="url(#bc-bubble)" />
+    <path d="M43 6.5h14" stroke="#fff" stroke-opacity="0.35" stroke-width="1.4" stroke-linecap="round" />
+    <circle cx="45.5" cy="13" r="1.9" fill="#fff" /><circle cx="51" cy="13" r="1.9" fill="#fff" /><circle cx="56.5" cy="13" r="1.9" fill="#fff" />
+  </svg>
+
+  <h2>That's <span>Campus Coin</span>.</h2>
+  <p>
+    Every figure in this report came from the student's own numbers, the same
+    way every figure Coin gives back in the app does — never invented, never
+    guessed, and never financial advice.
+  </p>
+  <div class="back-cover-links">
+    <a href="https://campuscoin-sable.vercel.app">campuscoin-sable.vercel.app</a>
+    <a href="https://github.com/hamzaharoonk07-cloud/campuscoin">github.com/hamzaharoonk07-cloud/campuscoin</a>
+  </div>
+  <p class="back-cover-foot">Campus Coin · Project Report</p>
+</div>
 
 </body>
 </html>
