@@ -27,9 +27,29 @@ const STARTERS = ['How am I doing this month?', 'Where does my money go?', 'Any 
 
 const has = (text, ...patterns) => patterns.some((p) => p.test(text));
 
-/** Reads "last month" / "previous month" as the month before; anything else is this month. */
+const MONTH_NAMES = [
+  'january', 'february', 'march', 'april', 'may', 'june',
+  'july', 'august', 'september', 'october', 'november', 'december',
+];
+
+/**
+ * Reads "last month" / "previous month" as the month before, a named month
+ * ("September 2026", "September") as that month, and anything else as this
+ * month. The named-month case matters beyond phrasing: the Insights page lets a
+ * student open any past month and asks "How did I do in {that month}?" - with
+ * no way to read the name back out, every answer would quietly be about the
+ * current month regardless of which one was actually asked about.
+ */
 function monthFor(text) {
   const now = startOfMonth();
+  const named = new RegExp(`\\b(${MONTH_NAMES.join('|')})\\b(?:\\s+(\\d{4}))?`, 'i').exec(text);
+  if (named) {
+    const monthIndex = MONTH_NAMES.indexOf(named[1].toLowerCase());
+    // No year written ("just September"): the most recent September, which is
+    // this year unless that month has not happened yet, in which case last year's.
+    const year = named[2] ? Number(named[2]) : now.getUTCFullYear() - (monthIndex > now.getUTCMonth() ? 1 : 0);
+    return startOfMonth(new Date(Date.UTC(year, monthIndex, 1)));
+  }
   return has(text, /\blast month\b/, /\bprevious month\b/) ? addMonths(now, -1) : now;
 }
 
@@ -376,7 +396,9 @@ export async function answer(user, question) {
   else {
     const category = await categoryIn(user._id, text);
     if (category) result = await oneCategory(context, category);
-    else if (has(text, /balance|left|kept|how am i|how('?s| is) (it|my)|summary|this month|overview|income|spent|spend/)) result = await summary(context);
+    // "How did I do in September 2026?" is what the Insights page's own button
+    // asks (openChat in Insights.jsx), so it has to be understood here too.
+    else if (has(text, /balance|left|kept|how am i|how did (i|you) do|how('?s| is) (it|my)|summary|this month|overview|income|spent|spend/)) result = await summary(context);
     else if (has(text, /^(hi|hey|hello|salam|assalam|aoa)\b/)) result = { reply: `Hi ${user.name.split(' ')[0]}! Ask me anything about your money this month.` };
     else if (has(text, /help|what can you|how do(es)? (you|this) work/)) result = help();
   }
