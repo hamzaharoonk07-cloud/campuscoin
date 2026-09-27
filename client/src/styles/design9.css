@@ -776,6 +776,12 @@ textarea:focus { border-color: var(--text); box-shadow: none; background: var(--
 @media (max-width: 1200px) { .d9-row-srs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 @media (max-width: 760px) { .d9-row-srs { grid-template-columns: minmax(0, 1fr); } }
 
+/* --- The report's four headline figures -------------------------------- */
+
+.d9-row-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1200px) { .d9-row-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .d9-row-4 { grid-template-columns: minmax(0, 1fr); } }
+
 .d9-topcat-hero { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 1rem; }
 .d9-topcat-art { display: grid; place-items: center; width: 72px; height: 72px; flex: none; border-radius: 22px; }
 .d9-topcat-art img { display: block; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15)); animation: d9-pop 0.5s var(--ease-out) 0.2s backwards; }

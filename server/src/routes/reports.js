@@ -181,7 +181,7 @@ router.get(
   wrap(async (req, res) => {
     const month = parseMonth(req.query.month);
 
-    const [totals, expenses, income, daily, weekly, sixMonths, budgets] = await Promise.all([
+    const [totals, expenses, income, daily, weekly, sixMonths, budgets, flow] = await Promise.all([
       monthTotals(req.user._id, month),
       byCategory(req.user._id, month, 'expense'),
       byCategory(req.user._id, month, 'income'),
@@ -189,6 +189,10 @@ router.get(
       weeklySeries(req.user._id, month),
       trend(req.user._id, month, 6),
       budgetProgress(Budget, req.user._id, month),
+      // Cash against accounts, both ways - so "money in" and "money out" on
+      // this report are never a single number pretending cash and card are
+      // the same thing.
+      moneyFlow(req.user._id, month),
     ]);
 
     const spendingDays = daily.filter((d) => d.total > 0);
@@ -203,6 +207,7 @@ router.get(
       weekly,
       trend: sixMonths,
       budgets,
+      flow,
       pace: {
         // Average across the days money actually moved, which is more useful to
         // a student than an average that counts every quiet day as a zero.
