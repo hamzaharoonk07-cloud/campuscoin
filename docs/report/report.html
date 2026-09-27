@@ -5,12 +5,13 @@
 <title>Campus Coin — Project Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* ===========================================================================
    Campus Coin project report.
    The app's own design language on paper: black, white and one green
-   (#22c55e), set in Plus Jakarta Sans, with code in JetBrains Mono.
+   (#22c55e), set in Geist and Inter - the same pairing the live application
+   uses - with code in JetBrains Mono.
    Built to PDF by scripts/build-report.mjs.
    Ink is darkened against the screen palette: --muted here is #43434e rather
    than the app's #5c5c66, because toner on paper loses contrast that a
@@ -49,7 +50,11 @@ html { -webkit-print-color-adjust: exact; print-color-adjust: exact; background:
 
 body {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* Inter reads; Geist heads. The same pairing as the live application,
+     rather than one face carrying both jobs the way Plus Jakarta Sans used
+     to here - h1 through h4 and anything numeric below are set back to
+     Geist explicitly. */
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 10.2pt;
   line-height: 1.62;
   color: var(--ink);
@@ -211,11 +216,16 @@ section.runs-on { break-before: auto; }
   border-radius: 3mm;
   background: var(--blue);
   color: #06210f;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 12.5pt;
   font-weight: 800;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
+/* Headings, and the cover word, are Geist - cut for a heading's job rather
+   than scaled up from a paragraph, so it stays crisp at the tight tracking
+   below instead of looking cramped the way a text face does at this size. */
+h1, h2, h3, h4, .cover-word { font-family: 'Geist', system-ui, sans-serif; }
 h2 {
   margin: 0;
   font-size: 27pt;
@@ -408,7 +418,7 @@ pre code { background: none; border: 0; padding: 0; font-size: inherit; color: i
      guarantee, and reads more like a deliberate full-page plate anyway. */
   break-before: page;
 }
-.diagram svg { display: block; width: 100%; height: auto; font-family: 'Plus Jakarta Sans', sans-serif; }
+.diagram svg { display: block; width: 100%; height: auto; font-family: 'Inter', sans-serif; }
 .diagram figcaption { margin-top: 3mm; padding-top: 3mm; border-top: 1px solid var(--rule-soft); }
 
 .dg-proc { fill: var(--raised); stroke: var(--rule); stroke-width: 1.5; }
@@ -567,7 +577,7 @@ figcaption b { color: var(--ink); font-weight: 700; flex: none; }
     <li><b>Configuration</b> <span>Every variable, and the behaviour without it</span></li>
     <li><b>Technology</b></li>
     <li><b>How the application is put together</b> <span>Layout and the engines</span></li>
-    <li><b>Diagrams: flow and data</b> <span>Context, DFD, two flowcharts, the ER diagram</span></li>
+    <li><b>Diagrams and database design</b> <span>Context, DFD, two flowcharts, the ER diagram, every collection's fields</span></li>
     <li><b>The parts that make judgements</b> <span>Where a model is used, and where it is not</span></li>
     <li><b>Design and accessibility</b></li>
     <li><b>Deploying to Vercel</b></li>
@@ -583,7 +593,11 @@ figcaption b { color: var(--ink); font-weight: 700; flex: none; }
   <p class="lead">
     Students are paid irregularly — an allowance when it arrives, a bit of
     tutoring money, a scholarship instalment — and general personal-finance
-    apps assume a salary and a bank feed. Campus Coin assumes neither.
+    apps assume a salary and a bank feed. Every one of them is either built
+    for someone else's money or asks for a bank login a student does not
+    have. Campus Coin assumes neither: no linked account, no subscription,
+    nothing to connect — just a fast way to log what actually happened and
+    advice built from that student's own numbers, not a stranger's average.
   </p>
 
   <p>
@@ -601,6 +615,22 @@ figcaption b { color: var(--ink); font-weight: 700; flex: none; }
       configured the application starts its own embedded MongoDB and stores it
       in <code>server/data/db</code>, so it installs and demonstrates every
       feature with an empty configuration file.
+    </p>
+  </div>
+
+  <div class="note">
+    <b>AI tools used, acknowledged</b>
+    <p>
+      Built with <strong>Claude Code</strong> (Anthropic) as a coding and
+      documentation assistant throughout — implementation, debugging, this
+      report's diagrams and build scripts, and its PDF-export tooling. It was
+      used as an assistant, not a template generator: no part of the
+      application was produced from a ready-made site or theme, and every
+      design and architecture decision in this document is one its author
+      can explain and defend. The application's own optional AI features
+      (the categorisation assistant and Coin's monthly insight, section 09)
+      call the <strong>Claude API</strong> directly and are a separate,
+      documented part of the product itself, not a documentation shortcut.
     </p>
   </div>
 </section>
@@ -903,7 +933,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
 <!-- ============================ 8 ============================ -->
 <section>
-  <div class="sec-head"><span class="sec-num">08</span><h2>Diagrams: flow and data</h2></div>
+  <div class="sec-head"><span class="sec-num">08</span><h2>Diagrams and database design</h2></div>
 
   <p class="lead">
     How a request moves through the system, and how the database is shaped -
@@ -1183,20 +1213,6 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
     <figcaption><b>Figure D4</b><span>Forgot password. "Saved" also raises the account's session version, which signs every other device out, and sends a "your password was changed" email.</span></figcaption>
   </figure>
 
-  <h3>Database design</h3>
-  <p>
-    MongoDB, so this is collections and references rather than foreign keys with
-    constraints - but the shape is the same one the SRS's example table asks
-    for, drawn from the real schema in <code>server/src/models/</code> rather
-    than a simplified stand-in. <code>User</code> is the one everything else
-    points back to; <code>Category</code> is shared, since a default category
-    has no owner and every student's own categories sit in the same collection;
-    <code>Transaction</code> is the busiest table, with two optional links of
-    its own - <code>aiSuggestedCategory</code>, kept so the categoriser can tell
-    whether its guess was accepted, and <code>recurringParent</code>, a
-    transaction pointing at the rule that generated it.
-  </p>
-
   <figure class="diagram">
     <svg viewBox="0 0 1040 620" role="img" aria-label="Entity-relationship diagram of the nine MongoDB collections.">
       <g>
@@ -1301,6 +1317,130 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
     </svg>
     <figcaption><b>Figure D5</b><span>Entity-relationship diagram, from the actual Mongoose schemas, not the SRS's illustrative example.</span></figcaption>
   </figure>
+
+  <h3>Database design</h3>
+  <p>
+    MongoDB has no <code>.sql</code> script; a Mongoose schema is the
+    equivalent structural definition, and that is what is reproduced below —
+    the real field list from <code>server/src/models/*.js</code>, one file per
+    collection, not the SRS's illustrative example. Every reference (<code>ref</code>)
+    is an ObjectId pointing at another collection's <code>_id</code>, drawn as
+    an arrow in Figure D5 above: <code>User</code> is the one everything else
+    points back to; <code>Category</code> is shared, since a default category
+    has no owner and every student's own categories sit in the same
+    collection; <code>Transaction</code> is the busiest table, with two
+    optional links of its own — <code>aiSuggestedCategory</code>, kept so the
+    categoriser can tell whether its guess was accepted, and
+    <code>recurringParent</code>, a transaction pointing at the rule that
+    generated it.
+  </p>
+
+  <h4>User</h4>
+  <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">One row per account, student or administrator.</p>
+  <table>
+    <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td>String</td><td>Required.</td></tr>
+      <tr><td><code>email</code></td><td>String</td><td>Required, unique, lower-cased.</td></tr>
+      <tr><td><code>passwordHash</code></td><td>String</td><td>bcrypt, cost 10. Never returned by a query unless explicitly selected.</td></tr>
+      <tr><td><code>role</code></td><td>enum</td><td><code>student</code> | <code>admin</code>.</td></tr>
+      <tr><td><code>academicYear</code>, <code>institution</code></td><td>String</td><td>Profile fields (SRS 1.6).</td></tr>
+      <tr><td><code>monthlyAllowance</code>, <code>savingsGoal</code></td><td>Number</td><td>The dashboard's goal ring reads <code>savingsGoal</code>.</td></tr>
+      <tr><td><code>currency</code></td><td>enum</td><td>PKR, USD, EUR, GBP, INR or AED.</td></tr>
+      <tr><td><code>avatar</code>, <code>avatarColor</code></td><td>String</td><td>An optional photo as a small data URL; a coloured-initial fallback otherwise.</td></tr>
+      <tr><td><code>preferences</code></td><td>Object</td><td><code>theme</code>, <code>fontScale</code>, <code>reducedMotion</code>, <code>alertsEnabled</code> — the accessibility settings.</td></tr>
+      <tr><td><code>tokenVersion</code></td><td>Number</td><td>Bumped on a password change or "sign out everywhere"; every older session token stops working.</td></tr>
+      <tr><td><code>resetTokenHash</code>, <code>resetTokenExpires</code></td><td>String, Date</td><td>Only the hash of a reset token is stored. Not selected by default.</td></tr>
+      <tr><td><code>failedLogins</code>, <code>lockUntil</code></td><td>Number, Date</td><td>Sign-in lockout after repeated wrong passwords. Not selected by default.</td></tr>
+      <tr><td><code>disabled</code>, <code>mustChangePassword</code></td><td>Boolean</td><td>Set by an administrator.</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Category</h4>
+  <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">A system default (<code>owner: null</code>) or one student's own.</p>
+  <table>
+    <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code>, <code>type</code></td><td>String, enum</td><td><code>income</code> | <code>expense</code>. Unique together with <code>owner</code>.</td></tr>
+      <tr><td><code>owner</code></td><td>ObjectId → User</td><td><code>null</code> for the twelve defaults, seeded once and shared by every account.</td></tr>
+      <tr><td><code>isDefault</code>, <code>archived</code></td><td>Boolean</td><td>Archived categories keep their history but drop out of the add-transaction list.</td></tr>
+      <tr><td><code>icon</code></td><td>String</td><td>Which Fluent Emoji SVG represents this category.</td></tr>
+      <tr><td><code>slot</code></td><td>Number 1–7</td><td>A position in the validated categorical palette, not a raw colour, so light and dark mode each pick their own correct shade.</td></tr>
+      <tr><td><code>keywords</code></td><td>[String]</td><td>Seed words for the categorisation assistant, refined by <code>CategoryHint</code> below.</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Transaction</h4>
+  <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">Every logged rupee, income or expense.</p>
+  <table>
+    <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>user</code>, <code>category</code></td><td>ObjectId → User, Category</td><td>Both required.</td></tr>
+      <tr><td><code>type</code>, <code>amount</code></td><td>enum, Number</td><td><code>income</code> | <code>expense</code>; amount must be greater than zero.</td></tr>
+      <tr><td><code>description</code>, <code>note</code></td><td>String</td><td>What the student typed; <code>description</code> is also what the categorisation assistant reads.</td></tr>
+      <tr><td><code>date</code>, <code>month</code></td><td>Date</td><td><code>month</code> is <code>date</code> rounded down to the 1st, written automatically before every save, so reports group by month without a date pipeline.</td></tr>
+      <tr><td><code>method</code>, <code>methodLabel</code></td><td>enum, String</td><td>cash, bank, easypaisa, jazzcash, sadapay, nayapay, card, or other (named in <code>methodLabel</code>) — where the money actually moved.</td></tr>
+      <tr><td><code>aiSuggestedCategory</code>, <code>aiAccepted</code></td><td>ObjectId, Boolean</td><td>What the assistant proposed, and whether the student kept it — the correction that trains <code>CategoryHint</code>.</td></tr>
+      <tr><td><code>recurring</code></td><td>Object</td><td><code>enabled</code>, <code>frequency</code> (weekly/monthly/yearly), <code>nextRun</code>, <code>endsOn</code> — the rule, held on the parent row.</td></tr>
+      <tr><td><code>recurringParent</code></td><td>ObjectId → Transaction</td><td>Set on every row a rule generated, pointing back at that rule.</td></tr>
+      <tr><td><code>source</code></td><td>enum</td><td>manual | csv | recurring.</td></tr>
+      <tr><td><code>receipt</code>, <code>hasReceipt</code></td><td>String, Boolean</td><td>The photo is excluded from every list query by default (<code>select: false</code>) and fetched only when a single transaction is opened.</td></tr>
+      <tr><td><code>flags</code></td><td>[String]</td><td><code>duplicate</code> and/or <code>large</code>, written by the anomaly check.</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Budget</h4>
+  <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">One spending cap per category per month.</p>
+  <table>
+    <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>user</code>, <code>category</code>, <code>month</code></td><td>ObjectId, ObjectId, Date</td><td>Unique together — one cap per category per month.</td></tr>
+      <tr><td><code>limitAmount</code></td><td>Number</td><td>≥ 0.</td></tr>
+      <tr><td><code>alertedAt</code></td><td>Number</td><td>The highest threshold (80 or 100) already warned about, so a student hears once per level rather than on every transaction.</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Insight</h4>
+  <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">The stored monthly summary Coin writes (SRS 1.6, "stores insight history").</p>
+  <table>
+    <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>user</code>, <code>month</code></td><td>ObjectId, Date</td><td>Unique together — one insight per student per month.</td></tr>
+      <tr><td><code>summaryText</code>, <code>tipText</code></td><td>String</td><td>The narrative, and the one piece of advice tied to it.</td></tr>
+      <tr><td><code>highlights</code></td><td>[Object]</td><td>Categories that moved against the student's own trend: name, amount, previous amount, change%, direction.</td></tr>
+      <tr><td><code>stats</code></td><td>Object</td><td>income, expense, balance, savingsRate, topCategory, transactionCount — a frozen copy of the figures the summary was written from.</td></tr>
+      <tr><td><code>engine</code></td><td>enum</td><td><code>statistical</code> (the built-in writer) or <code>llm</code> (Claude rewrote it) — see section 09.</td></tr>
+      <tr><td><code>bookmarked</code></td><td>Boolean</td><td>SRS 1.6, "bookmarks a saving tip or monthly insight".</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Tip, CategoryHint, Notification, Announcement</h4>
+  <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">The four smaller collections behind the tips engine, the categorisation assistant, the bell menu and admin broadcasts.</p>
+  <table>
+    <thead><tr><th style="width:18%">Collection</th><th style="width:26%">Key fields</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>Tip</code></td>
+        <td><code>user</code>, <code>key</code>, <code>title</code>, <code>body</code>, <code>impact</code>, <code>status</code></td>
+        <td>One saving tip. <code>key</code> identifies the same piece of advice across regenerations, so a pin or a dismissal (<code>status: pinned | dismissed</code>) survives the tips engine running again.</td>
+      </tr>
+      <tr>
+        <td><code>CategoryHint</code></td>
+        <td><code>user</code>, <code>token</code>, <code>category</code>, <code>count</code></td>
+        <td>A per-student word-to-category frequency table. Every save adds to it; a correction reinforces a different pairing — the memory behind the categorisation assistant learning from that student alone.</td>
+      </tr>
+      <tr>
+        <td><code>Notification</code></td>
+        <td><code>user</code>, <code>kind</code>, <code>title</code>, <code>body</code>, <code>link</code>, <code>read</code></td>
+        <td>Budget warnings, anomaly flags and admin announcements, in one bell menu. <code>kind</code> is one of budget-warning, budget-exceeded, anomaly, insight or announcement.</td>
+      </tr>
+      <tr>
+        <td><code>Announcement</code></td>
+        <td><code>title</code>, <code>body</code>, <code>kind</code>, <code>active</code>, <code>createdBy</code></td>
+        <td>Written by an administrator (SRS 1.6, "system-wide announcement or tip templates"); shown on every student dashboard while <code>active</code>.</td>
+      </tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- ============================ 9 ============================ -->
@@ -1420,7 +1560,12 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 <section>
   <div class="sec-head"><span class="sec-num">10</span><h2>Design and accessibility</h2></div>
 
-  <p class="lead">The interface is written rather than assembled. A few decisions worth naming.</p>
+  <p class="lead">
+    The interface is written rather than assembled. This section is also the
+    SRS's <strong>design specification</strong> — the decisions behind the
+    interface, named rather than left to be inferred from the screens in
+    section 13.
+  </p>
 
   <h4>Light by default, with a dark theme</h4>
   <p>
@@ -1435,10 +1580,12 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
     The application sits in a black frame with a slim rail of round icon buttons
     that slides open on hover to show each page's name; the content is one white
     panel with large rounded corners, buttons are black pills, and one green
-    (<code>#22c55e</code>) carries the figures. Categories take shades of blue
-    and grey. Text is set in Plus Jakarta Sans. The styles live in
-    <code>client/src/styles/design9.css</code>; the code and all the copy are
-    our own.
+    (<code>#22c55e</code>) carries the figures. Categories take shades of green
+    and grey. Headings and figures are set in <strong>Geist</strong>, cut for a
+    dashboard rather than adapted from a text face; body copy and tables are
+    <strong>Inter</strong>, for its legibility in a row of transactions. The
+    styles live in <code>client/src/styles/design9.css</code>; the code and
+    all the copy are our own.
   </p>
 
   <h4>Real SVG pictures</h4>
@@ -1552,13 +1699,17 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
   <div class="sec-head"><span class="sec-num">12</span><h2>Deliverables checklist</h2></div>
 
   <ul class="check">
-    <li><i class="yes">✓</i><span>Problem definition, design specification and database design — see this report</span></li>
-    <li><i class="yes">✓</i><span>Installation instructions — section 02</span></li>
-    <li><i class="yes">✓</i><span>User credentials for all user types — section 03</span></li>
-    <li><i class="yes">✓</i><span>Test data — seeded automatically on first run (<code>server/src/seed/</code>)</span></li>
+    <li><i class="yes">✓</i><span>Problem definition — section 01</span></li>
+    <li><i class="yes">✓</i><span>Design specification — section 10</span></li>
+    <li><i class="yes">✓</i><span>Diagrams: flowcharts, context and level-1 DFDs — section 08</span></li>
+    <li><i class="yes">✓</i><span>Database design, every collection's fields — section 08, and the schema files themselves (<code>server/src/models/*.js</code>) as the ".sql or schema files" the SRS asks for</span></li>
+    <li><i class="yes">✓</i><span>Test data — section 02, and seeded automatically on first run (<code>server/src/seed/</code>)</span></li>
+    <li><i class="yes">✓</i><span>Installation instructions (mandatory) — section 02</span></li>
+    <li><i class="yes">✓</i><span>User credentials for all user types (mandatory) — section 03</span></li>
+    <li><i class="yes">✓</i><span>AI tools used, acknowledged — section 01</span></li>
     <li><i class="yes">✓</i><span>Sitemap on the home page — <code>/</code> and <code>/sitemap</code></span></li>
+    <li><i class="yes">✓</i><span>No source code in this document</span></li>
     <li><i class="no">—</i><span>Demonstration video (.mp4) — to record</span></li>
-    <li><i class="yes">✓</i><span>Project report with flowcharts, DFDs, ER diagram, test data, installation and credentials</span></li>
   </ul>
 </section>
 
