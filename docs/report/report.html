@@ -178,8 +178,13 @@ body {
 
 /* --- Section furniture ---------------------------------------------------- */
 
-section { break-before: page; }
-section.runs-on { break-before: auto; }
+/* Every section forcing a fresh page used to be the rule here, which reads
+   fine when a section happens to fill its last page and leaves an empty
+   lower half when it doesn't - and with thirteen sections of very different
+   lengths, most of them didn't. Sections now flow into whatever room is
+   left; break-after on the heading below is what stops one from ever being
+   stranded alone at the bottom of a page instead. */
+section { break-before: auto; }
 
 /* A numbered badge beside a genuinely large title, on a two-part rule - a
    short coloured segment over a full-width faint one - rather than a single
@@ -192,6 +197,7 @@ section.runs-on { break-before: auto; }
   align-items: center;
   gap: 5.5mm;
   padding-bottom: 5mm;
+  break-after: avoid;
   margin-bottom: 9mm;
   position: relative;
   border-bottom: 1px solid var(--rule-soft);
@@ -281,6 +287,16 @@ table {
   font-size: 9.2pt;
   break-inside: avoid;
 }
+/* The database design tables are long enough that keeping one whole and
+   undivided pushes it entirely onto the next page whenever it doesn't fit
+   what's left of the current one, which is most of the time for a
+   ten-plus-row table - exactly the empty-page-bottom problem the rest of
+   this file was just fixed for. These are left to break between rows
+   instead; tbody tr already keeps a single row intact by default, and a
+   browser repeats <thead> on the page a table continues onto, so a split
+   table still reads correctly at the top of its second page. */
+.db-table { break-inside: auto; }
+.db-table tbody tr { break-inside: avoid; }
 thead th {
   text-align: left;
   padding: 2.8mm 3mm;
@@ -412,11 +428,15 @@ pre code { background: none; border: 0; padding: 0; font-size: inherit; color: i
   border: 1px solid var(--rule-soft);
   border-radius: 3mm;
   break-inside: avoid;
-  /* break-inside: avoid does not reliably hold for a box containing inline
-     SVG in Chrome's print engine - Figure D3 split mid-diagram across a page
-     boundary with this alone. Forcing a fresh page per diagram is a stronger
-     guarantee, and reads more like a deliberate full-page plate anyway. */
-  break-before: page;
+  /* Forcing a fresh page per diagram (this rule previously also carried
+     break-before: page, because break-inside: avoid alone once let Figure D3
+     split mid-diagram) is what was leaving the bottom third or more of the
+     page before every figure empty, now that sections no longer force their
+     own page either. Tested again with the real content this section now
+     has - the SVGs weren't the unreliable part, an earlier draft's Figure D3
+     was simply taller than a full page, which no break rule can fix; every
+     diagram here now fits one page, so avoid is enough. Re-check this by
+     screenshotting the real PDF (not the source) if a diagram grows again. */
 }
 .diagram svg { display: block; width: 100%; height: auto; font-family: 'Inter', sans-serif; }
 .diagram figcaption { margin-top: 3mm; padding-top: 3mm; border-top: 1px solid var(--rule-soft); }
@@ -1337,7 +1357,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
   <h4>User</h4>
   <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">One row per account, student or administrator.</p>
-  <table>
+  <table class="db-table">
     <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td><code>name</code></td><td>String</td><td>Required.</td></tr>
@@ -1358,7 +1378,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
   <h4>Category</h4>
   <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">A system default (<code>owner: null</code>) or one student's own.</p>
-  <table>
+  <table class="db-table">
     <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td><code>name</code>, <code>type</code></td><td>String, enum</td><td><code>income</code> | <code>expense</code>. Unique together with <code>owner</code>.</td></tr>
@@ -1372,7 +1392,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
   <h4>Transaction</h4>
   <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">Every logged rupee, income or expense.</p>
-  <table>
+  <table class="db-table">
     <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td><code>user</code>, <code>category</code></td><td>ObjectId → User, Category</td><td>Both required.</td></tr>
@@ -1391,7 +1411,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
   <h4>Budget</h4>
   <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">One spending cap per category per month.</p>
-  <table>
+  <table class="db-table">
     <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td><code>user</code>, <code>category</code>, <code>month</code></td><td>ObjectId, ObjectId, Date</td><td>Unique together — one cap per category per month.</td></tr>
@@ -1402,7 +1422,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
   <h4>Insight</h4>
   <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">The stored monthly summary Coin writes (SRS 1.6, "stores insight history").</p>
-  <table>
+  <table class="db-table">
     <thead><tr><th style="width:22%">Field</th><th style="width:24%">Type</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td><code>user</code>, <code>month</code></td><td>ObjectId, Date</td><td>Unique together — one insight per student per month.</td></tr>
@@ -1416,7 +1436,7 @@ npm run dev:client   <span class="c"># React on http://localhost:5173 (proxies /
 
   <h4>Tip, CategoryHint, Notification, Announcement</h4>
   <p style="margin-top:-2mm; font-size:9.2pt; color:var(--muted); line-height:1.5;">The four smaller collections behind the tips engine, the categorisation assistant, the bell menu and admin broadcasts.</p>
-  <table>
+  <table class="db-table">
     <thead><tr><th style="width:18%">Collection</th><th style="width:26%">Key fields</th><th>Purpose</th></tr></thead>
     <tbody>
       <tr>
