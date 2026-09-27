@@ -2,8 +2,8 @@
    Campus Coin design tokens
    ---------------------------------------------------------------------------
    Modelled on design 9, a fintech dashboard on Dribbble: black (#121214),
-   white and one blue (#22c55e), set in Plus Jakarta Sans. Green marks money coming in and
-   black money going out; categories take shades of green and grey.
+   white and one blue (#22c55e), set in Geist and Inter. Green marks money
+   coming in and black money going out; categories take shades of green and grey.
 
    Colour is assigned by the job it does, never by decoration:
      accent    - the brand and anything you can act on.
@@ -19,8 +19,14 @@
    =========================================================================== */
 
 :root {
-  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* Two faces, not one made to do both jobs. Geist is drawn for headings and
+     figures - it stays crisp at the tight letter-spacing used on the KPI
+     numbers, where a text face starts to look cramped. Inter carries the
+     reading: it has the largest x-height and the best-proven legibility of
+     anything on Google Fonts, which matters more in a table of transactions
+     than it does in a 32pt heading. */
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Geist', system-ui, sans-serif;
   --r-control: 12px;
   --r-panel-lg: 24px;
   --r-panel: 20px;
