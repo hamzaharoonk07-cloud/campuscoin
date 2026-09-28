@@ -726,7 +726,12 @@ export default function Dashboard() {
             ) : (
               <ul className="d9-tx">
                 {recent.map((row) => {
-                  const flagged = row.flags?.includes('duplicate') || row.flags?.includes('large');
+                  const flagged = row.flags?.includes('duplicate') || row.flags?.includes('large') || row.flags?.includes('cash-no-source');
+                  const flagWord = row.flags?.includes('duplicate')
+                    ? 'duplicate?'
+                    : row.flags?.includes('large')
+                      ? 'unusual'
+                      : 'no cash logged in';
                   return (
                     <li key={row._id}>
                       <CategoryIcon icon={row.category?.icon} slot={row.category?.slot} size={36} text={row.description} />
@@ -734,7 +739,7 @@ export default function Dashboard() {
                         <strong>{row.description || row.category?.name}</strong>
                         <small>
                           {row.category?.name}
-                          {flagged ? <em> · {row.flags.includes('duplicate') ? 'duplicate?' : 'unusual'}</em> : null}
+                          {flagged ? <em> · {flagWord}</em> : null}
                         </small>
                       </span>
                       <span className="d9-tx-amount">

@@ -264,6 +264,11 @@ export default function Transactions() {
                           ) : null}
                           {row.flags?.includes('duplicate') ? <span className="pill is-warn">possible duplicate</span> : null}
                           {row.flags?.includes('large') ? <span className="pill is-warn">unusually large</span> : null}
+                          {row.flags?.includes('cash-no-source') ? (
+                            <span className="pill is-warn" title="No cash income logged this month - normal for an ATM withdrawal, worth a look otherwise">
+                              no cash logged in
+                            </span>
+                          ) : null}
                         </span>
                       </span>
                       <span className={`ledger-amount num${row.type === 'income' ? ' is-in' : ''}`}>

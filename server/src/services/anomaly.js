@@ -3,7 +3,7 @@ import { addMonths, startOfMonth } from '../utils/dates.js';
 import { round2 } from '../utils/money.js';
 
 // ---------------------------------------------------------------------------
-// Unusually large and duplicate transaction detection
+// Unusually large, duplicate, and cash-with-no-source transaction detection
 //
 // "Unusually large" is measured against the student's own history in the same
 // category, not a fixed threshold: 500 is unremarkable for Hostel/Rent and very
@@ -50,6 +50,20 @@ export async function detectFlags(transaction) {
   });
   if (twin) flags.push('duplicate');
 
+  // 3. Cash spent with no cash logged coming in this month. Not proof of a
+  // mistake - an ATM withdrawal or cash handed over in person never shows up
+  // as income here - but worth a flag rather than a silent, unexplained
+  // "cash out" figure with nothing behind it.
+  if (transaction.type === 'expense' && (transaction.method || 'cash') === 'cash') {
+    const cashIn = await Transaction.exists({
+      user,
+      type: 'income',
+      method: 'cash',
+      month: transaction.month || startOfMonth(date),
+    });
+    if (!cashIn) flags.push('cash-no-source');
+  }
+
   return flags;
 }
 
@@ -60,6 +74,9 @@ export function describeFlag(flag, transaction) {
   }
   if (flag === 'duplicate') {
     return 'An identical amount was logged in this category within two days - check it is not entered twice.';
+  }
+  if (flag === 'cash-no-source') {
+    return "No cash income is logged for this month yet, so this cash spending has nothing recorded behind it - normal if it came from an ATM withdrawal or was handed to you in person, worth a second look otherwise.";
   }
   return '';
 }

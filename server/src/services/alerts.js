@@ -67,10 +67,16 @@ export async function checkBudgets(user, month) {
 export async function notifyAnomaly(user, transaction, flags, describeFlag) {
   if (!flags.length || !user.preferences?.alertsEnabled) return null;
 
+  const title = flags.includes('duplicate')
+    ? 'Possible duplicate transaction'
+    : flags.includes('large')
+      ? 'Unusually large transaction'
+      : 'Cash spent with nothing logged behind it';
+
   return Notification.create({
     user: user._id,
     kind: 'anomaly',
-    title: flags.includes('duplicate') ? 'Possible duplicate transaction' : 'Unusually large transaction',
+    title,
     body: flags.map((flag) => describeFlag(flag, transaction)).filter(Boolean).join(' '),
     link: '/transactions',
   });
